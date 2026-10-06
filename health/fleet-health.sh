@@ -96,7 +96,13 @@ pub=$(curl -fsS --max-time 25 https://harness.jitinnair.com/install.sh 2>/dev/nu
 if [ -z "$served" ]; then escalate red; note "local www server not serving install.sh"
 elif [ "$served" != "$reposha" ] && [ "$served" = "$pub" ]; then
   escalate yellow; note "installer site one revision behind repo (sync pending)"
-elif [ "$served" != "$reposha" ]; then escalate red; note "local www install.sh mismatch"; fi
+elif [ "$served" != "$reposha" ]; then escalate red; note "local www install.sh mismatch"; fiif [ -f "$REPO/install.ps1" ] 2>/dev/null || [ -f install.ps1 ]; then
+  psha=$(sha256sum install.ps1 | cut -d' ' -f1)
+  pserved=$(curl -fsS --max-time 15 http://127.0.0.1:8003/install.ps1 2>/dev/null | sha256sum | cut -d' ' -f1)
+  ppub=$(curl -fsS --max-time 25 https://harness.jitinnair.com/install.ps1 2>/dev/null | sha256sum | cut -d' ' -f1)
+  if [ -z "$pserved" ] || [ "$pserved" != "$psha" ]; then escalate red; note "install.ps1 served/psha mismatch ($psha vs $pserved)"; fi
+  if [ -z "$ppub" ]; then escalate red; note "public harness.jitinnair.com install.ps1 unreachable"; fi
+fi
 if [ -z "$pub" ]; then escalate red; note "public harness.jitinnair.com install.sh unreachable"
 elif [ "$pub" != "$served" ]; then escalate red; note "public site differs from local (tunnel/cache)"; fi
 

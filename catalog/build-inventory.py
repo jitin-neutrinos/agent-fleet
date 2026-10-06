@@ -154,6 +154,7 @@ def derive_repo(path):
 
 
 STORE_INSTALL = "curl -fsSL https://harness.jitinnair.com/install.sh | bash"
+STORE_INSTALL_WIN = "irm https://harness.jitinnair.com/install.ps1 | iex"
 
 
 def docs_meta(repo):
@@ -340,6 +341,7 @@ if mkt.exists():
 # ---------- tools -------------------------------------------------------------------
 TOOLS = [
     ("install.sh", "installer", "One-liner installer — detects harnesses, installs skills/plugins/MCP defs on a machine."),
+    ("install.ps1", "installer", "Windows one-liner installer (PowerShell 5.1+, no WSL/Git Bash needed) — same fleet, windows-native legs."),
     ("update.sh", "updater", "Consumer-side refresh: pulls the store and mirrors skills into local harnesses."),
     ("sync-from-desktop.sh", "sync", "Desktop source-of-truth push: mirrors ~/.hermes/skills into the repo, commits, pushes, refreshes the site."),
     ("health/fleet-health.sh", "health", "Master health check: sync freshness, site integrity, node reports, Telegram alerts."),
@@ -356,6 +358,7 @@ TOOLS = [
 ]
 TOOL_CMDS = {
     "install.sh": STORE_INSTALL,
+    "install.ps1": STORE_INSTALL_WIN,
     "update.sh": "bash ~/agent-fleet/update.sh",
     "sync-from-desktop.sh": "bash ~/agent-fleet/sync-from-desktop.sh",
     "fleet-health.sh": "bash ~/agent-fleet/health/fleet-health.sh",

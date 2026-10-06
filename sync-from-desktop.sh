@@ -90,6 +90,8 @@ WWW="$HOME/scratch/agent-fleet-www"
 if [ -d "$WWW" ]; then
   cp install.sh "$WWW/install.sh" && chmod 644 "$WWW/install.sh"
   sha256sum install.sh | awk '{print $1}' > "$WWW/install.sh.sha256"
+  [ -f install.ps1 ] && { cp install.ps1 "$WWW/install.ps1" && chmod 644 "$WWW/install.ps1"
+    sha256sum install.ps1 | awk '{print $1}' > "$WWW/install.ps1.sha256"; }
   echo "[af-sync] install.sh copied to www"
 fi
 

@@ -41,7 +41,8 @@ STORE_DIR = CATALOG_DIR / "www"
 USER = CFG.get("STATUS_USER", "admin")
 PASS = CFG.get("STATUS_PASS", "")
 COLORS = {"green": "#34d399", "yellow": "#fbbf24", "red": "#f87171"}
-PUBLIC_FILES = {"/install.sh": WWW_DIR / "install.sh", "/install.sh.sha256": WWW_DIR / "install.sh.sha256"}
+PUBLIC_FILES = {"/install.sh": WWW_DIR / "install.sh", "/install.sh.sha256": WWW_DIR / "install.sh.sha256",
+                 "/install.ps1": WWW_DIR / "install.ps1", "/install.ps1.sha256": WWW_DIR / "install.ps1.sha256"}
 STORE_MIME = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8",
               ".js": "application/javascript; charset=utf-8", ".svg": "image/svg+xml",
               ".woff2": "font/woff2", ".json": "application/json"}
