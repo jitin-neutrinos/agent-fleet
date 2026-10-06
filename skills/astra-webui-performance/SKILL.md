@@ -135,6 +135,7 @@ Don't trust claimed fixes — verify in BOTH source and the served/phone bundle,
 1. **Source grep pass:** each known fix has a grep signature (verification checklist below). One bad call site (`cd ~/Work/projects/stra-webui` typo) silently probes nothing — read the cwd in the output, not just the exit code.
 2. **Bundle pass:** grep the same signature in `dist/assets/index-*.js` (minified names differ — grep stable string literals like class names, not function names) AND `android/app/src/main/assets/public/assets/index-*.js`. A fix present in source but absent from the phone's bundle means the APK predates it.
 3. **Server-truth pass:** login to `127.0.0.1:3011/api/login` (password in `~/.config/astra-webui/env`), GET `/api/hx/sessions?...&sources=webui,telegram,cli,tui,android`, and verify the reported chat/row actually exists server-side. This distinguishes "list is stale on the client" from "row never got created/tagged".
+   - When the complaint is about row CONTENT (empty, first-message, wrong last), dump `last_reply` vs `preview` for every row and classify: which rows are empty server-side vs which are populated server-side but rendered empty client-side. Server-populated + client-empty points at a render-path filter (greet/canvas blanking, fallback ordering); server-empty points at the enrichment stage. Do not debug the client renderer for rows the server never enriched.
 4. **Live-try on the public path through the tunnel** (relogin via the curl tunnel to get the valid cookie there): verify `cf-cache-status` is MISS/BYPASS on session GETs, not HIT.
 5. **Headroom the audit surface:** run `node scripts/run-checks.mjs` (regression gates + suites). Red gates = real repo findings, report them.
 
@@ -157,13 +158,44 @@ procedure + build-check mechanics: `references/deploy-staleness.md`.
 
 The row sub-line is a THREE-stage chain; "wrong/first message showing" can fail at any stage — probe each:
 
-1. **Server enrichment** (`server/last-reply.mjs`): derives the LATEST assistant response per row via one `/api/sessions/<id>/messages?order=latest` fetch, cached per session and invalidated by activity stamp. `enrichLastReplies(rows, {max})` covers only the first N rows of a page — keep `max` ≥ the panel's page size (`limit = 15`), or tail rows silently fall back to the gateway's `preview`, which is the chat's FIRST user message (reads as "shows the first message, not the last").
-2. **Greet filter**: the auto-greet kickoff ("New chat just started…") is a UI convention, not a message — filter it in BOTH the server's `lastResponseFrom`/`responseText` and the client detectors (mirror `GREET_RE` from `src/lib/notify.ts` in one place per side).
+1. **Server enrichment** (`server/last-reply.mjs`): derives the LATEST response per row via one `/api/sessions/<id>/messages?order=latest` fetch, cached per session and invalidated by activity stamp. `enrichLastReplies(rows, {max})` covers only the first N rows of a page — keep `max` ≥ the panel's page size (`limit = 15`), or tail rows silently fall back to the gateway's `preview`, which is the chat's FIRST user message (reads as "shows the first message, not the last").
+   - The scan accepts USER rows too, newest first (owner spec: "the last message from Astra or me"). Assistant-only scans blank out tool-heavy windows and interrupted turns, and every one of those chats falls through to the greet preview → EMPTY row.
+   - Skip `[tool_call]/[tool_result]`-shaped, `[Surface…]`-scaffolded, and greet rows; accept `role: user` and `role: assistant`. Keep `server/last-reply.check.mjs` pinned to this contract — its old rows pinned the opposite (user messages rejected); update the test when the contract changes, never weaken the code to satisfy a stale test.
+2. **Greet filter**: the auto-greet kickoff ("New chat just started…") is a UI convention, not a message — filter it in BOTH the server's `lastResponseFrom`/`responseText` and the client detectors (mirror `GREET_RE` from `src/lib/notify.ts` in one place per side). It can ride BOTH `last_reply` and `preview`, and the kickoff turn DOES complete on the wire — the live preview patch handler must refuse greet text or it re-plants the greet over a good value.
 3. **Client render** (`src/lib/row-inline.ts` + `RowSub` in `chats-panel.tsx`): the sub-line is INLINE markdown only (bold/italic/code; links reduce to text — a 10.5px row is not a tap target), never raw paint, never full markdown. Escape FIRST (model output is untrusted), then collapse fences to `…`, then drop pair-less emphasis markers (the server's 220-char cut can strip a closer — a row must never end in a stray `**`).
 
-Live-turn status per row (animated Thinking…/Working… on any chat, open or not): ws-engine drops foreign-session frames at the live-session guard — emit a synthetic `chat.turn {sid, running, thinking}` BEFORE the return for `message.start`/`message.complete`/`message.error` on other sessions, and have the panel maintain a `Map<sid, turnState>` from `astra-ws-event`. A canvas-card last reply renders as "Open to read canvas card →" (detect `astra-canvas` in `last_reply`).
+Live-turn status per row (animated Thinking…/Working… on any chat, open or not): ws-engine drops foreign-session frames at the live-session guard — emit a synthetic `chat.turn {sid, stored, running, thinking, text}` BEFORE the return for `message.start`/`message.complete`/`message.error` on other sessions, and have the panel maintain a `Map<sid, turnState>` from `astra-ws-event`. A canvas-card last reply renders as "Open to read canvas card →" (detect `astra-canvas` in `last_reply`).
+
+Live-status sid rules — this is where a silent no-show comes from:
+
+- **Events carry the LIVE session id (rotates on compression/reconnect); rows key on the STORED id.** A naive sid match registers the animation against a key no row holds — nothing shows, with zero errors. Stamp BOTH ids on the event (`stored` from `payload?.stored_session_id || notify.storedKeyFor(liveSid)`) and register the row state under both keys.
+- **`message.start` frames carry NO payload object on the wire**, so `payload.stored_session_id` is unavailable there. The proxy (`server/hermes-proxy.mjs` `broadcastFrame`) must MINT a payload object and stamp `stored_session_id` on start frames too — the client-side mapping alone covers only chats this tab resumed this boot.
+- The live row text replaces the sub-line IN PLACE at the sub-line's own geometry (10.5px, no wrapper padding). The generic `AITextLoading` component carries `px-4 py-2 text-sm` + centering — wrapping it inside a 10.5px row inflates the card. When embedding a shared loader in a compact row, write the inline shape (CSS shimmer with `background-clip: text`) at the host geometry instead.
+- **Shimmer/gradient-text ink must be visible WITHOUT the clip.** Set a solid `color` first and put `color: transparent` + `background-clip: text` inside `@supports` — an unconditional `color: transparent` paints NOTHING on any renderer where the clip is dropped (minifiers already dropped unprefixed `backdrop-filter` here once; same trap class). Blank text reads as 'shows nothing', not 'shows grey'.
 
 PITFALL: any new CSS in `index.css` with `border-radius: 0–3px` fails `src/lib/rounding.check.ts` (sharp-rectangle ban) — use `var(--shape-1)` (the smallest scale step), never a raw pixel radius or an invented token name (`var(--radius-sharp)` does not exist).
+
+PITFALL (unread-pill flicker): `notify.seedFromServer` must not delete a local live bump whose `t` is newer than the row's `last_read_at` watermark — the server snapshot and a live bump can arrive out of order, and delete-then-re-bump reads as flicker. Decide stale-snapshot vs real-read by comparing the watermark against the bump timestamp, not by trusting `unread: false` blindly.
+
+PITFALL (light-mode accent on muted surfaces): shared dark-mode accent ink (e.g. a label designed for dark) needs an explicit `[data-theme="light"]` override to a mid-tone token (`var(--color-muted)`, `--light-c-33`) — dark-mode accent tokens on a light background read as white-on-white invisible.
+
+## Deploy pipeline — use `tools/deploy.sh`, never a hand-typed sequence
+
+One command per deploy: `tools/deploy.sh web|android|all`. It builds, restarts
+the service (only when `server/` changed), purges the CF edge, and rebuilds+
+delivers the APK. Grep the script before extending it; its decisions are load-
+bearing:
+
+- **The APK bundles NO web assets** (R6 in `android/app/build.gradle`):
+  `server.url` points the WebView at the live site, so web-only fixes need no
+  APK rebuild — the phone picks them up through the tunnel. Only NATIVE changes
+  (Kotlin, manifest, capacitor config, plugin) require gradle+Telegram. The
+  script skips the whole APK loop otherwise; an "APK is stale" conclusion for a
+  web-only bug is always wrong.
+- Assets are `immutable` 1y keyed by hash; HTML revalidates at 60s (zone rule);
+  open tabs self-heal via the build-id poll. After any JS change the ONLY
+  mandatory edge action is the purge (and it is only needed because the catch-
+  all rule can pin newer paths too).
 
 ## Verification checklist
 

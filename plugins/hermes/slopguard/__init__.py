@@ -84,6 +84,25 @@ _SEP = r"[\s'\"\[\],()]"
 NPM_RE = re.compile(rf"\b(?:npm|i|yarn|pnpm)(?:{_SEP}+add|{_SEP}+install|{_SEP}+i){_SEP}+([^&|;]+)|\bnpx{_SEP}+-?y?{_SEP}+(@?[\w@/.-]+)")
 PY_RE = re.compile(rf"\b(?:pip3?|uv)(?:{_SEP}+pip)?{_SEP}+install{_SEP}+([^&|;\]]+)|\buv{_SEP}+add{_SEP}+([^&|;\]]+)")
 _PKG = re.compile(r"(?<![\w./-])(@?[\w][\w.-]*)(?:@[><=!~^]?[\w.]+)?")
+# Scoped-name extractor: strips a trailing @version from npm package tokens
+# while keeping the full scope ("@scope/name@1.2.3" -> "@scope/name"). The
+# _PKG regex above cannot do this: it treats "@" as part of the package body,
+# so any scoped name loses everything from the scope's "@" onward.
+_NPM_TOKEN = re.compile(
+    r"^(@[A-Za-z0-9-_.]+/)?[A-Za-z0-9_.-]+"  # optional @scope/ + package name
+    r"(?:@[><=!~^]?[\w.+~*-]+)?$"           # optional trailing @version spec
+)
+
+
+def _npm_base(token: str) -> str:
+    """Strip a trailing version spec from an npm package token, keeping scopes
+    intact: '@mcpware/pagecast@0.2.1' -> '@mcpware/pagecast', 'foo@1.2' ->
+    'foo', plain 'foo' -> 'foo'."""
+    token = token.strip("\"',")
+    if not _NPM_TOKEN.match(token):
+        return token
+    at = token.find('@', token.find('/') + 1) if token.startswith('@') else token.find('@')
+    return token[:at] if at != -1 else token
 
 
 def _check_packages(command: str) -> str | None:
@@ -92,12 +111,12 @@ def _check_packages(command: str) -> str | None:
     if m:
         scope = m.group(1) or m.group(2) or ""
         if m.group(2):  # bare npx package
-            targets.append(("npm", m.group(2)))
+            targets.append(("npm", _npm_base(m.group(2))))
         else:
             for raw in scope.split():
-                p = _PKG.match(raw.strip("\"'-,"))
-                if p and not raw.startswith("-"):
-                    targets.append(("npm", p.group(1)))
+                if raw.startswith("-"):
+                    continue
+                targets.append(("npm", _npm_base(raw)))
     m = PY_RE.search(command)
     if m:
         scope = m.group(1) or m.group(2) or ""

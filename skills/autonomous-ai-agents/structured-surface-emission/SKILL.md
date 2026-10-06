@@ -37,10 +37,14 @@ parser BEFORE emitting.** One command replaces the round-trip.
    (or an `execute_code` cell), never by hand-typing a fence into the reply —
    hand-typed fences pick up smart quotes, truncated tails, and stray prose after
    the closer, all of which parse as garbage.
-2. **Run the consumer's real validator over that file.** For Astra, `scripts/validate-canvas-spec.mjs`
-   below. It calls the repo's `validateBlock` on every block and `splitCanvasBlocks`
-   on the wrapped fence, printing an `INVALID` line per bad block plus the part
-   kinds and the card count.
+2. **Run the consumer's real validator over that file.** For Astra, run `scripts/validate-canvas-spec.mjs`
+   (in this skill's `scripts/`). It imports the astra-webui checkout and calls its
+   `validateBlock` on every block plus `splitCanvasBlocks` on the wrapped fence,
+   printing an `INVALID` line per bad block plus the block kinds and the card count.
+   The checkout path defaults to `~/Work/projects/astra-webui`; when the repo moves
+   or you validate from another workspace, `ASTRA_WEBUI=/path/to/astra-webui node
+   scripts/validate-canvas-spec.mjs <spec.json>` — do not conclude the validator is
+   broken when only the default checkout path is missing.
 3. **Require three things before sending:** every block valid (a single `INVALID` line
    means that block will vanish from the rendered card: fix it, never ship it), exactly
    the expected number of cards, and no ``` inside the payload (needs a longer outer
@@ -88,7 +92,8 @@ Test the matcher against real messages; a `MIME` phrasing arriving from a 404 is
 
 ## Pitfalls
 
-- **Every number in an emitted card must have a log/file output behind it, or carry a stated estimate/not-measured label.** A card renders its figures as polished measured evidence — an unverified count, spark/point series, or delta then gets quoted by the reader (and the next debugging session) as fact. Before a diagnosis or report card goes out, re-derive each figure from the log lines, DB rows or API responses actually read this session; a figure you cannot trace is dropped or explicitly labeled as unmeasured.
+- **Every number in an emitted card must have a log/file/host-probe behind it, or carry a stated estimate/not-measured label.** A card renders its figures as polished measured evidence — an unverified count, spark/point series, or delta then gets quoted by the reader (and the next debugging session) as fact. Before ANY display card goes out, re-derive each figure from data actually read this session (log lines, DB rows, git log/parent map, `uptime`/`free`, port probes); a figure you cannot trace is dropped or explicitly labeled as demo/not-measured. Showcase cards with synthetic numbers count too — label them, never fake a citation.
+- **Media paths must be verified against where the SERVED app reads files, before emission.** A repo-checkout path is not proof of reachability: an asset can sit outside the deployed web root (e.g. Vite `public/`) or in a folder the build never bundles, and the block then renders the clean "unavailable" slot — graceful, but a dead exhibit. Confirm the file exists AND resolves under the served root (or is a real host file the media viewer/video element reads); on a failed check, rewrite the `src`, never drop just that cite-ability claim.
 - **"It rendered as text" is a malformed EMISSION until proven otherwise.** Diagnose
   in this order: (1) re-read the bytes you actually sent — a mangled tool-call blob,
   a truncated body, or duplicated fence text all parse as garbage, and the
@@ -265,8 +270,18 @@ surface — read it first for those. This skill holds the emission/validation di
 that applies to any fenced-JSON surface, and is where the validate-first rule lives.
 To let this curator maintain that skill as well: `hermes curator adopt astra-canvas`.
 
+**Showcase presentations live here too.** A "show me your full canvas"-class giant
+card is a presentation task governed by the emission discipline in this skill plus
+`references/canvas-showcase-recipe.md`; the block vocabulary itself stays with
+`astra-canvas`. Corrections to the VOCABULARY or the render surface (e.g. a block
+type's shape) land in that user-owned skill, not here.
+
 ## References
 
+- `references/canvas-showcase-recipe.md` — the full build pipeline for ONE rich canvas
+  showcase card (many block types + interactive controls + real host data): batch
+  data collection, programmatic assembly, validator-driven fix loop, state seeding,
+  deterministic first paint, slice-and-stitch emission.
 - `scripts/validate-canvas-spec.mjs` — pre-emit validator (Astra): per-block validation +
   card count + fence-safety check. Run on every candidate spec before sending.
 - `references/json-repair-tiers.md` — the three malformed-JSON failure modes worth

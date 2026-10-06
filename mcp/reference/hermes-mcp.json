@@ -645,5 +645,18 @@
     "url": "${CTRADER_REMOTE_MCP_URL}",
     "enabled": false,
     "trust": "full"
+  },
+  "pagecast": {
+    "command": "node",
+    "args": [
+      "/home/notjitin/Work/capture-studio/pagecast-fork/src/index.js",
+      "--headless"
+    ],
+    "enabled": true,
+    "env": {
+      "RECORDING_OUTPUT_DIR": "/home/notjitin/Work/recordings",
+      "AUTH_DIR": "/home/notjitin/Work/capture-studio/pagecast-fork/auth"
+    },
+    "timeout": 600
   }
 }

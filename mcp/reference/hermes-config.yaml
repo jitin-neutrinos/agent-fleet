@@ -330,7 +330,7 @@ gateway:
     max_concurrent_runs: 10
 streaming:
   enabled: true
-  cursor: " \u2589"
+  cursor: ' ▉'
 onboarding:
   seen:
     busy_input_prompt: true
@@ -928,6 +928,16 @@ mcp_servers:
     url: ${CTRADER_REMOTE_MCP_URL}
     enabled: false
     trust: full
+  pagecast:
+    command: node
+    args:
+    - /home/notjitin/Work/capture-studio/pagecast-fork/src/index.js
+    - --headless
+    enabled: true
+    env:
+      RECORDING_OUTPUT_DIR: /home/notjitin/Work/recordings
+      AUTH_DIR: /home/notjitin/Work/capture-studio/pagecast-fork/auth
+    timeout: 600
 platform_toolsets:
   cli:
   - a2a

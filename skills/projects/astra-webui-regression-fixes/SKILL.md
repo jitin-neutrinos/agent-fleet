@@ -158,6 +158,84 @@ A fix-run found SIX checks passing standalone while asserting a dead design or a
 Rule: after any owner-steered design change or a concurrent-session restructure, re-run the FULL suite, not just the touched layer. A failing check is either repaired to current intent or explicitly demoted — never left red, never silently green. Verify each repair individually (run the single check), then the gate, then the build.
 Also: a sibling commit can absorb your uncommitted shared-tree work (`62d6f1b` swept a session's renderer fixes in under "the commit that got lost"). Before redoing an edit, `git log -S '<marker>'` — the tree may already carry the fix under someone else's commit. Runtime data files (`.cache/command-registry.json`, `data/read-state.json`, `data/theme-state.json`, `data/test-ledger.jsonl`) stay uncommitted by design.
 
+## 11. CF cache rules: the LAST matching rule wins (2026-10-06)
+
+Zone `http_request_cache_settings` rulesets are sequential, last-match-wins — NOT
+first-match like most firewalls. The ruleset shipped with `[/api/ bypass] →
+[HTML 60s] → [catch-all 1y]`; the catch-all sat LAST and silently re-cached
+everything, so measured: `/api/build-id` served `cf-cache-status:HIT, age:538,
+max-age=31536000` DESPITE a bypass rule matching it. Every symptom of "the
+android app drifted from the web implementation" traced here: the WebView's
+HTML+bundle were year-pinned at the edge, AND the 08586af build-check
+could never fire because its own poll endpoint was edge-cached (stale stamp
+compared against stale stamp). Worse: `/api/me` 200s were edge-cacheable keyed
+by URL with no cookie in the cache key — one device's authenticated response
+could be served to another client. The `b3deeb8` minute-busters and `08586af`
+build-check were all defeated by this one ordering bug.
+
+- Correct order: **catch-all (1y assets) FIRST, narrowers AFTER, `/api/` bypass
+  LAST**. Verify with a fresh-URL double hit: MISS→HIT (or DYNAMIC) per route.
+- Verify after ANY cache-rule edit: `curl -sI <url>` on `/`, `/api/build-id`,
+  `/api/health`, one hashed asset — expect DYNAMIC on /api, 60s on HTML,
+  immutable on assets; then purge_everything.
+- The WebView disk cache ALSO honored the 1y max-age on the top document: after
+  fixing the edge, a phone may still hold the old HTML in its own HTTP cache and
+  self-heal only if its bundle carries build-check (poll → DYNAMIC stamp →
+  reload). Older cached bundles need one manual force-stop / clear.
+- Authenticated GETs (`/api/me`, `/api/ntfy-config`) must NEVER be edge-cacheable:
+  the CF cache key has no cookies, so a 200 leaks across sessions/devices.
+
+## 12. Live-status / transient-frame bugs: the state must live on the SERVER (2026-10-06)
+
+Owner: "I don't see the thinking/working text on the sidebar chats section on
+phone." Three stacked defects, and the shape recurs:
+
+- **A frame that carries no payload cannot be stamped inside a payload guard.**
+  `message.start` is declared `event("message.start", None)` in
+  `tui_gateway/contracts/events.py` — no payload at all. The proxy's stored-id
+  stamping sat inside `if (stored && p.payload && typeof p.payload === "object")`,
+  so a start frame was NEVER stamped, and the client-side "mint the payload"
+  fallback a commit message claimed to add was unreachable dead code. Fix:
+  mint the payload (`if (!p.payload) p.payload = {}`) instead of guarding on it.
+- **A per-connection gate is the wrong gate for per-message work.** The whole
+  turn block lived inside `if ((anyTagged || anyCompleteFilter) && opcode===0x1)`
+  — it only ran while some OTHER client held a sid-tagged socket. With a quiet
+  socket list the frames were never parsed: measured `payload: null` on 2 of 4
+  runs, and after a restart the feature was dead until a chat was opened. Gate
+  on the FRAME (opcode + a cheap `includes` pre-test), never on who else is
+  connected. Verify with a restart loop: 5/5, not 1/1.
+- **A feature fed by transient frames needs server-side state for the mount
+  path.** A drawer opened mid-turn has already missed `message.start` — the
+  phone hits this constantly because its drawer is shut most of the time. Track
+  running turns proxy-side, stamp `turn_running` on the session-list rows, and
+  seed the client from that. TTL the entries (15m): an interrupted turn emits no
+  completion, and a permanent "Thinking…" on an idle row is worse than a
+  missing one.
+
+## 13. Undeclared on-disk deps: `npm install <x>` prunes them and breaks the build
+
+`canvas-export.tsx` imported `html-to-image` and `jspdf`, neither of which was in
+`package.json` — they existed only in `node_modules`. Adding `ws` with
+`npm install --save` pruned both and the build died on TS2307. An undeclared dep
+is a fresh-clone break waiting to happen; declare what you import. Prove it with
+`npm ci` in a throwaway dir and `ls -d node_modules/<pkg>` — the build passing on
+your machine proves nothing, because your machine already had the tree.
+
+## 14. Prove a new check has TEETH: negative-control it against the old shape
+
+A check written after a fix can pass for the wrong reason. Re-introduce the bug
+(here: re-wrap the turn block in the old tagged-socket gate), confirm the check
+FAILS, restore, confirm it passes. `server/turn-status.check.mjs` §5 is the
+worked example — it exercises `broadcastFrame` through a capture socket, so it
+pins the RELAY path, not a pure function that merely resembles it. A source-shape
+assertion (grep the file for the new string) would have passed on both shapes.
+
+Also: `server/ws-codec.mjs` killed the connection on ANY fragmented frame
+("fragmentation unsupported"). It now reassembles RFC 6455 fragments, delivers
+interleaved control frames immediately, and caps a message at 16 MiB. Pin a codec
+against the REFERENCE implementation, not against itself — feed your hand-built
+fragment stream to a real `ws` server (RG-144).
+
 ## 10. Synthetic wire-frame QA through the page's real WebSocket handler (2026-09-26)
 
 Reusable verification pattern proven across four features this session (approval

@@ -61,3 +61,23 @@ Two independent layers of armour exist; know which one covers the case:
 sessions lists per URL (hours-old list). Fix there: minute-epoch `_r=` buster on
 the WIRE url that does NOT change the coalescing cache key (see
 `src/lib/sessions-cache.ts` normalise()). Same disease, different surface.
+
+## Enumerate the zone's cache rules BEFORE diagnosing an edge symptom
+
+Credentials live at `~/.config/cloudflare/credentials.env` (zone id for
+jitinnair.com in that skill too). GET the
+`http_request_cache_settings/entrypoint` ruleset first and note what each rule
+matches: a bypass rule for `/api/`, an HTML-revalidate rule for dotless paths on
+specific hosts, and an override_origin catch-all that REWRITES origin
+`cache-control` for everything else. Without listing them, an edge symptom looks
+like an origin bug — origin headers are only the starting point, the ruleset is
+the truth. Rules execute in array order (first match wins); any ruleset edit is
+a full-array PUT (GEP current first, keep a backup), and a ruleset change does
+NOT evict existing entries — a purge is still required after it.
+
+## The deploy pipeline exists — do not hand-roll deploys
+
+`tools/deploy.sh web|android|all` (its rules live in the SKILL.md): after a
+commit always build AFTER the commit lands so the injected git stamp matches
+`/api/build-id`, and always purge.
+

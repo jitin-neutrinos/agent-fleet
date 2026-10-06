@@ -19,6 +19,10 @@ metadata:
 - Sourcing, cleaning or auditing training data for those models.
 - Advising on the extraction/tagging wizard: fields, data types, Table columns, feedback loops,
   confirmation floors.
+- Choosing between the Text wizards when a dataset is row-shaped or span-shaped
+  (`references/model-type-selection.md`).
+- Auditing rule-derived labels before shipping a training set
+  (`references/dataset-quality-gates.md`).
 - Answering what a model's input, output or API contract looks like at runtime.
 - Deciding whether a public dataset is actually usable as training data.
 
@@ -53,6 +57,31 @@ Two structural facts that shape designs:
   This is the mechanism that lets a stable field run unattended while a contested one is
   human-checked every time. Set it per field, on the Rules step after the fields page.
 
+## Model type follows the data's shape, not the deck
+
+The single decision that costs most to get wrong, because it is made early and discovered at the
+tagging screen. The question is one: **what unit does the label attach to?**
+
+- One label per whole row → **Prediction — Text**
+- A span inside running text, several per row → **Extraction — Text**
+- Fields pulled from a document, including table rows → **Extraction — Document**
+- One label per uploaded file → **Prediction — Document**
+
+Per-assertion labelling is the common reason people wrongly reach for Extraction — Text. It does not
+imply span tagging; it implies one assertion per row, which is Prediction. Row-shaped data handed to
+the span wizard shows its error immediately — words become individually clickable, because the
+interface is hunting a boundary the data has no opinion about.
+
+Read `references/model-type-selection.md` before specifying a model type, and never carry one over
+from a stakeholder document without re-deriving it from the data.
+
+## Choosing between the two Text wizards
+
+Prediction — Text has **no manual tagging step** when categories come from the uploaded data — the
+docs call that confirmation step optional. Extraction — Text requires 25 hand-tagged spans
+regardless. The correct model type is usually also the cheaper one; say so when recommending it, so
+a correction lands as an upgrade rather than a setback.
+
 ## Procedure
 
 ### 1. Source the corpus, and verify it on disk
@@ -79,6 +108,11 @@ human?**
 - Ship a meta file per dataset: source, licence, row counts, label distribution, and the known limits
   stated as limits rather than hedges.
 
+Rule-derived labels have their own failure modes. Run the gates in
+`references/dataset-quality-gates.md` before shipping: reject the null class, require context before
+a domain word counts as opinion, read samples from every class, cap oversampling at ~2x rather than
+flat-targeting it, and emit a stratified calibration slice for the user to check.
+
 ### 4. Configure the wizard
 
 Full step sequences per model type are in `references/wizard-and-runtime.md`.
@@ -90,6 +124,20 @@ subscription@neutrinos.com. Tokens exist only for deployed models, are model-spe
 value is shown once.
 
 ## Pitfalls
+
+- **Choose the model type from the data, and never inherit one from a stakeholder deck.** A deck
+  saying "classifier" or "extraction" is a description of intent, not a spec. Derive it from what unit
+  the label attaches to. See `references/model-type-selection.md`.
+
+- **Verify design decisions against the live screen, and trust the screen over your own spec when they
+  disagree.** Interface behaviour that the data cannot support means the design is wrong — change the
+  design. The cost of this is asymmetric: correcting a spec before training is minutes, correcting a
+  trained model is a rebuild. Every schema error that mattered was surfaced by the user noticing
+  something on screen that the spec never accounted for.
+
+- **When the interface contradicts the spec, say so plainly and stop the build.** Do not re-explain
+  the original instruction and let the user keep hitting the same wall. Name the mismatch, name which
+  side is wrong, and give the corrected step.
 
 - **The confirmations floor is documents, not per-field.** Working document-by-document and
   confirming each field confirms all fields at once. Advising 25 × N fields invents hours of work.
@@ -105,7 +153,24 @@ value is shown once.
   which column to clean. Sending the user "go back a step" on a guess costs them their place.
 
 - **String fields auto-fetch; Table fields do not.** Straightforward fields populate for confirmation;
-  a Table needs a rectangle drawn, columns annotated, Apply, then Confirm — per document.
+  a Table needs a rectangle drawn, columns annotated, Apply, then Confirm — per document. But a field
+  whose text is not printed in the document never auto-fetches at all — no footer line means no
+  candidate and no green marker, which is correct behaviour, not a stuck field.
+
+- **Correct platform-extracted text before confirming it.** Auto-fetched values can drop spaces
+  between words the PDF renders with tight kerning, so a two-word heading arrives run together.
+  Confirming that teaches the defect across every document in the corpus, because multi-word titles
+  are everywhere. Read the auto-fetched value against the document before confirming, not after.
+
+- **Use the shipped answer key to grade confirmations, not to build the schema.** Check what the
+  platform extracted against the key at each confirmation. A confirmation made by reflex becomes
+  training data that teaches the error, and it surfaces later in a batch test rather than here.
+
+- **One boundary box per field per document, then Confirm.** Multi-region tagging of the same field
+  on one page is not supported — the box never turns green and nothing confirms. To capture several
+  regions, return to the field and repeat the draw. Where one field's value comes from a human and
+  another's from the document, both cover the SAME region: the Table reads the wording, the String
+  field is told the label.
 
 - **Click No on the unlabelled-files pop-up.** After 25 confirmations with more files uploaded, the
   platform offers to delete the remainder. Yes destroys documents that then need re-uploading.
@@ -132,3 +197,19 @@ value is shown once.
 - **Check issuer/source distribution before calling a corpus adequate.** 68 documents from one insurer
   is not a dataset; it is a house style. Single-source bias is invisible in row counts and fatal to
   generalisation.
+
+- **When a heuristic extraction over a large corpus will not validate, do not ship it with caveats.**
+  Build the method against a hand-verified set first, require it to reproduce every verified row
+  exactly, and add quality gates for the failure classes you have not seen yet. If it still leaks
+  plausible-looking wrong values, report the honest covered count and stop — a table of wrong page
+  numbers is worse than no table, because the user will act on it. Prefer reading a specific document
+  on request over pre-computing all of them, and say which option you are offering.
+
+- **A heuristic that passes its own gates can still be wrong in the cases you did not think of.**
+  Each fix for a discovered bug creates new blind spots. Stop after the second round of
+  bug-chasing-from-output rather than a third, and hand the remaining work back as manual review.
+
+- **Watch for variable shadowing in parallel extraction scripts.** An inner loop reusing the outer
+  loop's index variable silently corrupts page numbers — producing values beyond a document's page
+  count, which is the tell. Assert `page <= total_pages` over the whole output rather than reading
+  samples; the samples looked fine.
