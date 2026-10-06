@@ -1,0 +1,25 @@
+{
+  "source": "skills-sh/agent-sh/computer-use-linux/computer-use-linux",
+  "source_url": "https://github.com/agent-sh/computer-use-linux/tree/d6f05716f6e6a960fd2f22ffa5a9d4ec87630a56/skills/computer-use-linux",
+  "bundle_hash": "sha256:8cd940eca41c4bc678edb7577b18e5caed5ec94ee6044503cac0dbe768daa5b6",
+  "scanner_version": "skills-guard-v2",
+  "verdict": "safe",
+  "trust_level": "community",
+  "findings": [
+    {
+      "pattern_id": "unpinned_npm_install",
+      "severity": "medium",
+      "category": "supply_chain",
+      "file": "SKILL.md",
+      "line": 36,
+      "match": "npm install -g @agent-sh/computer-use-linux",
+      "description": "npm install without version pinning"
+    }
+  ],
+  "rules": [
+    "unpinned_npm_install"
+  ],
+  "scanned_at": "2026-09-04T02:23:35.069556+00:00",
+  "summary": "computer-use-linux: safe \u2014 1 finding(s) in supply_chain",
+  "fresh": true
+}

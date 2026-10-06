@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+set -u
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+KDE_ENV="$script_dir/kde-session-env"
+
+section() {
+  printf '\n## %s\n' "$1"
+}
+
+have() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+run() {
+  printf '$'
+  printf ' %q' "$@"
+  printf '\n'
+  "$@" 2>&1 || printf '(exit %s)\n' "$?"
+}
+
+run_kde() {
+  run "$KDE_ENV" -- "$@"
+}
+
+run_kde_filtered() {
+  local sed_expr="$1"
+  shift
+  printf '$'
+  printf ' %q' "$KDE_ENV" -- "$@"
+  printf ' | sed -n %q\n' "$sed_expr"
+  "$KDE_ENV" -- "$@" 2>&1 | sed -n "$sed_expr" || printf '(exit %s)\n' "$?"
+}
+
+qdbus_cmd=""
+if have qdbus6; then
+  qdbus_cmd="$(command -v qdbus6)"
+elif have qdbus; then
+  qdbus_cmd="$(command -v qdbus)"
+fi
+
+section "Login Session"
+run loginctl show-user "$USER" -p Display -p State -p Sessions
+display_session="$(loginctl show-user "$USER" -p Display --value 2>/dev/null || true)"
+if [[ -n "$display_session" ]]; then
+  run loginctl show-session "$display_session" -p Type -p Desktop -p Active -p State -p TTY
+fi
+
+section "Resolved Environment"
+run "$KDE_ENV"
+
+section "Tools"
+for tool in kdotool qdbus6 qdbus spectacle kscreen-doctor ydotool systemctl loginctl; do
+  if have "$tool"; then
+    printf '%-16s %s\n' "$tool" "$(command -v "$tool")"
+  else
+    printf '%-16s missing\n' "$tool"
+  fi
+done
+
+section "DBus And KWin"
+if [[ -n "$qdbus_cmd" ]]; then
+  run_kde "$qdbus_cmd" org.kde.KWin /KWin org.kde.KWin.currentDesktop
+  run_kde "$qdbus_cmd" org.kde.KWin /KWin org.kde.KWin.activeOutputName
+  run_kde_filtered '/^KWin version:/p;/^Qt Version:/p;/^Operation Mode:/p' "$qdbus_cmd" org.kde.KWin /KWin org.kde.KWin.supportInformation
+else
+  printf 'No qdbus command found.\n'
+fi
+
+section "Active Window"
+if have kdotool; then
+  run_kde kdotool getactivewindow getwindowid getwindowname getwindowclassname getwindowpid getwindowgeometry
+else
+  printf 'kdotool missing.\n'
+fi
+
+section "Mouse"
+if have kdotool; then
+  run_kde kdotool getmouselocation --shell
+else
+  printf 'kdotool missing.\n'
+fi
+
+section "Outputs"
+if have kscreen-doctor; then
+  run_kde kscreen-doctor -o
+else
+  printf 'kscreen-doctor missing.\n'
+fi
+
+section "Synthetic Input"
+if have systemctl; then
+  run_kde systemctl --user is-active ydotool.service
+  run_kde systemctl --user status ydotool.service --no-pager
+elif have ydotool; then
+  printf 'ydotool is installed, but systemctl is unavailable for daemon status.\n'
+else
+  printf 'ydotool missing.\n'
+fi

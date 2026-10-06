@@ -1,0 +1,893 @@
+{
+  "schema": "neutrinos-icon-index/1.1",
+  "note": "File mapping verified by exact alpha-silhouette match across folders. Folder ordinals are NOT slot-aligned; always use this index.",
+  "usage": "Pick the folder matching your background (light/dark) and single accent (blue/green); use files.<folder>. Search 'concept' or 'tags'.",
+  "count": 63,
+  "icons": [
+    {
+      "slot": 1,
+      "concept": "traffic light",
+      "tags": [
+        "traffic",
+        "signal",
+        "stages"
+      ],
+      "files": {
+        "on-light/blue": 579,
+        "on-light/green": 516,
+        "on-dark/blue": 642,
+        "on-dark/green": 390
+      }
+    },
+    {
+      "slot": 2,
+      "concept": "globe in hand",
+      "tags": [
+        "global",
+        "world",
+        "international"
+      ],
+      "files": {
+        "on-light/blue": 580,
+        "on-light/green": 517,
+        "on-dark/blue": 643,
+        "on-dark/green": 391
+      }
+    },
+    {
+      "slot": 3,
+      "concept": "contactless payment",
+      "tags": [
+        "contactless",
+        "tap to pay",
+        "nfc"
+      ],
+      "files": {
+        "on-light/blue": 581,
+        "on-light/green": 518,
+        "on-dark/blue": 644,
+        "on-dark/green": 392
+      }
+    },
+    {
+      "slot": 4,
+      "concept": "bank building",
+      "tags": [
+        "bank",
+        "institution",
+        "finance"
+      ],
+      "files": {
+        "on-light/blue": 582,
+        "on-light/green": 519,
+        "on-dark/blue": 645,
+        "on-dark/green": 393
+      }
+    },
+    {
+      "slot": 5,
+      "concept": "lightbulb gear",
+      "tags": [
+        "idea",
+        "innovation",
+        "engineering"
+      ],
+      "files": {
+        "on-light/blue": 583,
+        "on-light/green": 520,
+        "on-dark/blue": 646,
+        "on-dark/green": 394
+      }
+    },
+    {
+      "slot": 6,
+      "concept": "gear network",
+      "tags": [
+        "automation",
+        "integration"
+      ],
+      "files": {
+        "on-light/blue": 584,
+        "on-light/green": 521,
+        "on-dark/blue": 647,
+        "on-dark/green": 395
+      }
+    },
+    {
+      "slot": 7,
+      "concept": "team idea",
+      "tags": [
+        "team idea",
+        "brainstorm"
+      ],
+      "files": {
+        "on-light/blue": 585,
+        "on-light/green": 522,
+        "on-dark/blue": 649,
+        "on-dark/green": 396
+      }
+    },
+    {
+      "slot": 8,
+      "concept": "head lightbulb",
+      "tags": [
+        "thinking",
+        "expertise"
+      ],
+      "files": {
+        "on-light/blue": 586,
+        "on-light/green": 523,
+        "on-dark/blue": 648,
+        "on-dark/green": 397
+      }
+    },
+    {
+      "slot": 9,
+      "concept": "team hierarchy",
+      "tags": [
+        "org chart",
+        "leadership"
+      ],
+      "files": {
+        "on-light/blue": 587,
+        "on-light/green": 524,
+        "on-dark/blue": 650,
+        "on-dark/green": 398
+      }
+    },
+    {
+      "slot": 10,
+      "concept": "headset support",
+      "tags": [
+        "support",
+        "helpdesk"
+      ],
+      "files": {
+        "on-light/blue": 588,
+        "on-light/green": 525,
+        "on-dark/blue": 651,
+        "on-dark/green": 399
+      }
+    },
+    {
+      "slot": 11,
+      "concept": "money network",
+      "tags": [
+        "payout",
+        "distribution"
+      ],
+      "files": {
+        "on-light/blue": 589,
+        "on-light/green": 526,
+        "on-dark/blue": 652,
+        "on-dark/green": 400
+      }
+    },
+    {
+      "slot": 12,
+      "concept": "credit card",
+      "tags": [
+        "credit card",
+        "payment method"
+      ],
+      "files": {
+        "on-light/blue": 590,
+        "on-light/green": 527,
+        "on-dark/blue": 653,
+        "on-dark/green": 401
+      }
+    },
+    {
+      "slot": 13,
+      "concept": "cloud gear",
+      "tags": [
+        "cloud config",
+        "cloud services"
+      ],
+      "files": {
+        "on-light/blue": 591,
+        "on-light/green": 528,
+        "on-dark/blue": 654,
+        "on-dark/green": 402
+      }
+    },
+    {
+      "slot": 14,
+      "concept": "monitor user",
+      "tags": [
+        "user",
+        "profile"
+      ],
+      "files": {
+        "on-light/blue": 592,
+        "on-light/green": 529,
+        "on-dark/blue": 655,
+        "on-dark/green": 403
+      }
+    },
+    {
+      "slot": 15,
+      "concept": "browser exchange",
+      "tags": [
+        "sync",
+        "refresh"
+      ],
+      "files": {
+        "on-light/blue": 593,
+        "on-light/green": 530,
+        "on-dark/blue": 656,
+        "on-dark/green": 404
+      }
+    },
+    {
+      "slot": 16,
+      "concept": "gears update",
+      "tags": [
+        "maintenance",
+        "operations"
+      ],
+      "files": {
+        "on-light/blue": 594,
+        "on-light/green": 531,
+        "on-dark/blue": 657,
+        "on-dark/green": 405
+      }
+    },
+    {
+      "slot": 17,
+      "concept": "eye chart",
+      "tags": [
+        "monitoring",
+        "oversight"
+      ],
+      "files": {
+        "on-light/blue": 596,
+        "on-light/green": 533,
+        "on-dark/blue": 659,
+        "on-dark/green": 407
+      }
+    },
+    {
+      "slot": 18,
+      "concept": "chart search",
+      "tags": [
+        "audit",
+        "data inspection"
+      ],
+      "files": {
+        "on-light/blue": 597,
+        "on-light/green": 534,
+        "on-dark/blue": 660,
+        "on-dark/green": 408
+      }
+    },
+    {
+      "slot": 19,
+      "concept": "server gear",
+      "tags": [
+        "server",
+        "infrastructure"
+      ],
+      "files": {
+        "on-light/blue": 598,
+        "on-light/green": 535,
+        "on-dark/blue": 661,
+        "on-dark/green": 409
+      }
+    },
+    {
+      "slot": 20,
+      "concept": "document layout",
+      "tags": [
+        "document",
+        "template"
+      ],
+      "files": {
+        "on-light/blue": 599,
+        "on-light/green": 536,
+        "on-dark/blue": 662,
+        "on-dark/green": 410
+      }
+    },
+    {
+      "slot": 21,
+      "concept": "document edit",
+      "tags": [
+        "editing",
+        "drafting"
+      ],
+      "files": {
+        "on-light/blue": 600,
+        "on-light/green": 537,
+        "on-dark/blue": 663,
+        "on-dark/green": 411
+      }
+    },
+    {
+      "slot": 22,
+      "concept": "document approved",
+      "tags": [
+        "approval",
+        "verified"
+      ],
+      "files": {
+        "on-light/blue": 601,
+        "on-light/green": 538,
+        "on-dark/blue": 664,
+        "on-dark/green": 412
+      }
+    },
+    {
+      "slot": 23,
+      "concept": "antenna tower",
+      "tags": [
+        "broadcast",
+        "signal"
+      ],
+      "files": {
+        "on-light/blue": 602,
+        "on-light/green": 539,
+        "on-dark/blue": 665,
+        "on-dark/green": 413
+      }
+    },
+    {
+      "slot": 24,
+      "concept": "database circuit",
+      "tags": [
+        "database",
+        "storage"
+      ],
+      "files": {
+        "on-light/blue": 603,
+        "on-light/green": 540,
+        "on-dark/blue": 666,
+        "on-dark/green": 414
+      }
+    },
+    {
+      "slot": 25,
+      "concept": "documents settings",
+      "tags": [
+        "records",
+        "file management"
+      ],
+      "files": {
+        "on-light/blue": 604,
+        "on-light/green": 541,
+        "on-dark/blue": 667,
+        "on-dark/green": 415
+      }
+    },
+    {
+      "slot": 26,
+      "concept": "brain circuit hub",
+      "tags": [
+        "ai",
+        "neural network"
+      ],
+      "files": {
+        "on-light/blue": 605,
+        "on-light/green": 542,
+        "on-dark/blue": 668,
+        "on-dark/green": 416
+      }
+    },
+    {
+      "slot": 27,
+      "concept": "code window",
+      "tags": [
+        "code",
+        "development"
+      ],
+      "files": {
+        "on-light/blue": 606,
+        "on-light/green": 543,
+        "on-dark/blue": 669,
+        "on-dark/green": 417
+      }
+    },
+    {
+      "slot": 28,
+      "concept": "web analytics search",
+      "tags": [
+        "seo",
+        "web analytics"
+      ],
+      "files": {
+        "on-light/blue": 607,
+        "on-light/green": 544,
+        "on-dark/blue": 670,
+        "on-dark/green": 418
+      }
+    },
+    {
+      "slot": 29,
+      "concept": "3d cube",
+      "tags": [
+        "product",
+        "3d"
+      ],
+      "files": {
+        "on-light/blue": 608,
+        "on-light/green": 545,
+        "on-dark/blue": 671,
+        "on-dark/green": 419
+      }
+    },
+    {
+      "slot": 30,
+      "concept": "brain circuit board",
+      "tags": [
+        "ai chip",
+        "machine learning"
+      ],
+      "files": {
+        "on-light/blue": 609,
+        "on-light/green": 546,
+        "on-dark/blue": 672,
+        "on-dark/green": 420
+      }
+    },
+    {
+      "slot": 31,
+      "concept": "design tools",
+      "tags": [
+        "design",
+        "creative"
+      ],
+      "files": {
+        "on-light/blue": 610,
+        "on-light/green": 547,
+        "on-dark/blue": 673,
+        "on-dark/green": 421
+      }
+    },
+    {
+      "slot": 32,
+      "concept": "email envelope",
+      "tags": [
+        "email",
+        "mail"
+      ],
+      "files": {
+        "on-light/blue": 611,
+        "on-light/green": 548,
+        "on-dark/blue": 674,
+        "on-dark/green": 422
+      }
+    },
+    {
+      "slot": 33,
+      "concept": "webpage chat",
+      "tags": [
+        "live chat",
+        "comments"
+      ],
+      "files": {
+        "on-light/blue": 612,
+        "on-light/green": 549,
+        "on-dark/blue": 675,
+        "on-dark/green": 423
+      }
+    },
+    {
+      "slot": 34,
+      "concept": "phone chat",
+      "tags": [
+        "sms",
+        "mobile messaging"
+      ],
+      "files": {
+        "on-light/blue": 613,
+        "on-light/green": 550,
+        "on-dark/blue": 676,
+        "on-dark/green": 424
+      }
+    },
+    {
+      "slot": 35,
+      "concept": "flow cycle",
+      "tags": [
+        "workflow",
+        "iteration"
+      ],
+      "files": {
+        "on-light/blue": 614,
+        "on-light/green": 551,
+        "on-dark/blue": 677,
+        "on-dark/green": 425
+      }
+    },
+    {
+      "slot": 36,
+      "concept": "cube diagram",
+      "tags": [
+        "architecture",
+        "modular"
+      ],
+      "files": {
+        "on-light/blue": 615,
+        "on-light/green": 552,
+        "on-dark/blue": 678,
+        "on-dark/green": 426
+      }
+    },
+    {
+      "slot": 37,
+      "concept": "line chart",
+      "tags": [
+        "analytics",
+        "trend"
+      ],
+      "files": {
+        "on-light/blue": 616,
+        "on-light/green": 578,
+        "on-dark/blue": 704,
+        "on-dark/green": 452
+      }
+    },
+    {
+      "slot": 38,
+      "concept": "monitor gear",
+      "tags": [
+        "admin",
+        "system config"
+      ],
+      "files": {
+        "on-light/blue": 617,
+        "on-light/green": 553,
+        "on-dark/blue": 679,
+        "on-dark/green": 427
+      }
+    },
+    {
+      "slot": 39,
+      "concept": "gear checkmark",
+      "tags": [
+        "task complete",
+        "done"
+      ],
+      "files": {
+        "on-light/blue": 618,
+        "on-light/green": 554,
+        "on-dark/blue": 680,
+        "on-dark/green": 428
+      }
+    },
+    {
+      "slot": 40,
+      "concept": "flow reject",
+      "tags": [
+        "rejected",
+        "failed"
+      ],
+      "files": {
+        "on-light/blue": 619,
+        "on-light/green": 555,
+        "on-dark/blue": 681,
+        "on-dark/green": 429
+      }
+    },
+    {
+      "slot": 41,
+      "concept": "handshake deal",
+      "tags": [
+        "deal",
+        "partnership"
+      ],
+      "files": {
+        "on-light/blue": 620,
+        "on-light/green": 556,
+        "on-dark/blue": 682,
+        "on-dark/green": 430
+      }
+    },
+    {
+      "slot": 42,
+      "concept": "pay per click",
+      "tags": [
+        "ppc",
+        "advertising"
+      ],
+      "files": {
+        "on-light/blue": 621,
+        "on-light/green": 557,
+        "on-dark/blue": 683,
+        "on-dark/green": 431
+      }
+    },
+    {
+      "slot": 43,
+      "concept": "target checkmark",
+      "tags": [
+        "goal",
+        "kpi"
+      ],
+      "files": {
+        "on-light/blue": 622,
+        "on-light/green": 558,
+        "on-dark/blue": 684,
+        "on-dark/green": 432
+      }
+    },
+    {
+      "slot": 44,
+      "concept": "handshake confirmed",
+      "tags": [
+        "confirmed",
+        "deal closed"
+      ],
+      "files": {
+        "on-light/blue": 623,
+        "on-light/green": 559,
+        "on-dark/blue": 685,
+        "on-dark/green": 433
+      }
+    },
+    {
+      "slot": 45,
+      "concept": "group people",
+      "tags": [
+        "team",
+        "people"
+      ],
+      "files": {
+        "on-light/blue": 624,
+        "on-light/green": 560,
+        "on-dark/blue": 686,
+        "on-dark/green": 434
+      }
+    },
+    {
+      "slot": 46,
+      "concept": "invoice documents",
+      "tags": [
+        "invoice",
+        "billing"
+      ],
+      "files": {
+        "on-light/blue": 625,
+        "on-light/green": 561,
+        "on-dark/blue": 687,
+        "on-dark/green": 435
+      }
+    },
+    {
+      "slot": 47,
+      "concept": "calendar payment",
+      "tags": [
+        "billing date",
+        "payday"
+      ],
+      "files": {
+        "on-light/blue": 626,
+        "on-light/green": 562,
+        "on-dark/blue": 688,
+        "on-dark/green": 436
+      }
+    },
+    {
+      "slot": 48,
+      "concept": "padlock",
+      "tags": [
+        "security",
+        "privacy"
+      ],
+      "files": {
+        "on-light/blue": 627,
+        "on-light/green": 563,
+        "on-dark/blue": 689,
+        "on-dark/green": 437
+      }
+    },
+    {
+      "slot": 49,
+      "concept": "padlock shield",
+      "tags": [
+        "encryption",
+        "protected"
+      ],
+      "files": {
+        "on-light/blue": 628,
+        "on-light/green": 564,
+        "on-dark/blue": 690,
+        "on-dark/green": 438
+      }
+    },
+    {
+      "slot": 50,
+      "concept": "pie chart",
+      "tags": [
+        "share",
+        "percentage"
+      ],
+      "files": {
+        "on-light/blue": 629,
+        "on-light/green": 565,
+        "on-dark/blue": 691,
+        "on-dark/green": 439
+      }
+    },
+    {
+      "slot": 51,
+      "concept": "rocket",
+      "tags": [
+        "launch",
+        "growth"
+      ],
+      "files": {
+        "on-light/blue": 630,
+        "on-light/green": 566,
+        "on-dark/blue": 692,
+        "on-dark/green": 440
+      }
+    },
+    {
+      "slot": 52,
+      "concept": "thumbs up",
+      "tags": [
+        "approval",
+        "like"
+      ],
+      "files": {
+        "on-light/blue": 631,
+        "on-light/green": 567,
+        "on-dark/blue": 693,
+        "on-dark/green": 441
+      }
+    },
+    {
+      "slot": 53,
+      "concept": "clock deadline",
+      "tags": [
+        "deadline",
+        "urgency"
+      ],
+      "files": {
+        "on-light/blue": 632,
+        "on-light/green": 568,
+        "on-dark/blue": 694,
+        "on-dark/green": 442
+      }
+    },
+    {
+      "slot": 54,
+      "concept": "globe search",
+      "tags": [
+        "global search"
+      ],
+      "files": {
+        "on-light/blue": 633,
+        "on-light/green": 569,
+        "on-dark/blue": 695,
+        "on-dark/green": 443
+      }
+    },
+    {
+      "slot": 55,
+      "concept": "hand coin",
+      "tags": [
+        "payment received",
+        "earning"
+      ],
+      "files": {
+        "on-light/blue": 634,
+        "on-light/green": 570,
+        "on-dark/blue": 696,
+        "on-dark/green": 444
+      }
+    },
+    {
+      "slot": 56,
+      "concept": "dollar growth",
+      "tags": [
+        "revenue growth",
+        "roi"
+      ],
+      "files": {
+        "on-light/blue": 635,
+        "on-light/green": 571,
+        "on-dark/blue": 697,
+        "on-dark/green": 445
+      }
+    },
+    {
+      "slot": 57,
+      "concept": "package verified",
+      "tags": [
+        "delivery confirmed"
+      ],
+      "files": {
+        "on-light/blue": 636,
+        "on-light/green": 572,
+        "on-dark/blue": 698,
+        "on-dark/green": 446
+      }
+    },
+    {
+      "slot": 58,
+      "concept": "bar chart growth",
+      "tags": [
+        "growth",
+        "increase"
+      ],
+      "files": {
+        "on-light/blue": 637,
+        "on-light/green": 573,
+        "on-dark/blue": 699,
+        "on-dark/green": 447
+      }
+    },
+    {
+      "slot": 59,
+      "concept": "team exchange",
+      "tags": [
+        "collaboration",
+        "handover"
+      ],
+      "files": {
+        "on-light/blue": 638,
+        "on-light/green": 574,
+        "on-dark/blue": 700,
+        "on-dark/green": 448
+      }
+    },
+    {
+      "slot": 60,
+      "concept": "network nodes",
+      "tags": [
+        "network",
+        "topology"
+      ],
+      "files": {
+        "on-light/blue": 639,
+        "on-light/green": 575,
+        "on-dark/blue": 701,
+        "on-dark/green": 449
+      }
+    },
+    {
+      "slot": 61,
+      "concept": "chat bubbles",
+      "tags": [
+        "conversation",
+        "messaging"
+      ],
+      "files": {
+        "on-light/blue": 640,
+        "on-light/green": 576,
+        "on-dark/blue": 702,
+        "on-dark/green": 450
+      }
+    },
+    {
+      "slot": 62,
+      "concept": "umbrella protection",
+      "tags": [
+        "insurance",
+        "coverage"
+      ],
+      "files": {
+        "on-light/blue": 641,
+        "on-light/green": 577,
+        "on-dark/blue": 703,
+        "on-dark/green": 451
+      }
+    },
+    {
+      "slot": 63,
+      "concept": "shield lock",
+      "tags": [
+        "cybersecurity",
+        "safety"
+      ],
+      "files": {
+        "on-light/blue": 4371,
+        "on-light/green": 4371,
+        "on-dark/blue": 4371,
+        "on-dark/green": 4371
+      }
+    }
+  ]
+}

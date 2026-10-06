@@ -1,0 +1,67 @@
+---
+name: hermes-internals
+description: "Use when editing Hermes SOUL.md, prompts, or guardrails."
+version: 1.0.0
+---
+
+# Hermes Internals — prompt anatomy, SOUL.md, guardrail surface
+
+Class-level know-how for answering "where do the agent's instructions/guardrails actually live and how do I review or change them" — runtime system prompt, SOUL.md identity files, memory injection, enforcement config. Complements the bundled `hermes-agent` skill (which covers configuration and features, not prompt internals).
+
+## The four layers (strongest binding first)
+
+1. **Hardcoded core** — built at runtime by `~/.hermes/hermes-agent/agent/system_prompt.py` (`build_system_prompt`, ~1,170 lines) plus `agent/prompt_builder.py` (tool docs + tool-use enforcement, ~2,500 lines). Overwritten on updates; not a customization target, but the review reference for what always binds.
+2. **SOUL.md identity** — `$HERMES_HOME/SOUL.md`, loaded verbatim into every session, spliced into the prompt right after the hardcoded persona block. This is the user's main customization lever. Per-profile variants: `~/.hermes/profiles/<name>/SOUL.md`. Edits take effect on the NEXT session, not the running one.
+3. **Memory injection** — `~/.hermes/memories/MEMORY.md` + `USER.md` (profile dirs likewise), dumped near the end of the prompt. Hard char budget; imperative phrasing reads as directive.
+4. **Enforcement config** — `config.yaml` keys (`approvals.mode`, `security.redact_secrets`, `privacy.redact_pii`, `command_allowlist`) and `~/.hermes/hooks/`. Only layer with real teeth. Never hand-edit config.yaml — use `hermes config set`.
+
+Also auto-injected when present: project context files (`.hermes.md` / `AGENTS.md` / `CLAUDE.md`, 20 KB cap, first-match-wins discovery) and skills (SKILL.md bodies load on demand; only name+description sit in the prompt catalog).
+
+## Rendering the actual runtime prompt
+
+The prompt is assembled at runtime from dozens of agent attributes, so you cannot just cat one file. A minimal FakeAgent stub works — validated 2026-09-06, produced a faithful 12.7 KB render. Use `scripts/render_runtime_prompt.py` under this skill.
+
+Stub contract discovered by iteration (each AttributeError names the next requirement):
+- `load_soul_identity()` → returns SOUL.md text
+- `valid_tool_names` → a **set** (membership-tested), not a method
+- `_tool_use_enforcement` → "auto" (string; `__getattr__` returning False breaks it)
+- `__getattr__` fallback: `[]` for plugin/section names, `""` for names ending in text/prompt, `False` for `is_/has_/should_/use_` prefixes, `[]` otherwise
+
+## Auditing the memory / context layer
+
+Docs and `config.yaml` describe intent; only live behaviour is evidence. When asked whether a memory, compression, or token-optimisation subsystem actually works, trace the real client path before quoting any value.
+
+1. **Read the effective config, not the file** — `python3 -c` over `yaml.safe_load(config.yaml)` and print the merged keys. Then diff every claim against it and list the drift; docs and AGENTS.md tables go stale silently.
+2. **Prove the path is live, not configured.** For a proxy/base-URL claim, a config value proves nothing. Check sockets (`ss -tnp`), the service's own counter (`/stats`, `/metrics`), and `journalctl` — a proxy whose lifetime request count is entirely one other client never carried your traffic.
+3. **Grep for the provider/adapter id before trusting a `provider:` key.** A fallback leg naming an id with no implementation in the source cannot resolve; it is a silent no-op, not a failover.
+4. **Inspect the stores directly.** `sqlite3` CLI is often absent — use `python3 -c` with the `sqlite3` module, opened `file:...?mode=ro`. For every store: integrity, journal mode, `auto_vacuum`, row counts per table, duplicate/near-duplicate families, and referential integrity on the join tables. Degenerate distributions are the tell (a trust column with one distinct value, a counter that is zero everywhere — a feature that has never once run).
+5. **Judge stored rows against the CURRENT code, not against their own age.** Residue written before a fix stays in the store after the fix lands. Before reporting an active leak, run the live extractor/extraction regexes against the offending shapes: if they now reject them, the rows are historical and the finding is "cleanup owed", not "still leaking". Group the rows by creation month to separate the two, and state which one it is.
+6. **Distinguish cosmetic staleness from real blockers** before ranking severity. An expired row in a lock table is harmless when the acquire path re-checks expiry; a dead PID in a build lock is harmless when the reader treats it as stale. Say so plainly instead of padding the list.
+7. **Budgets are relative to two different limits.** Report fill against the *configured* limit AND the *code default*. A file comfortably under a raised config limit can still exceed the compiled-in default — which is what bites the moment the config key is absent or a fresh profile is created.
+
+## Pitfalls
+
+- **Reproduce before reporting, and own your own false positives.** When an audit probe throws (an FTS `MATCH` syntax error, a wrong column name), check whether the probe bypassed the product's sanitiser before calling it a product bug — hand-written SQL skips the quoting the real path applies. Same for comparing config values: normalise types (`True` vs `'true'`) or the drift table fills with noise. Watch for column-name and path slips of your own — a wrong table column or a store living outside `$HERMES_HOME` will read as "the data is null/missing" and become a phantom finding. Correct a reported finding in the open rather than dropping it silently; a correction the user can check is worth more than a clean table.
+- **A delegated research arm's root cause is a lead, not a finding.** Parallel arms confidently return inverted logic, wrong timeouts and "never executed" verdicts built on the failure path rather than the working one. Reproduce each high-severity claim yourself against the live system before it reaches the report; expect to reject a meaningful fraction and say which and why.
+- **Prove a fix at the real entry point, not at the patched module.** Exercising the helper in isolation shows the patch works; calling the consumer the hot path actually uses shows it works *in situ*. Also separate "no new evidence appeared" from "the fix failed": a short session may never reach the threshold that triggers the code under test, so absence of output is not a negative result — drive the code path directly instead.
+- **Fixed-length truncation plus a UNIQUE constraint is silent data loss.** Storing `content[:N]` and letting the unique index dedupe means two different messages sharing an N-char prefix collapse to one row, the second vanishes, and the call still reports success. Probe `count(*) where length(content)=N` and group on `substr(content,1,70)` to count colliding prefixes.
+- **Expect your own guardrails to block your own probes.** An audit that reads a path covered by an approvals deny rule is refused by design; that refusal is the feature working. Do not retry or rephrase the command — verify the rule's scope from the rule's own source and report the guard as healthy.
+- **A URL allowlist written with a hostname helper usually does not match.** Helpers like `base_url_hostname()` strip the port, so `hostname == '127.0.0.1:8787'` is never true. The common repair — a substring fallback such as `"8787" in url` — then matches *any* host carrying that substring, including remote ones. Match on parsed hostname **and** port; verify the whole matrix (real endpoint, intended local, remote with the port in it, port appearing in a path/query) before shipping.
+- **Gateway self-block**: terminal commands issued from inside the gateway process cannot restart/stop the gateway (SIGTERM would kill the issuer). `hermes gateway restart` must run in a separate shell outside the gateway.
+- **MCP server trust gate**: `mcp_servers.<name>.trust: untrusted` in config.yaml blocks every write-capable tool call on that server with `"The user did not approve running write-capable MCP tool 'X' on untrusted server 'Y'"` — read-only calls still pass. Fix: `hermes config set mcp_servers.<name>.trust trusted`, then a NEW session (`/reset` or `/restart`); trust is read at startup. Headless dead-end (validated 2026-09-07): in an unattended session with `approvals.mode: manual`, the agent CANNOT flip trust itself — `patch`/`write_file` refuse config.yaml outright ("agent cannot modify security-sensitive configuration"), and even `hermes config set` routes through the terminal approval gate where nobody is present to approve, so every path (including the tool call itself) fails closed. Do not retry-loop; the correct move is one plain-English message to the user: the exact `hermes config set ...` line (or the one-line `trust:` edit), then `/restart` — after which the pending action becomes a one-call job. Also mine `session_search` for the earlier session that hit the block: it usually names the exact command the user is referring to.
+- **The agent cannot write `~/.hermes/config.yaml` at all** — `patch`/`write_file` refuse it ("security-sensitive configuration"), and `config.yaml` must never be hand-edited anyway. Use `hermes config set KEY VAL`; it writes via the profile-aware loader. Two traps: (a) switching `model.provider` **auto-clears** `model.base_url` and `model.api_mode` ("that route belonged to <old provider>"), so re-set `model.api_mode` afterwards; (b) list elements ARE addressable — `hermes config set model.fallback_providers.0.provider opencode-go` works. CLI refuses unknown keys unless `--force`.
+- **Verify a proxy in the model path by counting its own requests, not by reading config.** A config that *looks* routed proves nothing: the proxy can be bypassed, unauthenticated, or wedged. Baseline `curl -s http://127.0.0.1:PORT/metrics | grep requests_total`, run one bounded `hermes chat -q`, re-read the counter. A real upstream error body (e.g. a 429 quota code) passing *through* the proxy is stronger proof than a 200 — it shows forwarding, auth and error propagation all work.
+- **A local proxy that hangs on POST and logs `ClientDisconnect` is usually a wedged extension, not a dead upstream.** `ClientDisconnect` is only the client giving up. Bisect: restart the service with suspect env config cleared, then re-POST against a known-healthy upstream (e.g. local ollama) — if it still hangs, the fault is proxy-side. Fix the config, restart, then re-test.
+- **A generated SOUL.md section is owned by its generator, not by you.** The canvas section lives between `<!-- astra-canvas:soul:start -->` / `<!-- astra-canvas:soul:end -->` (live at `~/.hermes/SOUL.md:57`) and is RENDERED from one data file: `~/Work/infra/agent-fleet/rules/canvas-surface-data.mjs`, via `rules/canvas-surface-sync.mjs`. Editing inside the markers is undone by the next run and `--check` reports drift; edit the data file and re-run instead. `health/fleet-health.sh` gates the result. Details and the compression/retention/migration gotchas live in the `astra-canvas-v6` skill.
+- **Prompt caching is sacred**: never mutate past context, toolsets, or the system prompt mid-conversation. Any enhancement workflow must target files read at session start (SOUL.md, memory, config), then start a new session.
+- **Before trusting a local service's own middleware docstring, read the code.** `~/Work/laya-mcp/server.py`'s `_BearerGate` promised *"Bearer token OR a trusted-loopback peer (127.0.0.1)"* and implemented only `if auth != expected: 401`. A caller on loopback therefore 401'd, and because its wrapper swallowed the exception the whole Laya compaction feature was silently dead for days (real keep-lines: 394/day → 3/day) while every layer reported healthy. A loopback exemption needs an explicit peer check on `scope["client"]`.
+- **Auth tokens for local services already reach the Hermes process.** `LAYA_MCP_TOKEN` lives in `~/.hermes/.env` and is present in the gateway's `/proc/<pid>/environ`. A plugin should read `os.environ`, never re-persist the secret into a second config.
+- **`system_prompt.py`/`prompt_builder.py` are versioned source** — quote them for review, never patch them as "customization"; changes vanish on update and can break the cached-prompt invariant.
+- The rendered prompt is ~12–13 KB static + memory/skills catalogs; the runtime prompt the user asked to "enhance" is mostly the SOUL.md section plus config enforcement.
+
+## References
+
+- `references/prompt-anatomy.md` — section-by-section order of the rendered prompt and an intent→file intervention table.
+- `references/memory-context-audit.md` — the store inventory, health probes, residual-vs-active-leak triage, and known-healthy baselines for auditing a memory/context subsystem.
+- `scripts/render_runtime_prompt.py` — runnable FakeAgent stub that renders the live system prompt to a text file.
+- `scripts/check-memory-context.py` — read-only assert-based health check over every store (integrity, budgets vs both limits, degenerate distributions, truncation residue, provenance, growth). Exit 1 on failure; run it at the start of an audit and leave it behind as the regression gate.

@@ -1,0 +1,11 @@
+[Unit]
+Description=Laya auth-injector proxy for agy (8016 -> 8015)
+After=laya-mcp.service
+
+[Service]
+ExecStart=%h/Work/laya-mcp/.venv/bin/python %h/Work/laya-mcp/agy_proxy.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

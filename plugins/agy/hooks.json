@@ -1,0 +1,8 @@
+{
+  "slopguard": {
+    "enabled": true,
+    "PreToolUse": [
+      { "matcher": "*", "hooks": [ { "type": "command", "command": "python3 ~/.gemini/config/hooks/slopguard.py", "timeout": 15 } ] }
+    ]
+  }
+}

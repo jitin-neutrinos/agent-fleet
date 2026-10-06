@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# graphify-discover — auto-discovery watcher.
+# Sweeps ~/Work for project-shaped directories that have no graphify graph yet,
+# maps them (gemini semantic pass), then merges every graph into the master
+# graph served to all harnesses via graphify-mcp.
+# Pair with graphify-refresh (nightly AST updates). Logs to ~/Work/graphify-discover.log
+set -u
+export OLLAMA_MODEL=qwen3.5:9b-128k   # local, free, unlimited (gemini free tier = 20 calls/day, burns out fast)
+LOG=~/Work/graphify-discover.log
+MASTER_DIR=$HOME/Work/graphify-out
+MASTER=$MASTER_DIR/merged-graph.json
+exec 9>"$HOME/.cache/graphify-discover.lock" 2>/dev/null || exec 9>/tmp/graphify-discover.lock
+flock -n 9 || { echo "[$(date '+%F %T')] another run active, skipping" >> "$LOG"; exit 0; }
+echo "[$(date '+%F %T')] discover run start" >> "$LOG"
+
+# ---- 1. candidate project dirs (depth<=4, marker files, junk pruned) -------
+CANDIDATES=$(
+  find "$HOME/Work" -maxdepth 4 -type d \( \
+      -name node_modules -o -name .venv -o -name venv -o -name dist -o \
+      -name build -o -name .git -o -name graphify-out -o -name scratch -o \
+      -name __pycache__ -o -name .next -o -name vendor -o -name target \
+      -o -name repos -o -name run \) -prune \) -o \
+    -type f \( \
+      -name package.json -o -name pyproject.toml -o -name Cargo.toml -o \
+      -name go.mod -o -name requirements.txt -o -name mix.exs -o \
+      -name compose.yaml -o -name docker-compose.yml -o -name "*.csproj" \
+    \) -print 2>/dev/null | xargs -r -n1 dirname | sort -u
+)
+
+NEW=0
+for dir in $CANDIDATES; do
+  [ -f "$dir/graphify-out/graph.json" ] && continue       # already mapped
+  [ -f "$dir/.graphify-skip" ] && continue                # explicit opt-out
+  case "$dir" in *"/graphify-out"*) continue ;; esac
+  name=$(basename "$dir")
+  echo "[$(date '+%F %T')] mapping new project: $dir" >> "$LOG"
+  if (cd "$dir" && timeout 900 graphify extract . --backend gemini >> "$LOG" 2>&1); then
+    (cd "$dir" && timeout 600 graphify cluster-only . --no-viz >> "$LOG" 2>&1)
+    echo "[$(date '+%F %T')] mapped: $name" >> "$LOG"
+    NEW=$((NEW+1))
+  else
+    echo "[$(date '+%F %T')] FAILED to map: $dir (see above in log)" >> "$LOG"
+  fi
+done
+echo "[$(date '+%F %T')] discovery found $NEW new project(s)" >> "$LOG"
+
+# ---- 2. merge every graph into the master ----------------------------------
+GRAPHS=$(find "$HOME/Work" -maxdepth 4 -type f -path "*/graphify-out/graph.json" 2>/dev/null | grep -v "$MASTER_DIR" | sort)
+mkdir -p "$MASTER_DIR"
+COUNT=0
+ARGS=()
+while IFS= read -r g; do
+  [ -n "$g" ] && ARGS+=("$g") && COUNT=$((COUNT+1))
+done <<< "$GRAPHS"
+if [ "$COUNT" -gt 1 ]; then
+  echo "[$(date '+%F %T')] merging $COUNT graphs -> $MASTER" >> "$LOG"
+  cd "$HOME/Work" && timeout 300 graphify merge-graphs "${ARGS[@]}" --out "$MASTER" >> "$LOG" 2>&1 \
+    && echo "[$(date '+%F %T')] merge OK ($(stat -c%s "$MASTER" 2>/dev/null) bytes)" >> "$LOG" \
+    || echo "[$(date '+%F %T')] MERGE FAILED" >> "$LOG"
+elif [ "$COUNT" -eq 1 ]; then
+  mkdir -p "$MASTER_DIR"
+  cp "${ARGS[0]}" "$MASTER" && echo "[$(date '+%F %T')] single graph copied -> $MASTER" >> "$LOG"
+fi
+echo "[$(date '+%F %T')] discover run end" >> "$LOG"

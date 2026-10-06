@@ -1,0 +1,352 @@
+{
+  "context7": {
+    "type": "remote",
+    "url": "https://mcp.context7.com/mcp",
+    "oauth": false,
+    "headers": {
+      "Authorization": "Bearer {env:CONTEXT7_API_KEY}"
+    }
+  },
+  "neutrinos-docs": {
+    "type": "remote",
+    "url": "https://neutrinos-mcp.jitinnair.com/mcp"
+  },
+  "agentmemory": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@agentmemory/mcp"
+    ],
+    "environment": {
+      "AGENTMEMORY_URL": "{env:AGENTMEMORY_URL}",
+      "AGENTMEMORY_SECRET": "{env:AGENTMEMORY_SECRET}",
+      "AGENTMEMORY_TOOLS": "{env:AGENTMEMORY_TOOLS}"
+    }
+  },
+  "playwright": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@playwright/mcp@latest"
+    ]
+  },
+  "shadcn": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "shadcn@latest",
+      "mcp"
+    ]
+  },
+  "laya-decisions": {
+    "type": "remote",
+    "url": "http://127.0.0.1:8015/mcp",
+    "enabled": true
+  },
+  "graphify": {
+    "type": "local",
+    "command": [
+      "/home/notjitin/.local/bin/graphify-mcp",
+      "/home/notjitin/Work/graphify-out/merged-graph.json"
+    ]
+  },
+  "cloudflare-docs": {
+    "type": "remote",
+    "url": "https://docs.mcp.cloudflare.com/mcp"
+  },
+  "sentry": {
+    "type": "remote",
+    "url": "https://mcp.sentry.dev/mcp"
+  },
+  "tavily": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "tavily-mcp@latest"
+    ]
+  },
+  "brave-search": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@modelcontextprotocol/server-brave-search@latest"
+    ]
+  },
+  "figma-context": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "figma-developer-mcp@latest",
+      "--stdio"
+    ]
+  },
+  "firecrawl": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "firecrawl-mcp@latest"
+    ]
+  },
+  "youtube-transcript": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@kimtaeyoon83/mcp-server-youtube-transcript@latest"
+    ]
+  },
+  "gmail": {
+    "type": "remote",
+    "url": "https://gmail.mcp.googleapis.com/mcp"
+  },
+  "notion": {
+    "type": "remote",
+    "url": "https://mcp.notion.com/mcp"
+  },
+  "arxiv": {
+    "type": "local",
+    "command": [
+      "bash",
+      "-c",
+      "exec uvx --with \"mcp<2\" arxiv-mcp"
+    ]
+  },
+  "quillhub": {
+    "type": "remote",
+    "url": "https://mcp.quillhub.ai/mcp"
+  },
+  "lottiefiles": {
+    "type": "remote",
+    "url": "https://mcp.lottiefiles.com/mcp"
+  },
+  "lottiefiles-creator": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@lottiefiles/creator-mcp@latest"
+    ]
+  },
+  "21st-magic": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@21st-dev/magic@latest"
+    ]
+  },
+  "penpot": {
+    "type": "remote",
+    "url": "http://127.0.0.1:4411/mcp"
+  },
+  "iconify": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "iconify-mcp@latest"
+    ]
+  },
+  "canva": {
+    "type": "remote",
+    "url": "https://mcp.canva.com/mcp"
+  },
+  "figma-official": {
+    "type": "remote",
+    "url": "https://mcp.figma.com/mcp"
+  },
+  "puppeteer-screenshot": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@modelcontextprotocol/server-puppeteer@latest"
+    ]
+  },
+  "color-palette": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "color-mcp@latest"
+    ]
+  },
+  "brandfetch": {
+    "type": "remote",
+    "url": "https://mcp.brandfetch.com/mcp"
+  },
+  "github": {
+    "type": "local",
+    "command": [
+      "docker",
+      "run",
+      "-i",
+      "--rm",
+      "-e",
+      "GITHUB_PERSONAL_ACCESS_TOKEN",
+      "ghcr.io/github/github-mcp-server",
+      "stdio"
+    ],
+    "environment": {
+      "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+    }
+  },
+  "serena": {
+    "type": "local",
+    "command": [
+      "uvx",
+      "--from",
+      "git+https://github.com/oraios/serena",
+      "serena",
+      "start-mcp-server",
+      "--context",
+      "ide-assistant"
+    ]
+  },
+  "sequential-thinking": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@modelcontextprotocol/server-sequential-thinking@latest"
+    ]
+  },
+  "n8n": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "n8n-mcp@latest"
+    ]
+  },
+  "excalidraw": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "mcp-excalidraw@latest"
+    ]
+  },
+  "skillspector": {
+    "type": "local",
+    "command": [
+      "skillspector",
+      "mcp"
+    ]
+  },
+  "reticle": {
+    "type": "local",
+    "command": [
+      "npx",
+      "@reticlehq/server",
+      "mcp"
+    ]
+  },
+  "alphavantage": {
+    "type": "local",
+    "command": [
+      "uvx",
+      "--with",
+      "mcp<2",
+      "alphavantage-mcp"
+    ],
+    "environment": {
+      "ALPHAVANTAGE_API_KEY": "demo"
+    },
+    "cwd": "/home/notjitin/Work/scratch/alphavantage-mcp-work"
+  },
+  "deepwiki": {
+    "type": "remote",
+    "url": "https://mcp.deepwiki.com/mcp"
+  },
+  "industrylens": {
+    "type": "remote",
+    "url": "https://api.industry-lens.com/mcp/public"
+  },
+  "gcloud": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@google-cloud/gcloud-mcp"
+    ],
+    "enabled": false
+  },
+  "next-devtools": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "next-devtools-mcp@latest"
+    ]
+  },
+  "chrome-devtools": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "chrome-devtools-mcp@latest"
+    ]
+  },
+  "jevnav": {
+    "type": "local",
+    "command": [
+      "uvx",
+      "--from",
+      "jevnav[mcp]",
+      "jevnav",
+      "mcp"
+    ]
+  },
+  "aceternity": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "aceternityui-mcp@latest"
+    ]
+  },
+  "magicui": {
+    "type": "local",
+    "command": [
+      "npx",
+      "-y",
+      "@magicuidesign/mcp@latest"
+    ]
+  },
+  "mcp": {
+    "tradingview": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "-i",
+        "-v",
+        "tradingview-mcp-session:/data",
+        "-e",
+        "TV_SESSION_FILE=/data/.tv_session.json",
+        "mikeh1975/tradingview-mcp:latest"
+      ],
+      "enabled": true
+    },
+    "ctrader-remote": {
+      "type": "remote",
+      "url": "${CTRADER_REMOTE_MCP_URL}",
+      "enabled": false
+    }
+  },
+  "laya-browser": {
+    "type": "local",
+    "command": [
+      "/home/notjitin/Work/laya-browser-agent/.venv/bin/localdecide-mcp"
+    ]
+  }
+}

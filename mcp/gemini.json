@@ -1,0 +1,298 @@
+{
+  "mcpServers": {
+    "context7": {
+      "httpUrl": "https://mcp.context7.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${CONTEXT7_API_KEY}"
+      }
+    },
+    "neutrinos-docs": {
+      "httpUrl": "https://neutrinos-mcp.jitinnair.com/mcp"
+    },
+    "agentmemory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@agentmemory/mcp"
+      ],
+      "env": {
+        "AGENTMEMORY_URL": "${AGENTMEMORY_URL:-http://localhost:3111}",
+        "AGENTMEMORY_SECRET": "${AGENTMEMORY_SECRET:-}",
+        "AGENTMEMORY_TOOLS": "${AGENTMEMORY_TOOLS:-all}"
+      }
+    },
+    "laya-decisions": {
+      "url": "http://127.0.0.1:8015/mcp"
+    },
+    "graphify": {
+      "command": "/home/notjitin/.local/bin/graphify-mcp",
+      "args": [
+        "/home/notjitin/Work/graphify-out/merged-graph.json"
+      ]
+    },
+    "cloudflare-docs": {
+      "httpUrl": "https://docs.mcp.cloudflare.com/mcp"
+    },
+    "sentry": {
+      "httpUrl": "https://mcp.sentry.dev/mcp"
+    },
+    "tavily": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tavily-mcp@latest"
+      ]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search@latest"
+      ]
+    },
+    "figma-context": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "figma-developer-mcp@latest",
+        "--stdio"
+      ]
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "firecrawl-mcp@latest"
+      ]
+    },
+    "youtube-transcript": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@kimtaeyoon83/mcp-server-youtube-transcript@latest"
+      ]
+    },
+    "gmail": {
+      "httpUrl": "https://gmail.mcp.googleapis.com/mcp"
+    },
+    "notion": {
+      "httpUrl": "https://mcp.notion.com/mcp"
+    },
+    "arxiv": {
+      "command": "bash",
+      "args": [
+        "bash",
+        "-c",
+        "exec uvx --with \"mcp<2\" arxiv-mcp"
+      ],
+      "disabled": false
+    },
+    "quillhub": {
+      "httpUrl": "https://mcp.quillhub.ai/mcp"
+    },
+    "lottiefiles": {
+      "httpUrl": "https://mcp.lottiefiles.com/mcp"
+    },
+    "lottiefiles-creator": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@lottiefiles/creator-mcp@latest"
+      ]
+    },
+    "21st-magic": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@21st-dev/magic@latest"
+      ]
+    },
+    "penpot": {
+      "command": "bash",
+      "args": [
+        "-c",
+        "exec npx -y mcp-remote@latest http://127.0.0.1:4411/mcp"
+      ],
+      "disabled": false
+    },
+    "iconify": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "iconify-mcp@latest"
+      ]
+    },
+    "canva": {
+      "httpUrl": "https://mcp.canva.com/mcp"
+    },
+    "figma-official": {
+      "httpUrl": "https://mcp.figma.com/mcp"
+    },
+    "puppeteer-screenshot": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer@latest"
+      ]
+    },
+    "color-palette": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "color-mcp@latest"
+      ]
+    },
+    "brandfetch": {
+      "httpUrl": "https://mcp.brandfetch.com/mcp"
+    },
+    "github": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
+      ]
+    },
+    "serena": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking@latest"
+      ]
+    },
+    "n8n": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "n8n-mcp@latest"
+      ]
+    },
+    "excalidraw": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-excalidraw@latest"
+      ]
+    },
+    "aceternity": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "aceternityui-mcp@latest"
+      ]
+    },
+    "magicui": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@magicuidesign/mcp@latest"
+      ]
+    },
+    "tradingview": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-v",
+        "tradingview-mcp-session:/data",
+        "-e",
+        "TV_SESSION_FILE=/data/.tv_session.json",
+        "mikeh1975/tradingview-mcp:latest"
+      ],
+      "disabled": false
+    },
+    "ctrader-remote": {
+      "serverUrl": "${CTRADER_REMOTE_MCP_URL}",
+      "disabled": true
+    },
+    "laya-browser": {
+      "command": "/home/notjitin/Work/laya-browser-agent/.venv/bin/localdecide-mcp",
+      "args": [],
+      "disabled": false
+    }
+  },
+  "skillspector": {
+    "type": "stdio",
+    "command": "skillspector",
+    "args": [
+      "mcp"
+    ]
+  },
+  "reticle": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "@reticlehq/server",
+      "mcp"
+    ]
+  },
+  "deepwiki": {
+    "type": "http",
+    "url": "https://mcp.deepwiki.com/mcp"
+  },
+  "industrylens": {
+    "type": "http",
+    "url": "https://api.industry-lens.com/mcp/public"
+  },
+  "alphavantage": {
+    "type": "stdio",
+    "command": "bash",
+    "args": [
+      "-c",
+      "cd /home/notjitin/Work/scratch/alphavantage-mcp-work && exec uvx --with \"mcp<2\" alphavantage-mcp"
+    ],
+    "env": {
+      "ALPHAVANTAGE_API_KEY": "demo"
+    }
+  },
+  "gcloud": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "@google-cloud/gcloud-mcp"
+    ],
+    "enabled": false
+  },
+  "next-devtools": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "next-devtools-mcp@latest"
+    ]
+  },
+  "chrome-devtools": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "chrome-devtools-mcp@latest"
+    ]
+  },
+  "jevnav": {
+    "type": "stdio",
+    "command": "uvx",
+    "args": [
+      "--from",
+      "jevnav[mcp]",
+      "jevnav",
+      "mcp"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "taps": [
+    {
+      "repo": "agent-sh/computer-use-linux",
+      "path": "skills/"
+    }
+  ]
+}

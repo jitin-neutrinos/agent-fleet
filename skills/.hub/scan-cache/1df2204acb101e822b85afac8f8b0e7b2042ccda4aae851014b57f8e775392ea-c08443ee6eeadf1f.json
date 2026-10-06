@@ -1,0 +1,13 @@
+{
+  "bundle_hash": "sha256:1df2204acb101e822b85afac8f8b0e7b2042ccda4aae851014b57f8e775392ea",
+  "scanner_version": "skills-guard-v6",
+  "source": "skills-sh/vercel-labs/skills/find-skills",
+  "source_url": "https://github.com/vercel-labs/skills/tree/18f96ea131dab3b0fcc9b27cf7c6f6cbb6174680/skills/find-skills",
+  "verdict": "safe",
+  "trust_level": "community",
+  "findings": [],
+  "rules": [],
+  "scanned_at": "2026-10-05T12:19:52.723868+00:00",
+  "summary": "find-skills: clean scan, no threats detected",
+  "fresh": true
+}

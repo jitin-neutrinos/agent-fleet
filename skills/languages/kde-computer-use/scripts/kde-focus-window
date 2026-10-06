@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+title=""
+class=""
+click="0"
+offset_x="80"
+offset_y="80"
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: kde-focus-window (--title REGEX | --class REGEX) [--click] [--offset X,Y]
+
+Activate the first matching KWin window with kdotool. With --click, move the
+pointer inside the window and left-click so Wayland application widgets receive
+subsequent synthetic keyboard input.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --title)
+      title="${2:-}"
+      [[ -n "$title" ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    --class)
+      class="${2:-}"
+      [[ -n "$class" ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    --click)
+      click="1"
+      shift
+      ;;
+    --offset)
+      IFS=, read -r offset_x offset_y <<< "${2:-}"
+      [[ -n "${offset_x:-}" && -n "${offset_y:-}" ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      exit 2
+      ;;
+  esac
+done
+
+if [[ -z "$title" && -z "$class" ]]; then
+  usage
+  exit 2
+fi
+
+if [[ -n "$title" ]]; then
+  search=(search --title "$title")
+else
+  search=(search --class "$class")
+fi
+
+window_id="$("$script_dir/kde-session-env" -- kdotool "${search[@]}" getwindowid | head -n 1)"
+if [[ -z "$window_id" ]]; then
+  printf 'No matching window found.\n' >&2
+  exit 1
+fi
+
+"$script_dir/kde-session-env" -- kdotool "${search[@]}" windowactivate
+
+if [[ "$click" == "1" ]]; then
+  geometry="$("$script_dir/kde-session-env" -- kdotool getwindowgeometry "$window_id")"
+  position="$(sed -n 's/.*Position: \([-0-9.]*\),\([-0-9.]*\).*/\1 \2/p' <<< "$geometry" | head -n 1)"
+  if [[ -z "$position" ]]; then
+    printf 'Could not parse window geometry for %s.\n' "$window_id" >&2
+    exit 1
+  fi
+  read -r x y <<< "$position"
+  click_x="$(awk -v x="$x" -v dx="$offset_x" 'BEGIN { printf "%d", x + dx }')"
+  click_y="$(awk -v y="$y" -v dy="$offset_y" 'BEGIN { printf "%d", y + dy }')"
+  systemctl --user start ydotool.service
+  ydotool mousemove --absolute -- "$click_x" "$click_y"
+  sleep 0.1
+  ydotool click 0xC0 >/dev/null
+fi
+
+printf '%s\n' "$window_id"

@@ -1,0 +1,10 @@
+# Local machine state — never commit
+*.env
+.env
+state/manifest.json.*
+*.pre-agent-fleet.bak
+mcp/reference/claude.json
+__pycache__/
+*.pyc
+jevnav-session.trace*
+graphify-out/

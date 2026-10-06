@@ -1,0 +1,390 @@
+{
+  "version": 1,
+  "installed": {
+    "computer-use-linux": {
+      "source": "skills.sh",
+      "identifier": "skills-sh/agent-sh/computer-use-linux/computer-use-linux",
+      "trust_level": "community",
+      "scan_verdict": "safe",
+      "content_hash": "sha256:8cd940eca41c4bc6",
+      "install_path": "computer-use-linux",
+      "files": [
+        "SKILL.md",
+        "references/hermes-setup.md",
+        "references/pi-setup.md"
+      ],
+      "metadata": {
+        "source_url": "https://github.com/agent-sh/computer-use-linux/tree/d6f05716f6e6a960fd2f22ffa5a9d4ec87630a56/skills/computer-use-linux",
+        "source_revision": "d6f05716f6e6a960fd2f22ffa5a9d4ec87630a56",
+        "detail_url": "https://skills.sh/agent-sh/computer-use-linux/computer-use-linux",
+        "repo_url": "https://github.com/agent-sh/computer-use-linux"
+      },
+      "scan_provenance": {
+        "source": "skills-sh/agent-sh/computer-use-linux/computer-use-linux",
+        "source_url": "https://github.com/agent-sh/computer-use-linux/tree/d6f05716f6e6a960fd2f22ffa5a9d4ec87630a56/skills/computer-use-linux",
+        "bundle_hash": "sha256:8cd940eca41c4bc678edb7577b18e5caed5ec94ee6044503cac0dbe768daa5b6",
+        "scanner_version": "skills-guard-v2",
+        "verdict": "safe",
+        "trust_level": "community",
+        "findings": [
+          {
+            "pattern_id": "unpinned_npm_install",
+            "severity": "medium",
+            "category": "supply_chain",
+            "file": "SKILL.md",
+            "line": 36,
+            "match": "npm install -g @agent-sh/computer-use-linux",
+            "description": "npm install without version pinning"
+          }
+        ],
+        "rules": [
+          "unpinned_npm_install"
+        ],
+        "scanned_at": "2026-09-04T02:23:35.069556+00:00",
+        "summary": "computer-use-linux: safe — 1 finding(s) in supply_chain",
+        "fresh": false
+      },
+      "installed_at": "2026-09-04T02:23:41.133274+00:00",
+      "updated_at": "2026-09-04T02:23:41.133283+00:00"
+    },
+    "comfyui": {
+      "source": "official",
+      "identifier": "official/languages/comfyui",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:612d22cb79d98990",
+      "install_path": "languages/comfyui",
+      "files": [
+        "SKILL.md",
+        "references/official-cli.md",
+        "references/rest-api.md",
+        "references/template-integrity.md",
+        "references/workflow-format.md",
+        "scripts/_common.py",
+        "scripts/auto_fix_deps.py",
+        "scripts/check_deps.py",
+        "scripts/comfyui_setup.sh",
+        "scripts/extract_schema.py",
+        "scripts/fetch_logs.py",
+        "scripts/hardware_check.py",
+        "scripts/health_check.py",
+        "scripts/run_batch.py",
+        "scripts/run_workflow.py",
+        "scripts/ws_monitor.py",
+        "tests/README.md",
+        "tests/conftest.py",
+        "tests/pytest.ini",
+        "tests/test_check_deps.py",
+        "tests/test_cloud_integration.py",
+        "tests/test_common.py",
+        "tests/test_extract_schema.py",
+        "tests/test_run_workflow.py",
+        "workflows/README.md",
+        "workflows/animatediff_video.json",
+        "workflows/flux_dev_txt2img.json",
+        "workflows/sd15_txt2img.json",
+        "workflows/sdxl_img2img.json",
+        "workflows/sdxl_inpaint.json",
+        "workflows/sdxl_txt2img.json",
+        "workflows/upscale_4x.json",
+        "workflows/wan_video_t2v.json"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.814295+00:00",
+      "updated_at": "2026-09-06T18:20:06.814295+00:00"
+    },
+    "chroma": {
+      "source": "official",
+      "identifier": "official/languages/chroma",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:04488c920d3ccfcd",
+      "install_path": "languages/chroma",
+      "files": [
+        "SKILL.md",
+        "references/integration.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.832766+00:00",
+      "updated_at": "2026-09-06T18:20:06.832766+00:00"
+    },
+    "flash-attention": {
+      "source": "official",
+      "identifier": "official/languages/flash-attention",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:0b68ee6523996f35",
+      "install_path": "languages/flash-attention",
+      "files": [
+        "SKILL.md",
+        "references/benchmarks.md",
+        "references/transformers-integration.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.833501+00:00",
+      "updated_at": "2026-09-06T18:20:06.833501+00:00"
+    },
+    "llama-cpp": {
+      "source": "official",
+      "identifier": "official/languages/llama-cpp",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:43a4ec8fb07acce8",
+      "install_path": "languages/llama-cpp",
+      "files": [
+        "SKILL.md",
+        "references/advanced-usage.md",
+        "references/hub-discovery.md",
+        "references/optimization.md",
+        "references/quantization.md",
+        "references/server.md",
+        "references/troubleshooting.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.834525+00:00",
+      "updated_at": "2026-09-06T18:20:06.834525+00:00"
+    },
+    "serving-llms-vllm": {
+      "source": "official",
+      "identifier": "official/languages/serving-llms-vllm",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:688c281ab63bb0ea",
+      "install_path": "languages/serving-llms-vllm",
+      "files": [
+        "SKILL.md",
+        "references/optimization.md",
+        "references/quantization.md",
+        "references/server-deployment.md",
+        "references/troubleshooting.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.835456+00:00",
+      "updated_at": "2026-09-06T18:20:06.835456+00:00"
+    },
+    "qdrant": {
+      "source": "official",
+      "identifier": "official/languages/qdrant",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:644d169b529d805b",
+      "install_path": "languages/qdrant",
+      "files": [
+        "SKILL.md",
+        "references/advanced-usage.md",
+        "references/troubleshooting.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.837508+00:00",
+      "updated_at": "2026-09-06T18:20:06.837508+00:00"
+    },
+    "stable-diffusion": {
+      "source": "official",
+      "identifier": "official/languages/stable-diffusion",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:665b7c37511ea803",
+      "install_path": "languages/stable-diffusion",
+      "files": [
+        "SKILL.md",
+        "references/advanced-usage.md",
+        "references/troubleshooting.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.838206+00:00",
+      "updated_at": "2026-09-06T18:20:06.838206+00:00"
+    },
+    "axolotl": {
+      "source": "official",
+      "identifier": "official/languages/axolotl",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:9f2644cbceef2e97",
+      "install_path": "languages/axolotl",
+      "files": [
+        "SKILL.md",
+        "references/api.md",
+        "references/dataset-formats.md",
+        "references/index.md",
+        "references/other.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.839672+00:00",
+      "updated_at": "2026-09-06T18:20:06.839672+00:00"
+    },
+    "trl-fine-tuning": {
+      "source": "official",
+      "identifier": "official/languages/trl-fine-tuning",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:b38ec6e5a522e32d",
+      "install_path": "languages/trl-fine-tuning",
+      "files": [
+        "SKILL.md",
+        "references/dpo-variants.md",
+        "references/grpo-training.md",
+        "references/online-rl.md",
+        "references/reward-modeling.md",
+        "references/sft-training.md",
+        "templates/basic_grpo_training.py"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.840563+00:00",
+      "updated_at": "2026-09-06T18:20:06.840563+00:00"
+    },
+    "unsloth": {
+      "source": "official",
+      "identifier": "official/languages/unsloth",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:50517f1790c878f6",
+      "install_path": "languages/unsloth",
+      "files": [
+        "SKILL.md",
+        "references/index.md",
+        "references/llms-full.md",
+        "references/llms-txt.md",
+        "references/llms.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.845774+00:00",
+      "updated_at": "2026-09-06T18:20:06.845774+00:00"
+    },
+    "whisper": {
+      "source": "official",
+      "identifier": "official/languages/whisper",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:0dae25c98ffa2799",
+      "install_path": "languages/whisper",
+      "files": [
+        "SKILL.md",
+        "references/languages.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-06T18:20:06.847034+00:00",
+      "updated_at": "2026-09-06T18:20:06.847034+00:00"
+    },
+    "rss-feeds": {
+      "source": "official",
+      "identifier": "official/research/rss-feeds",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:10674c52ae6ca2f6",
+      "install_path": "research/rss-feeds",
+      "files": [
+        "SKILL.md",
+        "scripts/feed.py"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-14T11:25:03.687056+00:00",
+      "updated_at": "2026-09-14T11:25:03.687056+00:00"
+    },
+    "reddit-reading": {
+      "source": "official",
+      "identifier": "official/social-media/reddit-reading",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:e74aabacf82acb64",
+      "install_path": "social-media/reddit-reading",
+      "files": [
+        "SKILL.md",
+        "scripts/reddit.py"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-14T11:25:03.704296+00:00",
+      "updated_at": "2026-09-14T11:25:03.704296+00:00"
+    },
+    "dbs-chatroom": {
+      "source": "skills.sh",
+      "identifier": "skills-sh/dontbesilent2025/dbskill/dbs-chatroom",
+      "trust_level": "community",
+      "scan_verdict": "safe",
+      "content_hash": "sha256:6619bc380e9bde90",
+      "install_path": "dbs-chatroom",
+      "files": [
+        "SKILL.md",
+        "agents/openai.yaml"
+      ],
+      "metadata": {
+        "source_url": "https://github.com/dontbesilent2025/dbskill/tree/a0e6fa356c58eca1a6e804c319ea7aac3db4a9af/skills/dbs-chatroom",
+        "source_revision": "a0e6fa356c58eca1a6e804c319ea7aac3db4a9af",
+        "detail_url": "https://skills.sh/dontbesilent2025/dbskill/dbs-chatroom",
+        "repo_url": "https://github.com/dontbesilent2025/dbskill"
+      },
+      "scan_provenance": {
+        "bundle_hash": "sha256:6619bc380e9bde90f8a977e2200196bcf094df1128aa391a55e31ca36698ddd0",
+        "scanner_version": "skills-guard-v6",
+        "source": "skills-sh/dontbesilent2025/dbskill/dbs-chatroom",
+        "source_url": "https://github.com/dontbesilent2025/dbskill/tree/a0e6fa356c58eca1a6e804c319ea7aac3db4a9af/skills/dbs-chatroom",
+        "verdict": "safe",
+        "trust_level": "community",
+        "findings": [],
+        "rules": [],
+        "scanned_at": "2026-10-05T10:34:48.808658+00:00",
+        "summary": "dbs-chatroom: clean scan, no threats detected",
+        "fresh": true
+      },
+      "installed_at": "2026-10-05T10:34:48.816477+00:00",
+      "updated_at": "2026-10-05T10:34:48.816477+00:00"
+    },
+    "find-skills": {
+      "source": "skills.sh",
+      "identifier": "skills-sh/vercel-labs/skills/find-skills",
+      "trust_level": "community",
+      "scan_verdict": "safe",
+      "content_hash": "sha256:1df2204acb101e82",
+      "install_path": "find-skills",
+      "files": [
+        "SKILL.md"
+      ],
+      "metadata": {
+        "source_url": "https://github.com/vercel-labs/skills/tree/18f96ea131dab3b0fcc9b27cf7c6f6cbb6174680/skills/find-skills",
+        "source_revision": "18f96ea131dab3b0fcc9b27cf7c6f6cbb6174680",
+        "detail_url": "https://skills.sh/vercel-labs/skills/find-skills",
+        "repo_url": "https://github.com/vercel-labs/skills"
+      },
+      "scan_provenance": {
+        "bundle_hash": "sha256:1df2204acb101e822b85afac8f8b0e7b2042ccda4aae851014b57f8e775392ea",
+        "scanner_version": "skills-guard-v6",
+        "source": "skills-sh/vercel-labs/skills/find-skills",
+        "source_url": "https://github.com/vercel-labs/skills/tree/18f96ea131dab3b0fcc9b27cf7c6f6cbb6174680/skills/find-skills",
+        "verdict": "safe",
+        "trust_level": "community",
+        "findings": [],
+        "rules": [],
+        "scanned_at": "2026-10-05T12:19:52.723868+00:00",
+        "summary": "find-skills: clean scan, no threats detected",
+        "fresh": true
+      },
+      "installed_at": "2026-10-05T12:19:52.727325+00:00",
+      "updated_at": "2026-10-05T12:19:52.727325+00:00"
+    }
+  }
+}

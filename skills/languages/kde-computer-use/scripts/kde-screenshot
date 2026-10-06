@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+mode="active"
+output=""
+delay=""
+include_pointer="0"
+no_decoration="0"
+no_shadow="0"
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: kde-screenshot [--active|--current|--fullscreen] [--delay MS] [--pointer] [--no-decoration] [--no-shadow] [--output PATH]
+
+Take a KDE Plasma screenshot with Spectacle after loading the graphical session
+environment. Defaults to active window and prints the output path.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --active|--current|--fullscreen)
+      mode="${1#--}"
+      shift
+      ;;
+    --delay)
+      delay="${2:-}"
+      if [[ -z "$delay" ]]; then
+        usage
+        exit 2
+      fi
+      shift 2
+      ;;
+    --pointer)
+      include_pointer="1"
+      shift
+      ;;
+    --no-decoration)
+      no_decoration="1"
+      shift
+      ;;
+    --no-shadow)
+      no_shadow="1"
+      shift
+      ;;
+    -o|--output)
+      output="${2:-}"
+      if [[ -z "$output" ]]; then
+        usage
+        exit 2
+      fi
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      exit 2
+      ;;
+  esac
+done
+
+if [[ -z "$output" ]]; then
+  output="/tmp/kde-screenshot-$(date +%Y%m%d-%H%M%S).png"
+fi
+mkdir -p "$(dirname -- "$output")"
+
+case "$mode" in
+  active) spectacle_mode="--activewindow" ;;
+  current) spectacle_mode="--current" ;;
+  fullscreen) spectacle_mode="--fullscreen" ;;
+  *) usage; exit 2 ;;
+esac
+
+spectacle_args=(--background --nonotify "$spectacle_mode" --output "$output")
+if [[ -n "$delay" ]]; then
+  spectacle_args+=(--delay "$delay")
+fi
+if [[ "$include_pointer" == "1" ]]; then
+  spectacle_args+=(--pointer)
+fi
+if [[ "$no_decoration" == "1" ]]; then
+  spectacle_args+=(--no-decoration)
+fi
+if [[ "$no_shadow" == "1" ]]; then
+  spectacle_args+=(--no-shadow)
+fi
+
+"$script_dir/kde-session-env" -- spectacle "${spectacle_args[@]}"
+if [[ ! -s "$output" ]]; then
+  printf 'Screenshot did not create a non-empty file: %s\n' "$output" >&2
+  exit 1
+fi
+printf '%s\n' "$output"

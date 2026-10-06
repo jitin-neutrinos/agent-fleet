@@ -1,0 +1,25 @@
+{
+  "_comment": "Curated upstream map for the agent-fleet store. Keys in 'skills' are skill names; 'mcps'/'plugins' keyed by item name. Verified against GitHub 2026-09-14. null repo = deliberately unmapped (private/bundled/local).",
+  "mcps": {
+    "context7": {"repo": "upstash/context7", "note": "official Context7 docs MCP"},
+    "chroma-mcp": {"repo": "chroma-core/chroma-mcp", "note": "Chroma vector DB MCP"},
+    "chrome-devtools": {"repo": "ChromeDevTools/chrome-devtools-mcp", "note": "Chrome DevTools MCP (Google Chrome team)"},
+    "playwright": {"repo": "microsoft/playwright-mcp", "note": "official Playwright MCP"},
+    "shadcn": {"repo": "shadcn-ui/ui", "note": "shadcn CLI ships the MCP"},
+    "mcp-hfspace": {"repo": "evalstate/mcp-hfspace", "note": "Hugging Face Spaces MCP"},
+    "agentmemory": {"repo": "rohitg00/agentmemory", "note": "shared memory MCP + hermes plugin"},
+    "computer-use-linux": {"repo": "agent-sh/computer-use-linux", "note": "Linux desktop control MCP"},
+    "kwin": {"repo": null, "note": "local: kwin-mcp built on kurama-core"},
+    "neutrinos-docs": {"repo": null, "note": "owner's private docs MCP (neutrinos-mcp.jitinnair.com)"}
+  },
+  "plugins": {
+    "agentmemory": {"repo": "rohitg00/agentmemory", "note": "hermes plugin + MCP"},
+    "shell-hitl-gate": {"repo": null, "note": "local: this store"},
+    "ponytail": {"repo": "jitin-neutrinos/agent-fleet", "note": "private: this store (marketplace)"},
+    "caveman": {"repo": "jitin-neutrinos/agent-fleet", "note": "private: this store (marketplace)"}
+  },
+  "skills": {
+    "rust-skills": {"repo": "leonardomso/rust-skills", "note": "Rust guidelines, 265 rules"},
+    "computer-use-linux": {"repo": "agent-sh/computer-use-linux", "note": "installed from skills.sh (taps.json)"}
+  }
+}

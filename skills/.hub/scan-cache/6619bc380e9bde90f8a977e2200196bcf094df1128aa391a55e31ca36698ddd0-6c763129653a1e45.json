@@ -1,0 +1,13 @@
+{
+  "bundle_hash": "sha256:6619bc380e9bde90f8a977e2200196bcf094df1128aa391a55e31ca36698ddd0",
+  "scanner_version": "skills-guard-v6",
+  "source": "skills-sh/dontbesilent2025/dbskill/dbs-chatroom",
+  "source_url": "https://github.com/dontbesilent2025/dbskill/tree/a0e6fa356c58eca1a6e804c319ea7aac3db4a9af/skills/dbs-chatroom",
+  "verdict": "safe",
+  "trust_level": "community",
+  "findings": [],
+  "rules": [],
+  "scanned_at": "2026-10-05T10:34:48.808658+00:00",
+  "summary": "dbs-chatroom: clean scan, no threats detected",
+  "fresh": true
+}

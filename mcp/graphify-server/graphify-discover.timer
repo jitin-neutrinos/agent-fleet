@@ -1,0 +1,10 @@
+[Unit]
+Description=graphify auto-discovery: map new ~/Work projects into knowledge graphs every 30 min
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

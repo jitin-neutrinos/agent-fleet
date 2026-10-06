@@ -1,0 +1,4 @@
+interface:
+  display_name: "KDE Computer Use"
+  short_description: "Control KDE Plasma desktop sessions"
+  default_prompt: "Use $kde-computer-use to inspect and control the current KDE Plasma desktop."

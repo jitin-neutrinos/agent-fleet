@@ -1,0 +1,6 @@
+name: shell-hitl-gate
+version: "1.0"
+description: >
+  Gates every terminal/execute_code call through the human-approval prompt.
+  Coding profiles (coder, reviewer) get one bulk approval per session;
+  every other profile is asked per distinct command.

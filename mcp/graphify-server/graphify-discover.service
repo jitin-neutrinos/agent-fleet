@@ -1,0 +1,7 @@
+[Unit]
+Description=graphify auto-discovery sweep (maps new projects, merges master graph)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/graphify-discover
+TimeoutStartSec=3600

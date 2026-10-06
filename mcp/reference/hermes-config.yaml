@@ -1,0 +1,1018 @@
+model:
+  default_headers:
+    X-Headroom-Base-Url: https://api.z.ai/api/coding/paas/v4
+    X-Headroom-Original-Path: /chat/completions
+    X-Headroom-Cwd: /home/notjitin/.hermes
+  default: space-bunny-free
+  provider: headroom
+  fallback_providers:
+  - model: stealth/space-bunny-alpha
+    provider: opencode-go
+  - model: gemini-flash-latest
+    provider: gemini
+  aliases:
+    omen:
+      provider: opencode-go
+      model: omen-alpha
+    vercel:
+      provider: custom
+      base_url: https://ai-gateway.vercel.sh/v1
+      api_key: ${VERCEL_API_KEY}
+      model: typesafe-ai/jev
+  base_url: http://127.0.0.1:8787/v1
+  api_mode: chat_completions
+fallback_providers:
+- model: glm-5.3-flash
+  provider: opencode-go
+- model: stealth/space-bunny-alpha
+  provider: openrouter
+- model: longcat-2.5-preview-free
+  provider: opencode-go
+- model: deepseek-v4-flash
+  provider: opencode-go
+- model: gemini-flash-latest
+  provider: gemini
+toolsets:
+- memory
+- clarify
+- file
+database:
+  journal_mode: wal
+runtime:
+  nofile_soft_limit: 4096
+max_live_sessions: 16
+agent:
+  max_turns: 150
+  service_tier: ''
+  fast_auto_seconds: 60
+  personalities: {}
+  reasoning_effort: ultra
+  verbose: false
+terminal:
+  backend: local
+  cwd: .
+  timeout: 180
+  home_mode: auto
+  docker_image: nikolaik/python-nodejs:python3.11-nodejs20@sha256:8f958bdc1b4a422bfafd97cab4f69836401f616ae985d4b57a53d254f5bcb038
+  container_cpu: 4
+  container_memory: 8192
+  container_disk: 51200
+  container_persistent: true
+  docker_volumes:
+  - /home/notjitin/Work:/home/notjitin/Work
+  docker_mount_cwd_to_workspace: false
+  docker_extra_args:
+  - --network=workspaces
+  docker_run_as_host_user: true
+  lifetime_seconds: 300
+browser:
+  backend: browser-use
+  inactivity_timeout: 1200
+  extension_control:
+    enabled: false
+tool_loop_guardrails:
+  warnings_enabled: true
+  hard_stop_enabled: true
+  non_interactive_hard_stop_enabled: true
+  warn_after:
+    exact_failure: 2
+    same_tool_failure: 3
+    idempotent_no_progress: 2
+  hard_stop_after:
+    exact_failure: 5
+    same_tool_failure: 8
+    idempotent_no_progress: 5
+compression:
+  enabled: true
+  checkpoint_required: false
+  progress_notices: false
+  threshold: 0.75
+  target_ratio: 0.2
+  protect_last_n: 20
+  min_tail_user_messages: 1
+  max_attempts: 3
+  proactive_prune_tokens: 0
+  proactive_prune_min_result_chars: 8000
+  proactive_prune_min_reclaim_tokens: 4096
+  hygiene_max_turn_hold_seconds: 10
+  protect_first_n: 3
+  codex_gpt55_autoraise: true
+  codex_app_server_auto: native
+  codex_responses_native: false
+  idle_compact_after_seconds: 0
+  threshold_tokens: 786000
+prompt_caching:
+  cache_ttl: 1h
+auxiliary:
+  vision:
+    provider: zai
+    model: glm-5.3-flash
+    base_url: https://api.z.ai/api/coding/paas/v4
+  compression:
+    provider: zai
+    model: glm-5.3-flash
+    base_url: https://api.z.ai/api/coding/paas/v4
+display:
+  compact: true
+  busy_input_mode: steer
+  bell_on_complete: false
+  bell_on_prompt: false
+  show_reasoning: true
+  memory_notifications: verbose
+  background_process_notifications: concise
+  streaming: true
+  skin: mono
+  interim_assistant_messages: true
+  busy_ack_detail: true
+  cleanup_progress: false
+  long_running_notifications: true
+  tool_progress: all
+  tool_progress_overrides:
+    telegram: 'off'
+  timestamps: true
+  reasoning_full: true
+dashboard:
+  theme: astra
+  show_token_analytics: true
+  basic_auth:
+    username: jitin
+    session_ttl_seconds: 2592000
+  public_url: https://astra.jitinnair.com
+  font: theme
+tts:
+  provider: chatterbox
+  providers:
+    chatterbox:
+      type: command
+      command: /home/notjitin/.hermes/chatterbox-tts/speak.sh {input_path} {output_path}
+        {voice}
+      output_format: wav
+      timeout: 120
+      voice_compatible: true
+      warm_command: curl -s -X POST http://127.0.0.1:8790/load
+      release_command: curl -s -X POST http://127.0.0.1:8790/unload
+      voice: jitin-voice.wav
+stt:
+  enabled: true
+  language: en
+  local:
+    model: base
+  openai:
+    model: whisper-1
+    language: ''
+wake_word:
+  enabled: true
+  capture: local
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  memory_char_limit: 2400
+  user_char_limit: 2000
+  nudge_interval: 10
+  provider: holographic
+  write_approval: true
+delegation:
+  max_iterations: 250
+  provider: opencode-go
+  model: space-bunny-free
+  fallback_providers:
+  - model: glm-5.3-flash
+    provider: opencode-go
+  - model: longcat-2.5-preview-free
+    provider: opencode-go
+  - model: deepseek-v4-flash
+    provider: opencode-go
+moa:
+  default_preset: deep
+  presets:
+    deep:
+      aggregator:
+        model: glm-5.3
+        provider: zai
+        reasoning_effort: high
+      enabled: true
+      reference_models:
+      - model: glm-5.3-flash
+        provider: zai
+        reasoning_effort: low
+skills:
+  creation_nudge_interval: 15
+approvals:
+  mode: manual
+  timeout: 300
+  cron_mode: approve
+  single_query_mode: deny
+  unattended_mode: deny
+  deny:
+  - '*mkfs*'
+  - '*/run/media/notjitin/*'
+  - '*/boot/efi*'
+  - '*ntfsresize*'
+  - '*parted*'
+  - '*fdisk*'
+  - '*wipefs*'
+  - dnf* upgrade*
+  - dnf* distro-sync*
+  - sudo dnf* upgrade*
+  - '*akmod-nvidia*'
+  - '*NVIDIA-Linux-*.run*'
+  - '*dnf* remove* kernel*'
+  - '*dnf* remove* mesa*'
+  - '*rpmfusion*'
+  - docker system prune*
+  - docker volume rm*
+  - docker* compose* down* -v*
+  - docker* compose* down* --volumes*
+  - git push*--force*
+  destructive_slash_confirm: false
+command_allowlist:
+- execute_code
+- plugin_rule:execute_code:9656710e7638de8b
+- plugin_rule:execute_code:ce29e199a386b1b9
+- plugin_rule:execute_code:d637e91b1c368d8d
+- plugin_rule:terminal:00250667a8b77e55
+- plugin_rule:terminal:027ff37cfba46d5d
+- plugin_rule:terminal:07fb586b7696a106
+- plugin_rule:terminal:0efefaaace133fb7
+- plugin_rule:terminal:18051018d64dde66
+- plugin_rule:terminal:1d196e4b181c7bb0
+- plugin_rule:terminal:1ddd675ea50aa602
+- plugin_rule:terminal:2d4fcfe0208c0e8e
+- plugin_rule:terminal:2ecaac8b94819572
+- plugin_rule:terminal:3665bb0b479e2ff3
+- plugin_rule:terminal:477b1f5849202399
+- plugin_rule:terminal:48ec844ca5d3705b
+- plugin_rule:terminal:49502b4ec9ce3efa
+- plugin_rule:terminal:841fb9e76d263261
+- plugin_rule:terminal:8c80e5243ae304b3
+- plugin_rule:terminal:96a50ec5c2e62be8
+- plugin_rule:terminal:9a2650857afd9c74
+- plugin_rule:terminal:a16fdf5e357cd7e0
+- plugin_rule:terminal:a82ca20538991357
+- plugin_rule:terminal:ab88d3691354bc0a
+- plugin_rule:terminal:b6313c2140e0f210
+- plugin_rule:terminal:bdf20c9162429e47
+- plugin_rule:terminal:c34a69d76150cbb3
+- plugin_rule:terminal:c96432ca29304a5b
+- plugin_rule:terminal:d6203b8e38cdce4b
+- plugin_rule:terminal:d9b7feb090c6fe0a
+- plugin_rule:terminal:deeeb02aa5818be3
+- plugin_rule:terminal:e55e63b854db402f
+- script execution via -e/-c flag
+- script execution via heredoc
+plugins:
+  enabled:
+  - astra-brand
+  - astra-login
+  - astra-page-analytics
+  - astra-page-chat
+  - astra-page-config
+  - astra-page-cron
+  - astra-page-env
+  - astra-page-files
+  - astra-page-logs
+  - astra-page-mcp
+  - astra-page-models
+  - astra-page-pairing
+  - astra-page-plugins
+  - astra-page-profiles
+  - astra-page-root
+  - astra-page-sessions
+  - astra-page-skills
+  - astra-page-system
+  - astra-page-webhooks
+  - claude-subscription-directsdk-experimental
+  - sb-probe
+  - shell-hitl-gate
+  - slopguard
+  - tool-router
+  hermes-memory-store:
+    auto_extract: true
+    db_path: /home/notjitin/.hermes/memory_store.db
+    default_trust: 0.5
+    hrr_dim: 4096
+  disabled: []
+kanban:
+  review_dispatch: true
+code_execution:
+  max_tool_calls: 50
+  timeout: 300
+gateway:
+  signal_interrupt_grace_timeout: 1
+  delivery_ledger: true
+  platform_connect_timeout: 30
+  loop_watchdog: true
+  loop_watchdog_probe_interval_s: 30
+  loop_watchdog_probe_timeout_s: 10
+  loop_watchdog_max_strikes: 3
+  startup_watchdog: true
+  startup_watchdog_timeout_seconds: 300
+  write_sessions_json: true
+  multiplex_profiles: true
+  scale_to_zero:
+    idle_timeout_minutes: 2
+  restart_loop_guard:
+    max_restarts: 3
+    window_seconds: 60
+    max_gap_seconds: 300
+  respawn_storm:
+    max_starts: 5
+    window_seconds: 120
+  message_timestamps:
+    enabled: false
+  max_inbound_media_bytes: 134217728
+  trust_env: true
+  strict: false
+  media_delivery_allow_dirs: []
+  trust_recent_files: true
+  trust_recent_files_seconds: 600
+  api_server:
+    max_concurrent_runs: 10
+streaming:
+  enabled: true
+  cursor: " \u2589"
+onboarding:
+  seen:
+    busy_input_prompt: true
+    tool_progress_prompt: true
+    openclaw_residue_cleanup: true
+telemetry:
+  shared_metrics:
+    enabled: false
+    send: true
+updates:
+  pre_update_backup: false
+  backup_keep: 5
+  non_interactive_local_changes: stash
+computer_use:
+  backend: cua
+_config_version: 45
+group_sessions_per_user: true
+known_builtin_toolsets:
+  cli:
+  - browser
+  - clarify
+  - code_execution
+  - computer_use
+  - connections
+  - context_engine
+  - cronjob
+  - delegation
+  - discord
+  - discord_admin
+  - file
+  - homeassistant
+  - image_gen
+  - memory
+  - session_search
+  - skills
+  - spotify
+  - stt
+  - terminal
+  - todo
+  - tts
+  - video
+  - video_gen
+  - vision
+  - web
+  - x_search
+  - yuanbao
+  telegram:
+  - browser
+  - clarify
+  - code_execution
+  - computer_use
+  - connections
+  - context_engine
+  - cronjob
+  - delegation
+  - discord
+  - discord_admin
+  - file
+  - homeassistant
+  - image_gen
+  - memory
+  - session_search
+  - skills
+  - spotify
+  - stt
+  - terminal
+  - todo
+  - tts
+  - video
+  - video_gen
+  - vision
+  - web
+  - x_search
+  - yuanbao
+known_plugin_toolsets:
+  cli:
+  - a2a
+  - spotify
+  telegram:
+  - a2a
+  - spotify
+mcp_servers:
+  agentmemory:
+    args:
+    - -y
+    - '@agentmemory/mcp'
+    command: npx
+    enabled: true
+  chroma-mcp:
+    args:
+    - chroma-mcp
+    command: uvx
+    enabled: true
+  chrome-devtools:
+    command: npx
+    args:
+    - -y
+    - chrome-devtools-mcp@latest
+    enabled: true
+    timeout: 60
+  computer-use-linux:
+    args:
+    - mcp
+    command: /home/notjitin/.npm-global/bin/computer-use-linux
+    timeout: 120
+    trust: trusted
+  context7:
+    url: https://mcp.context7.com/mcp
+  kwin:
+    command: /home/notjitin/.local/bin/kwin-mcp
+    timeout: 120
+    trust: full
+  mcp-hfspace:
+    args:
+    - -y
+    - '@llmindset/mcp-hfspace'
+    command: npx
+    enabled: true
+  neutrinos-docs:
+    url: https://neutrinos-mcp.jitinnair.com/mcp
+  laya-decisions:
+    url: http://127.0.0.1:8015/mcp
+    headers:
+      Authorization: Bearer ${LAYA_MCP_TOKEN}
+  graphify:
+    url: http://127.0.0.1:8390/mcp
+    enabled: true
+    timeout: 60
+  laya-browser:
+    command: /home/notjitin/Work/laya-browser-agent/.venv/bin/localdecide-mcp
+    enabled: true
+    timeout: 120
+  playwright:
+    args:
+    - -y
+    - '@playwright/mcp@latest'
+    command: npx
+    enabled: true
+  shadcn:
+    args:
+    - -y
+    - shadcn@latest
+    - mcp
+    command: npx
+    enabled: true
+  headroom:
+    command: /home/notjitin/.local/bin/headroom
+    args:
+    - mcp
+    - serve
+    - --proxy-url
+    - http://127.0.0.1:8787
+    enabled: true
+  jitinnair-ui:
+    command: /usr/bin/python3
+    args:
+    - /home/notjitin/Work/projects/ui/mcp/jitinnair_ui_mcp.py
+    env:
+      JITINAIR_UI_BASE: https://ui.jitinnair.com
+    enabled: true
+    timeout: 60
+  cloudflare-docs:
+    url: https://docs.mcp.cloudflare.com/mcp
+    enabled: true
+  sentry:
+    url: https://mcp.sentry.dev/mcp
+    auth: oauth
+    enabled: true
+  tavily:
+    command: npx
+    args:
+    - -y
+    - tavily-mcp@latest
+    enabled: true
+    timeout: 300
+  brave-search:
+    command: npx
+    args:
+    - -y
+    - '@modelcontextprotocol/server-brave-search@latest'
+    enabled: false
+    timeout: 300
+  figma-context:
+    command: npx
+    args:
+    - -y
+    - figma-developer-mcp@latest
+    - --stdio
+    enabled: false
+    timeout: 300
+  firecrawl:
+    command: npx
+    args:
+    - -y
+    - firecrawl-mcp@latest
+    enabled: true
+    timeout: 300
+  youtube-transcript:
+    command: npx
+    args:
+    - -y
+    - '@kimtaeyoon83/mcp-server-youtube-transcript@latest'
+    enabled: true
+    timeout: 300
+  gmail:
+    url: https://gmailmcp.googleapis.com/mcp/v1
+    enabled: true
+  notion:
+    url: https://mcp.notion.com/mcp
+    auth: oauth
+    enabled: true
+  arxiv:
+    command: uvx
+    args:
+    - --with
+    - mcp<2
+    - arxiv-mcp
+    enabled: true
+    timeout: 300
+  quillhub:
+    url: https://mcp.quillhub.ai/mcp
+    auth: oauth
+    enabled: true
+  lottiefiles:
+    url: https://mcp.lottiefiles.com/mcp
+    auth: oauth
+    enabled: true
+  lottiefiles-creator:
+    command: npx
+    args:
+    - -y
+    - '@lottiefiles/creator-mcp@latest'
+    enabled: true
+    timeout: 300
+  21st-magic:
+    command: npx
+    args:
+    - -y
+    - '@21st-dev/magic@latest'
+    env:
+      API_KEY: ${API_KEY_21ST}
+    enabled: true
+    timeout: 300
+  penpot:
+    url: http://127.0.0.1:4411/mcp
+    enabled: true
+    timeout: 60
+  aceternity:
+    command: npx
+    args:
+    - -y
+    - aceternityui-mcp@latest
+    enabled: true
+    timeout: 300
+  magicui:
+    command: npx
+    args:
+    - -y
+    - '@magicuidesign/mcp@latest'
+    enabled: true
+    timeout: 300
+  iconify:
+    command: npx
+    args:
+    - -y
+    - iconify-mcp@latest
+    enabled: true
+    timeout: 300
+  canva:
+    url: https://mcp.canva.com/mcp
+    auth: oauth
+    enabled: true
+  figma-official:
+    url: https://mcp.figma.com/mcp
+    auth: oauth
+    enabled: true
+  puppeteer-screenshot:
+    command: npx
+    args:
+    - -y
+    - '@modelcontextprotocol/server-puppeteer@latest'
+    enabled: true
+    timeout: 300
+  color-palette:
+    command: /home/notjitin/.npm-global/bin/color-mcp
+    enabled: true
+    timeout: 300
+  brandfetch:
+    url: https://mcp.brandfetch.io/mcp
+    auth: oauth
+    enabled: true
+  github:
+    command: docker
+    args:
+    - run
+    - -i
+    - --rm
+    - -e
+    - GITHUB_PERSONAL_ACCESS_TOKEN
+    - ghcr.io/github/github-mcp-server
+    - stdio
+    enabled: true
+    timeout: 120
+  serena:
+    command: uvx
+    args:
+    - --from
+    - git+https://github.com/oraios/serena
+    - serena
+    - start-mcp-server
+    - --context
+    - ide-assistant
+    enabled: true
+    timeout: 300
+  sequential-thinking:
+    command: npx
+    args:
+    - -y
+    - '@modelcontextprotocol/server-sequential-thinking@latest'
+    enabled: true
+    timeout: 300
+  n8n:
+    command: npx
+    args:
+    - -y
+    - n8n-mcp@latest
+    enabled: true
+    timeout: 300
+  excalidraw:
+    command: npx
+    args:
+    - -y
+    - mcp-excalidraw@latest
+    enabled: true
+    timeout: 300
+  reticle:
+    command: npx
+    args:
+    - '@reticlehq/server'
+    - mcp
+    enabled: true
+    timeout: 60
+  skillspector:
+    command: skillspector
+    args:
+    - mcp
+    enabled: true
+    timeout: 60
+  alphavantage:
+    command: uvx
+    args:
+    - --with
+    - mcp<2
+    - alphavantage-mcp
+    env:
+      ALPHAVANTAGE_API_KEY: XA4JFKCEL316ZEGE
+    cwd: /home/notjitin/Work/scratch/alphavantage-mcp-work
+    enabled: true
+    timeout: 60
+  deepwiki:
+    url: https://mcp.deepwiki.com/mcp
+    enabled: true
+    timeout: 60
+  gcloud:
+    command: npx
+    args:
+    - -y
+    - '@google-cloud/gcloud-mcp'
+    enabled: true
+    timeout: 60
+  next-devtools:
+    command: npx
+    args:
+    - -y
+    - next-devtools-mcp@latest
+    enabled: true
+    timeout: 60
+  industrylens:
+    url: https://api.industry-lens.com/mcp/public
+    enabled: true
+    timeout: 60
+  jevnav:
+    command: uvx
+    args:
+    - --from
+    - jevnav[mcp]
+    - jevnav
+    - mcp
+    enabled: true
+    timeout: 60
+  airtable:
+    url: https://mcp.airtable.com/mcp
+    auth: oauth
+    enabled: false
+  hugging_face:
+    url: https://huggingface.co/mcp
+    auth: oauth
+    enabled: false
+  indeed:
+    url: https://mcp.indeed.com/claude/mcp
+    auth: oauth
+    enabled: false
+  twelve-data:
+    url: https://mcp.twelvedata.com/mcp
+    auth: oauth
+    enabled: false
+    tools:
+      exclude:
+      - oauth_login
+      - auth_status
+      - oauth_configure
+      - get_api_usage
+  vercel:
+    url: https://mcp.vercel.com
+    auth: oauth
+    enabled: false
+  webflow:
+    url: https://mcp.webflow.com/mcp
+    auth: oauth
+    enabled: false
+  semgrep:
+    url: https://mcp.semgrep.ai/mcp
+    auth: oauth
+    enabled: false
+    tools:
+      exclude:
+      - security_check
+      - supported_languages
+      - semgrep_rule_schema
+  postman:
+    url: https://mcp.postman.com/minimal
+    auth: oauth
+    enabled: true
+  algolia:
+    url: https://mcp.algolia.com/mcp
+    auth: oauth
+    enabled: false
+  aws-knowledge:
+    url: https://knowledge-mcp.global.api.aws
+    enabled: true
+    tools:
+      exclude:
+      - aws___retrieve_skill
+  buildkite:
+    url: https://mcp.buildkite.com/mcp
+    auth: oauth
+    enabled: false
+    tools:
+      exclude:
+      - access_token
+      - get_job_env
+  circleci:
+    url: https://mcp.circleci.com/v1/mcp
+    auth: oauth
+    enabled: false
+    tools:
+      exclude:
+      - hello
+      - download_usage_data
+  close:
+    url: https://mcp.close.com/mcp
+    auth: oauth
+    enabled: false
+    tools:
+      exclude:
+      - close_product_knowledge_search
+      - customized_builtin_labels
+      - search
+      - fetch
+      - paginate_search
+      - enrich_field
+      - schedule_voice_agent_call
+      - apply_voice_agent_update
+      - propose_voice_agent_update
+      - find_voice_agents
+      - find_agent_configs
+      - get_voice_agents
+      - get_voice_agent_overview_report
+      - get_voice_agent_performance_report
+  cloudflare:
+    url: https://mcp.cloudflare.com/mcp?codemode=false
+    auth: oauth
+    enabled: false
+    tools:
+      exclude:
+      - docs
+      - '*_radar_*'
+      - '*_accounts_magic_*'
+      - '*_accounts_mnm_*'
+      - '*_accounts_cni_*'
+      - '*_accounts_teamnet_*'
+      - '*_accounts_cloudforceone_*'
+      - '*_accounts_dlp_*'
+      - '*_accounts_devices*'
+      - '*_accounts_dex_*'
+      - '*_accounts_datasecurity_*'
+      - '*_accounts_emailsecurity_*'
+      - '*_accounts_scim_*'
+      - '*_accounts_gateway*'
+      - '*_accounts_zerotrust_*'
+      - '*_accounts_one_*'
+      - '*_accounts_brandprotection_*'
+      - '*_accounts_intel_*'
+      - '*_accounts_urlscanner_*'
+      - '*_accounts_vuln_scanner_*'
+      - '*_zones_securitycenter_*'
+      - '*_accounts_securitycenter_*'
+      - '*_zones_api_gateway_*'
+      - '*_zones_schema_validation*'
+      - '*_zones_token_validation*'
+      - '*_zones_waiting_rooms*'
+      - '*_accounts_addressing_*'
+      - '*_accounts_shares*'
+      - '*_accounts_slurper_*'
+      - '*_zones_web3_*'
+      - '*_accounts_flagship_*'
+      - '*_zones_secondary_dns_*'
+      - '*_accounts_secondary_dns_*'
+      - '*_user_load_balancers*'
+  cloudinary:
+    url: https://asset-management.mcp.cloudinary.com/mcp
+    auth: oauth
+    enabled: false
+  comfy-cloud:
+    url: https://cloud.comfy.org/mcp
+    auth: oauth
+    enabled: true
+    tools:
+      include:
+      - submit_workflow
+      - get_job_status
+      - wait_for_job
+      - get_output
+      - use_previous_output
+      - get_queue
+      - upload_file
+      - cancel_job
+      - partner_generate
+      - get_prompting_guide
+      - search_models
+      - search_nodes
+      - get_node
+      - search_templates
+      - get_template
+      - get_template_schema
+      - apply_slots
+      - run_template
+      - get_workflow_canvas_url
+  craft:
+    url: https://mcp.craft.do/my/mcp
+    auth: oauth
+    enabled: false
+  robinhood:
+    url: https://agent.robinhood.com/mcp/trading
+    auth: oauth
+    enabled: false
+    tools:
+      exclude:
+      - get_option_level_upgrade_info
+      - get_popular_watchlists
+      - follow_watchlist
+      - unfollow_watchlist
+  fireflies:
+    url: https://api.fireflies.ai/mcp
+    auth: oauth
+    enabled: false
+    tools:
+      exclude:
+      - fireflies_search
+      - fireflies_fetch
+  mission-control:
+    command: node
+    args:
+    - /home/notjitin/Work/ageos/mission-control/scripts/mc-mcp-server.cjs
+    - --env
+    - MC_URL=http://127.0.0.1:3100
+    - MC_API_KEY=ee2a7ca764e1f50d2ca21ee48de64c62
+    enabled: true
+  openviking:
+    url: http://127.0.0.1:1934/mcp
+    enabled: true
+  tradingview:
+    command: docker
+    args:
+    - run
+    - --rm
+    - -i
+    - -v
+    - tradingview-mcp-session:/data
+    - -e
+    - TV_SESSION_FILE=/data/.tv_session.json
+    - mikeh1975/tradingview-mcp:latest
+    timeout: 120
+  ctrader-remote:
+    url: ${CTRADER_REMOTE_MCP_URL}
+    enabled: false
+    trust: full
+platform_toolsets:
+  cli:
+  - a2a
+  - browser
+  - clarify
+  - code_execution
+  - computer_use
+  - connections
+  - context_engine
+  - cronjob
+  - delegation
+  - file
+  - homeassistant
+  - image_gen
+  - memory
+  - session_search
+  - skills
+  - spotify
+  - terminal
+  - todo
+  - tts
+  - video
+  - video_gen
+  - vision
+  - web
+  - x_search
+  - yuanbao
+  discord:
+  - hermes-discord
+  google_chat:
+  - hermes-google_chat
+  homeassistant:
+  - hermes-homeassistant
+  qqbot:
+  - hermes-qqbot
+  signal:
+  - hermes-signal
+  slack:
+  - hermes-slack
+  teams:
+  - hermes-teams
+  telegram:
+  - a2a
+  - browser
+  - clarify
+  - code_execution
+  - computer_use
+  - connections
+  - context_engine
+  - cronjob
+  - delegation
+  - file
+  - homeassistant
+  - image_gen
+  - memory
+  - session_search
+  - skills
+  - spotify
+  - terminal
+  - todo
+  - tts
+  - video
+  - video_gen
+  - vision
+  - web
+  - x_search
+  - yuanbao
+  whatsapp:
+  - hermes-whatsapp
+  yuanbao:
+  - hermes-yuanbao
+platforms:
+  telegram:
+    enabled: true
+    home_channel:
+      chat_id: '8881524728'
+      name: Jitin
+      platform: telegram
+      user_id: '8881524728'
+session_reset:
+  at_hour: 4
+  idle_minutes: 1440
+  mode: none
+tool_search:
+  enabled: true
+sessions:
+  auto_archive: true
+  auto_archive_days: 14

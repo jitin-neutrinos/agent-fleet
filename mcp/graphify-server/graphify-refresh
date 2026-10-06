@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Nightly graphify freshness pass for all mapped ~/Work projects.
+# 1) AST-only incremental update per project (free, no API)
+# 2) check-update flags semantic drift -> full re-extract if needed
+# 3) merge all graphs into one cross-project graph for the Hermes MCP server
+# 4) graphify reflect on the merged graph -> LESSONS.md (work-memory)
+set -u
+export OLLAMA_MODEL=qwen3.5:9b-128k   # local, free, unlimited (gemini free tier = 20 calls/day)
+LOG=~/Work/graphify-refresh.log
+: > "$LOG"
+MAPS=(
+  "$HOME/Work/projects/localgen-ui"
+  "$HOME/Work/projects/astra-webui"
+  "$HOME/Work/projects/vdloader"
+  "$HOME/Work/projects/jitin-nair-portfolio"
+  "$HOME/Work/projects/glitchzero-marketing"
+  "$HOME/Work/projects/einfach-admin"
+  "$HOME/Work/projects/einfach-design-studio-v2"
+  "$HOME/Work/projects/storyteller-studio"
+  "$HOME/Work/projects/Smartslate"
+  "$HOME/Work/projects/commune"
+  "$HOME/Work/projects/rce-mcp"
+  "$HOME/Work/projects/ai-foundations"
+  "$HOME/Work/Neutrinos/neutrinos-mcp"
+  "$HOME/Work/Neutrinos/community-admin-bot"
+  "$HOME/Work/Neutrinos/community-insights-dashboard"
+  "$HOME/Work/Neutrinos/neutrinos-designer"
+  "$HOME/Work/Neutrinos/neutrinos-designer-www"
+  "$HOME/Work/Neutrinos/docs-chatbot"
+  "$HOME/Work/Neutrinos/ai-hub"
+  "$HOME/Work/laya-mcp"
+  "$HOME/Work/tool-router"
+  "$HOME/Work/openviking"
+)
+GRAPHS=()
+for p in "${MAPS[@]}"; do
+  [ -d "$p" ] || continue
+  name=$(basename "$p")
+  echo "[$(date '+%F %T')] update $name" >> "$LOG"
+  cd "$p" || continue
+  if [ -f graphify-out/graph.json ]; then
+    timeout 600 graphify update . --force >> "$LOG" 2>&1
+    if timeout 60 graphify check-update . >> "$LOG" 2>&1 && grep -qi "needs_update.*true\|semantic.*pending\|re-extract" "$LOG"; then
+      timeout 900 graphify extract . --backend gemini >> "$LOG" 2>&1
+      timeout 600 graphify cluster-only . --no-viz >> "$LOG" 2>&1
+    fi
+  else
+    # project not yet mapped (failed earlier or new): map it now
+    timeout 900 graphify extract . --backend gemini >> "$LOG" 2>&1 \
+      && timeout 600 graphify cluster-only . --no-viz >> "$LOG" 2>&1
+  fi
+  [ -f "$p/graphify-out/graph.json" ] && GRAPHS+=("$p/graphify-out/graph.json")
+done
+# merge into the single cross-project graph Hermes serves
+mkdir -p ~/Work/graphify-out
+if [ ${#GRAPHS[@]} -gt 0 ]; then
+  echo "[$(date '+%F %T')] merging ${#GRAPHS[@]} graphs" >> "$LOG"
+  cd ~/Work && timeout 300 graphify merge-graphs "${GRAPHS[@]}" >> "$LOG" 2>&1
+  [ -f ~/Work/graphify-out/merged-graph.json ] \
+    && echo "[$(date '+%F %T')] merged OK ($(stat -c%s ~/Work/graphify-out/merged-graph.json) bytes)" >> "$LOG" \
+    || echo "[$(date '+%F %T')] MERGE FAILED" >> "$LOG"
+fi
+echo "[$(date '+%F %T')] REFRESH COMPLETE" >> "$LOG"

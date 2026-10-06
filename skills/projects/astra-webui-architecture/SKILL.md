@@ -1,0 +1,284 @@
+---
+name: astra-webui-architecture
+description: "Use when changing astra-webui streaming, storage, ordering."
+version: "1.0.0"
+author: Hermes Agent
+license: MIT
+metadata:
+  hermes:
+    tags: [astra-webui, architecture, streaming, persistence, sqlite, ordering, sync, storage]
+    related_skills: [astra-webui-performance, astra-webui-regression-fixes, grounded-citations]
+---
+
+# Astra WebUI — server/client architecture
+
+Class-level rules for the parts of `~/Work/projects/astra-webui` that own DATA:
+the streaming relay, the server databases, client persistence, and message
+ordering. Perf/layout work is `astra-webui-performance`; deploy and bug
+recurrence is `astra-webui-regression-fixes`.
+
+Measured figures, retention gates and the body-vs-reference split live in
+`references/stream-persistence-and-sync.md`.
+
+## The shape, in one paragraph
+
+`hermes-proxy.mjs` is a RELAY, not a store. It receives frames from the Hermes
+gateway and writes them to browser sockets. Everything the gateway owns lives in
+`~/.hermes/state.db`. Everything Astra owns lives in `server/*.mjs` modules over
+`data/astra-training.db`. If a frame is not appended by Astra before the socket
+write, it does not exist on this side.
+
+## always-on rules
+
+### 1. Measure the database; never assert its contents
+There may be no `sqlite3` CLI on the host. Node's built-in `node:sqlite` is the
+reliable probe — it is stdlib, so it works inside a zero-dependency server too:
+
+```bash
+node --input-type=module -e "
+import { DatabaseSync } from 'node:sqlite';
+const db = new DatabaseSync('file:/abs/path.db?mode=ro', { readOnly: true });
+console.log(db.prepare('SELECT count(*) c FROM messages').get().c);
+console.log(db.prepare('PRAGMA journal_mode').get());
+"
+```
+
+Use the `file:…?mode=ro` URI form for a database owned by another service. Probe
+row counts, per-role byte averages and top-N by size — averages decide whether a
+storage proposal is affordable, and they routinely invert the naive intuition
+(tool rows dominate assistant rows in both count and bytes).
+
+### 2. Persist inside `broadcastFrame`, BEFORE the socket write
+`server/hermes-proxy.mjs` `broadcastFrame()` is the single funnel for every
+upstream frame. Anything durable must be appended there before `s.write(frame)`.
+Writing after the socket write loses frames to any error in between; writing from
+a different module means a second copy of the parse.
+
+### 3. Order by id, never by timestamp
+Upstream orders messages by `messages.id` (`INTEGER PRIMARY KEY AUTOINCREMENT`)
+and says why in its own docstring: clocks regress. `timestamp` is display
+metadata only. Every messaging platform that survives multi-device clients
+assigns order server-side; client wall-clock is never the key, because a phone
+whose clock drifts places messages wrongly. Sort committed rows by `(seq, id)`,
+optimistic local rows by `(client_uuid, id)`, and rank committed ahead of
+optimistic — never by a client-provided time value.
+
+### 4. Treat client storage as a CACHE and an OUTBOX, never the archive
+The Android shell loads the LIVE origin (`capacitor.config.ts` `server.url`), so
+phone and desktop share one quota — and each WebView is still its own storage
+partition, so N devices are N independent caches, never one shared store.
+`navigator.storage.persist()` cannot be relied on in a WebView shell (the
+underlying heuristic needs a bookmarkable origin a WebView does not have); treat
+it as a hint and record `persisted()` for diagnostics only. Server stays
+authoritative; local loss must degrade to a slow first paint, never data loss.
+
+### 5. Before trusting a component's own doc comment, read its code
+A header comment claiming a guarantee the code no longer provides is worse than
+no comment — the next reader trusts it. The outgoing-queue module claimed survival
+of an app kill while persisting to `sessionStorage`, which dies with the tab. The
+cause was two correct fixes colliding: a per-tab fix (stop tab A's queue leaking
+into tab B) and a durability fix (stop losing queued sends) both wanted the same
+storage. Grep for the primitive the comment names; if the code disagrees, the
+comment is the bug.
+
+### 6. Zero importers means unimplemented
+Correct-shaped, fully-commented helper modules with no call sites are traps: they
+read as implemented. Before planning work that assumes a module exists, grep its
+importers. Either wire it or delete it — never leave a third copy to be written.
+
+### 7. Storage hazard: the SQLite WAL-reset bug (check before touching DBs)
+A data race between a checkpoint and a WAL-resetting commit silently drops an
+acknowledged committed transaction. Affected: SQLite 3.7.0 through 3.51.2;
+fixed in 3.51.3 and its backports. Measure what the RUNTIME actually loads — the
+bundled copy is frequently behind the system package:
+
+```bash
+node -e "const{DatabaseSync}=require('node:sqlite');console.log(new DatabaseSync(':memory:').prepare('select sqlite_version() v').get().v)"
+```
+
+All three preconditions must hold: WAL mode, two or more connections in different
+threads/processes, and a write colliding with a checkpoint. Two of three is common
+and survivable. The change that pushes a database INTO the blast radius is adding
+a background `wal_checkpoint` thread or process — never do that to an Astra
+database. Give a new high-write log its OWN file so its blast radius stays
+single-connection, create it with `auto_vacuum=INCREMENTAL` (that pragma cannot be
+changed once tables exist, and purge otherwise only feeds a freelist), and gate on
+`sqlite_version()` being at or above the fixed release so a future runtime bump
+cannot silently reintroduce the risk.
+
+### 8. A durable outbox requires server-side idempotency — build that first
+A retrying, at-least-once flush on top of no dedupe turns every crash into a
+duplicate user message. Ship the idempotency key and its server-side dedupe table
+BEFORE making the queue durable; that ordering is not negotiable. Do not assume
+the upstream can carry a client-supplied id — verify a write path actually sets it
+(grep the ingest module, not just the schema).
+
+### 9. Do not depend on Service Worker Background Sync
+Absent in Android WebView (the primary mobile target for a Capacitor shell), in
+Safari and in Firefox. Feature-test and register opportunistically; drive flushes
+from signals the app already has (connection-state events, `visibilitychange`,
+`pagehide`).
+
+### 10. Retention is an architecture decision, not a config value
+Before proposing "keep N months", check what the upstream engine already retains.
+If a longer horizon forces the app to own an independent copy of data the engine
+already holds, say so — it converts a one-line config into a second archive tier.
+Aligning with the engine's own horizon deletes the conflict outright. The purge
+gate stays two-part: a retention watermark AND proof the pipeline consumed the
+data, so an un-ingested transcript is never deleted.
+
+### 11. The per-user sync state has a hard body cap, so user assets are URLs
+`PUT /api/theme/state` destroys the request past 64 KB, and it shape-validates
+each field it stores. This one fact decides the architecture of every
+user-uploadable asset: a font, a logo, an avatar or a wallpaper cannot be carried
+in the state object as base64, because the sync layer is for SETTINGS, not
+payloads.
+
+The pattern is already proven — mirror `server/theme-assets.mjs`: raw body with an
+`x-file-name` header, an extension allow-list, `basename()` plus a non-word strip
+for the stored name, a timestamp prefix, a per-kind directory under `data/`, and
+a returning URL. The state object then holds only that URL. Two rules make it
+safe across devices:
+
+- **A URL another device cannot fetch is a dead value pushed as if it were real.**
+  `blob:` and `data:` are handles into one tab's memory. The client must refuse to
+  broadcast one, and the SERVER must reject one independently, so a stale client
+  left open across a deploy cannot poison shared state for everyone.
+- **A durable URL is a decision, not a fact.** "Off" is a global decision and
+  syncs; a per-tab local file is a decision for this device only and must stay
+  on it. The UI should say which it is rather than looking identical in both
+  cases.
+
+Read the cap before designing any feature that lets the user attach something.
+
+## Theme engine: the subsystems and their traps
+
+A theming request is rarely one subsystem. Colour is usually already built; fonts,
+shape and branding are usually three hardcoded literals plus a few hundred
+hand-written values. Establish which before planning — the built half should be
+left alone, and the missing half is most of the work.
+
+- **A `var()` with no definition is not "no radius", it is an INVALID declaration.**
+  An unresolved custom property makes the whole declaration invalid at computed
+  value time, so it falls back to the property's initial value — `border-radius`
+  becomes `0px`, and `calc(var(--missing) - 4px)` becomes `0px` too, not `NaN` and
+  not an error. So a token used in many rules and defined in none renders those
+  surfaces perfectly square with no signal anywhere. Check it in a real browser,
+  not by reading: `getComputedStyle(el).borderRadius` on a probe element with and
+  without the definition, comparing the two. A source grep that finds uses but no
+  declaration is the fastest way in; the browser probe is what proves the
+  consequence.
+- **A palette switch can erase inline custom properties written by other
+  subsystems.** When resetting to the default theme, code that iterates
+  `root.style` and removes every property starting with `--` is correct for the
+  colour tokens it owns and destructive to anything else a new subsystem persists
+  the same way. The fix is a namespace preserve-list, and it needs a regression
+  check: assert a palette round-trip leaves an unrelated namespace intact. Check
+  for an existing guard before assuming one is there.
+- **A shape scale needs a mode switch AND a separate pill token.** The proven
+  architecture (Radix Themes, read from published CSS) is one multiplier driving
+  `calc()` across the scale, plus a distinct full/pill token that is `0` in every
+  mode except pill. Pill is a toggle of that one token, never a huge multiplier —
+  which also means components that must never pill (code blocks, images,
+  caret-aligned inputs) reference the scale directly and need no opt-out. Give the
+  default-pill token a `0` value rather than a huge one, or every one of those
+  components needs a manual exception. Sharp mode should use small non-zero
+  values: a bare `0` on an 18px control reads as broken rather than deliberate.
+- **Retiring hand-written literals is a codemod, and the value histogram IS the
+  mapping table.** A histogram of the distinct values clusters into a handful of
+  buckets, so the rewrite is mechanical and reviewable. Mirror the existing
+  tokenizer's shape exactly: idempotent (detect your own output and no-op), with
+  reset from git rather than from a stale backup snapshot, which is a one-run
+  snapshot that silently reverts a concurrent session's work. Handle the odd
+  forms separately: `50%` stays a circle, multi-corner shorthands become
+  composite tokens rather than new values, and a token already inside a
+  `calc()` needs the expression preserved.
+- **A font picker cannot enumerate families from Google's own metadata endpoint
+  in a browser** — no CORS header, so the fetch fails outright. A font CDN's
+  registry API is the working source: one request, no key, CORS-open, and it
+  carries per-family variable/weight/subset detail. Search must then be
+  client-side, since the query parameter form is not supported.
+- **Serving user fonts from your own origin means the upload response can stay
+  cookie-gated.** A font subresource request does send the session cookie, so an
+  authenticated asset route works with no CORS header; a cross-origin font
+  source requires an explicit allow-origin header or the face silently fails to
+  load and the fallback stays. If a font is ever served from another origin, add
+  the header — and prove it by measuring, because the failure is a silent
+  fallback rather than an error.
+- **A cookie-gated favicon/manifest is a 401 waiting to happen.** Browsers
+  request a web app manifest WITHOUT credentials by default, so gating it
+  returns 401 and no icon is ever requested. Serving a single-tenant app's name
+  and logo ungated is simpler and removes the need for a credentials-mode
+  attribute. Two rules that are easy to miss: the manifest href must be
+  cache-busted with a version query or the old icon is never re-requested, and
+  manifest `src` paths must be root-relative, since relative ones resolve against
+  the manifest's own directory.
+- **Sanitise an uploaded SVG, and a regex is not enough.** An inline SVG shares
+  the app's origin and its session. A heuristic pattern test lets entity
+  declarations, external `<use>`, CSS `@import`, and event-handler elements
+  through, and cannot see nesting. Use a strict allowlist. Two implementation
+  traps that break LEGITIMATE logos rather than malicious ones, so a
+  payload-only test suite never surfaces them: lowercasing attribute names before
+  the allowlist lookup destroys camelCase attributes like `viewBox`, and a
+  control-character strip built on `\s` eats the spaces inside path data.
+  Rendering the asset through an image element is a stronger guarantee than any
+  sanitizer, since an image-referenced SVG cannot execute script.
+
+## pitfalls
+
+- **Trusting a router card blindly.** Validate it against the real task. A card
+  returning near-zero hits, or matching only stopwords, is a no-signal result:
+  route manually (scan the skill list, recon the repo, targeted research
+  fan-out) and say so rather than acting on a garbage ranking.
+- **Presenting an unverified subagent number as fact.** Subagent reports are
+  self-reports. Any load-bearing figure you put in front of the owner gets
+  measured yourself first — a version string, a row count, a claim that a bug's
+  preconditions are met. Cheap to verify, expensive to be wrong about. Research
+  children also get STATED RULES wrong even when every individual probe they ran
+  was real: in one batch of three, a claim that a CDN validates axis ordering
+  (it only rejects an axis the family lacks) and a claim that a CSS utility was
+  never emitted (it was) both survived until re-tested. Re-run the load-bearing
+  claims yourself and say which ones you corrected.
+- **Dedupe before sort.** Identity and ordering are separate concerns; a retried
+  message that sorts into the wrong place is a duplicate AND a chronology bug.
+- **Full re-derivation on every keystroke.** Rebuilding a transcript from all
+  rows on each state change is correct on load only; the live path needs a stable
+  key so only the affected span is re-partitioned.
+- **Verifying a precondition by reading config instead of behaviour.** A comment
+  saying two processes share a database is evidence of intent; `lsof` on the
+  file, or the presence of a second opener, is evidence of fact.
+- **Dual-state desynchronization.** When two pieces of state must stay in sync (e.g. `selectedSessionId` and `activeSessionId` in App.tsx), updating one without the other causes silent UI bugs — the active chat row never highlights, or a stale highlight persists after ending a session. Always audit every setter call site: if state A is set in a callback, state B must be set in the SAME callback. Grep for both names across the file to find all sync points.
+
+## verification
+
+- Probe both databases and print row counts, per-role byte averages and journal
+  mode before and after any schema change.
+- Prove a new log is replay-complete: rebuild a session's events from the log
+  alone and diff against the gateway's final text byte-for-byte.
+- For every durability claim in a comment, name the primitive backing it and
+  confirm it survives a process restart.
+
+## reading the surface before planning on it
+
+A request to "enhance the theme engine" usually spans a built subsystem and two
+that do not exist yet. Map the boundary before writing a plan, because the built
+half should be left alone and the missing half is most of the work:
+
+- Count what is actually wired. For shape, `grep -o 'border-radius:[^;}]*' src/index.css`
+  gives the literal histogram and separates the handful of token-driven values
+  from the hand-written ones; for fonts, the `@font-face` block may live in its own
+  stylesheet rather than the main one, and the `@theme` literals are only the type
+  stack. Then check the utility classes in the tsx sources separately — a
+  `rounded-*` class resolves through generated CSS and is steerable by a token,
+  while a raw pixel in a class file is not. Both numbers belong in the plan,
+  because they decide between a codemod and a runtime override.
+- Find the consumers of a name before counting its literals. A token that is
+  declared in the palette contract but read by nothing, or a colour literal that
+  looks themed but is baked, changes what the work is.
+- Verify the upstream schema rather than assuming the page is complete. The
+  Appearance page's Hermes keys are discovered by walking the config default
+  tree; comparing what the page shows against what the schema exposes is cheap
+  and turns a vague "add what's missing" into a named list.
+- This repo is shared with other live sessions. A dirty shared file is another
+  session's work, not a free hand: build in a detached worktree and hand back a
+  reviewed diff.

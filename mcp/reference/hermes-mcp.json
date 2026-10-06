@@ -1,0 +1,649 @@
+{
+  "agentmemory": {
+    "args": [
+      "-y",
+      "@agentmemory/mcp"
+    ],
+    "command": "npx",
+    "enabled": true
+  },
+  "chroma-mcp": {
+    "args": [
+      "chroma-mcp"
+    ],
+    "command": "uvx",
+    "enabled": true
+  },
+  "chrome-devtools": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "chrome-devtools-mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 60
+  },
+  "computer-use-linux": {
+    "args": [
+      "mcp"
+    ],
+    "command": "/home/notjitin/.npm-global/bin/computer-use-linux",
+    "timeout": 120,
+    "trust": "trusted"
+  },
+  "context7": {
+    "url": "https://mcp.context7.com/mcp"
+  },
+  "kwin": {
+    "command": "/home/notjitin/.local/bin/kwin-mcp",
+    "timeout": 120,
+    "trust": "full"
+  },
+  "mcp-hfspace": {
+    "args": [
+      "-y",
+      "@llmindset/mcp-hfspace"
+    ],
+    "command": "npx",
+    "enabled": true
+  },
+  "neutrinos-docs": {
+    "url": "https://neutrinos-mcp.jitinnair.com/mcp"
+  },
+  "laya-decisions": {
+    "url": "http://127.0.0.1:8015/mcp",
+    "headers": {
+      "Authorization": "Bearer ${LAYA_MCP_TOKEN}"
+    }
+  },
+  "graphify": {
+    "url": "http://127.0.0.1:8390/mcp",
+    "enabled": true,
+    "timeout": 60
+  },
+  "laya-browser": {
+    "command": "/home/notjitin/Work/laya-browser-agent/.venv/bin/localdecide-mcp",
+    "enabled": true,
+    "timeout": 120
+  },
+  "playwright": {
+    "args": [
+      "-y",
+      "@playwright/mcp@latest"
+    ],
+    "command": "npx",
+    "enabled": true
+  },
+  "shadcn": {
+    "args": [
+      "-y",
+      "shadcn@latest",
+      "mcp"
+    ],
+    "command": "npx",
+    "enabled": true
+  },
+  "headroom": {
+    "command": "/home/notjitin/.local/bin/headroom",
+    "args": [
+      "mcp",
+      "serve",
+      "--proxy-url",
+      "http://127.0.0.1:8787"
+    ],
+    "enabled": true
+  },
+  "jitinnair-ui": {
+    "command": "/usr/bin/python3",
+    "args": [
+      "/home/notjitin/Work/projects/ui/mcp/jitinnair_ui_mcp.py"
+    ],
+    "env": {
+      "JITINAIR_UI_BASE": "https://ui.jitinnair.com"
+    },
+    "enabled": true,
+    "timeout": 60
+  },
+  "cloudflare-docs": {
+    "url": "https://docs.mcp.cloudflare.com/mcp",
+    "enabled": true
+  },
+  "sentry": {
+    "url": "https://mcp.sentry.dev/mcp",
+    "auth": "oauth",
+    "enabled": true
+  },
+  "tavily": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "tavily-mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "brave-search": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-brave-search@latest"
+    ],
+    "enabled": false,
+    "timeout": 300
+  },
+  "figma-context": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "figma-developer-mcp@latest",
+      "--stdio"
+    ],
+    "enabled": false,
+    "timeout": 300
+  },
+  "firecrawl": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "firecrawl-mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "youtube-transcript": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@kimtaeyoon83/mcp-server-youtube-transcript@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "gmail": {
+    "url": "https://gmailmcp.googleapis.com/mcp/v1",
+    "enabled": true
+  },
+  "notion": {
+    "url": "https://mcp.notion.com/mcp",
+    "auth": "oauth",
+    "enabled": true
+  },
+  "arxiv": {
+    "command": "uvx",
+    "args": [
+      "--with",
+      "mcp<2",
+      "arxiv-mcp"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "quillhub": {
+    "url": "https://mcp.quillhub.ai/mcp",
+    "auth": "oauth",
+    "enabled": true
+  },
+  "lottiefiles": {
+    "url": "https://mcp.lottiefiles.com/mcp",
+    "auth": "oauth",
+    "enabled": true
+  },
+  "lottiefiles-creator": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@lottiefiles/creator-mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "21st-magic": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@21st-dev/magic@latest"
+    ],
+    "env": {
+      "API_KEY": "${API_KEY_21ST}"
+    },
+    "enabled": true,
+    "timeout": 300
+  },
+  "penpot": {
+    "url": "http://127.0.0.1:4411/mcp",
+    "enabled": true,
+    "timeout": 60
+  },
+  "aceternity": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "aceternityui-mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "magicui": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@magicuidesign/mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "iconify": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "iconify-mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "canva": {
+    "url": "https://mcp.canva.com/mcp",
+    "auth": "oauth",
+    "enabled": true
+  },
+  "figma-official": {
+    "url": "https://mcp.figma.com/mcp",
+    "auth": "oauth",
+    "enabled": true
+  },
+  "puppeteer-screenshot": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-puppeteer@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "color-palette": {
+    "command": "/home/notjitin/.npm-global/bin/color-mcp",
+    "enabled": true,
+    "timeout": 300
+  },
+  "brandfetch": {
+    "url": "https://mcp.brandfetch.io/mcp",
+    "auth": "oauth",
+    "enabled": true
+  },
+  "github": {
+    "command": "docker",
+    "args": [
+      "run",
+      "-i",
+      "--rm",
+      "-e",
+      "GITHUB_PERSONAL_ACCESS_TOKEN",
+      "ghcr.io/github/github-mcp-server",
+      "stdio"
+    ],
+    "enabled": true,
+    "timeout": 120
+  },
+  "serena": {
+    "command": "uvx",
+    "args": [
+      "--from",
+      "git+https://github.com/oraios/serena",
+      "serena",
+      "start-mcp-server",
+      "--context",
+      "ide-assistant"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "sequential-thinking": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@modelcontextprotocol/server-sequential-thinking@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "n8n": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "n8n-mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "excalidraw": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "mcp-excalidraw@latest"
+    ],
+    "enabled": true,
+    "timeout": 300
+  },
+  "reticle": {
+    "command": "npx",
+    "args": [
+      "@reticlehq/server",
+      "mcp"
+    ],
+    "enabled": true,
+    "timeout": 60
+  },
+  "skillspector": {
+    "command": "skillspector",
+    "args": [
+      "mcp"
+    ],
+    "enabled": true,
+    "timeout": 60
+  },
+  "alphavantage": {
+    "command": "uvx",
+    "args": [
+      "--with",
+      "mcp<2",
+      "alphavantage-mcp"
+    ],
+    "env": {
+      "ALPHAVANTAGE_API_KEY": "XA4JFKCEL316ZEGE"
+    },
+    "cwd": "/home/notjitin/Work/scratch/alphavantage-mcp-work",
+    "enabled": true,
+    "timeout": 60
+  },
+  "deepwiki": {
+    "url": "https://mcp.deepwiki.com/mcp",
+    "enabled": true,
+    "timeout": 60
+  },
+  "gcloud": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "@google-cloud/gcloud-mcp"
+    ],
+    "enabled": true,
+    "timeout": 60
+  },
+  "next-devtools": {
+    "command": "npx",
+    "args": [
+      "-y",
+      "next-devtools-mcp@latest"
+    ],
+    "enabled": true,
+    "timeout": 60
+  },
+  "industrylens": {
+    "url": "https://api.industry-lens.com/mcp/public",
+    "enabled": true,
+    "timeout": 60
+  },
+  "jevnav": {
+    "command": "uvx",
+    "args": [
+      "--from",
+      "jevnav[mcp]",
+      "jevnav",
+      "mcp"
+    ],
+    "enabled": true,
+    "timeout": 60
+  },
+  "airtable": {
+    "url": "https://mcp.airtable.com/mcp",
+    "auth": "oauth",
+    "enabled": false
+  },
+  "hugging_face": {
+    "url": "https://huggingface.co/mcp",
+    "auth": "oauth",
+    "enabled": false
+  },
+  "indeed": {
+    "url": "https://mcp.indeed.com/claude/mcp",
+    "auth": "oauth",
+    "enabled": false
+  },
+  "twelve-data": {
+    "url": "https://mcp.twelvedata.com/mcp",
+    "auth": "oauth",
+    "enabled": false,
+    "tools": {
+      "exclude": [
+        "oauth_login",
+        "auth_status",
+        "oauth_configure",
+        "get_api_usage"
+      ]
+    }
+  },
+  "vercel": {
+    "url": "https://mcp.vercel.com",
+    "auth": "oauth",
+    "enabled": false
+  },
+  "webflow": {
+    "url": "https://mcp.webflow.com/mcp",
+    "auth": "oauth",
+    "enabled": false
+  },
+  "semgrep": {
+    "url": "https://mcp.semgrep.ai/mcp",
+    "auth": "oauth",
+    "enabled": false,
+    "tools": {
+      "exclude": [
+        "security_check",
+        "supported_languages",
+        "semgrep_rule_schema"
+      ]
+    }
+  },
+  "postman": {
+    "url": "https://mcp.postman.com/minimal",
+    "auth": "oauth",
+    "enabled": true
+  },
+  "algolia": {
+    "url": "https://mcp.algolia.com/mcp",
+    "auth": "oauth",
+    "enabled": false
+  },
+  "aws-knowledge": {
+    "url": "https://knowledge-mcp.global.api.aws",
+    "enabled": true,
+    "tools": {
+      "exclude": [
+        "aws___retrieve_skill"
+      ]
+    }
+  },
+  "buildkite": {
+    "url": "https://mcp.buildkite.com/mcp",
+    "auth": "oauth",
+    "enabled": false,
+    "tools": {
+      "exclude": [
+        "access_token",
+        "get_job_env"
+      ]
+    }
+  },
+  "circleci": {
+    "url": "https://mcp.circleci.com/v1/mcp",
+    "auth": "oauth",
+    "enabled": false,
+    "tools": {
+      "exclude": [
+        "hello",
+        "download_usage_data"
+      ]
+    }
+  },
+  "close": {
+    "url": "https://mcp.close.com/mcp",
+    "auth": "oauth",
+    "enabled": false,
+    "tools": {
+      "exclude": [
+        "close_product_knowledge_search",
+        "customized_builtin_labels",
+        "search",
+        "fetch",
+        "paginate_search",
+        "enrich_field",
+        "schedule_voice_agent_call",
+        "apply_voice_agent_update",
+        "propose_voice_agent_update",
+        "find_voice_agents",
+        "find_agent_configs",
+        "get_voice_agents",
+        "get_voice_agent_overview_report",
+        "get_voice_agent_performance_report"
+      ]
+    }
+  },
+  "cloudflare": {
+    "url": "https://mcp.cloudflare.com/mcp?codemode=false",
+    "auth": "oauth",
+    "enabled": false,
+    "tools": {
+      "exclude": [
+        "docs",
+        "*_radar_*",
+        "*_accounts_magic_*",
+        "*_accounts_mnm_*",
+        "*_accounts_cni_*",
+        "*_accounts_teamnet_*",
+        "*_accounts_cloudforceone_*",
+        "*_accounts_dlp_*",
+        "*_accounts_devices*",
+        "*_accounts_dex_*",
+        "*_accounts_datasecurity_*",
+        "*_accounts_emailsecurity_*",
+        "*_accounts_scim_*",
+        "*_accounts_gateway*",
+        "*_accounts_zerotrust_*",
+        "*_accounts_one_*",
+        "*_accounts_brandprotection_*",
+        "*_accounts_intel_*",
+        "*_accounts_urlscanner_*",
+        "*_accounts_vuln_scanner_*",
+        "*_zones_securitycenter_*",
+        "*_accounts_securitycenter_*",
+        "*_zones_api_gateway_*",
+        "*_zones_schema_validation*",
+        "*_zones_token_validation*",
+        "*_zones_waiting_rooms*",
+        "*_accounts_addressing_*",
+        "*_accounts_shares*",
+        "*_accounts_slurper_*",
+        "*_zones_web3_*",
+        "*_accounts_flagship_*",
+        "*_zones_secondary_dns_*",
+        "*_accounts_secondary_dns_*",
+        "*_user_load_balancers*"
+      ]
+    }
+  },
+  "cloudinary": {
+    "url": "https://asset-management.mcp.cloudinary.com/mcp",
+    "auth": "oauth",
+    "enabled": false
+  },
+  "comfy-cloud": {
+    "url": "https://cloud.comfy.org/mcp",
+    "auth": "oauth",
+    "enabled": true,
+    "tools": {
+      "include": [
+        "submit_workflow",
+        "get_job_status",
+        "wait_for_job",
+        "get_output",
+        "use_previous_output",
+        "get_queue",
+        "upload_file",
+        "cancel_job",
+        "partner_generate",
+        "get_prompting_guide",
+        "search_models",
+        "search_nodes",
+        "get_node",
+        "search_templates",
+        "get_template",
+        "get_template_schema",
+        "apply_slots",
+        "run_template",
+        "get_workflow_canvas_url"
+      ]
+    }
+  },
+  "craft": {
+    "url": "https://mcp.craft.do/my/mcp",
+    "auth": "oauth",
+    "enabled": false
+  },
+  "robinhood": {
+    "url": "https://agent.robinhood.com/mcp/trading",
+    "auth": "oauth",
+    "enabled": false,
+    "tools": {
+      "exclude": [
+        "get_option_level_upgrade_info",
+        "get_popular_watchlists",
+        "follow_watchlist",
+        "unfollow_watchlist"
+      ]
+    }
+  },
+  "fireflies": {
+    "url": "https://api.fireflies.ai/mcp",
+    "auth": "oauth",
+    "enabled": false,
+    "tools": {
+      "exclude": [
+        "fireflies_search",
+        "fireflies_fetch"
+      ]
+    }
+  },
+  "mission-control": {
+    "command": "node",
+    "args": [
+      "/home/notjitin/Work/ageos/mission-control/scripts/mc-mcp-server.cjs",
+      "--env",
+      "MC_URL=http://127.0.0.1:3100",
+      "MC_API_KEY=ee2a7ca764e1f50d2ca21ee48de64c62"
+    ],
+    "enabled": true
+  },
+  "openviking": {
+    "url": "http://127.0.0.1:1934/mcp",
+    "enabled": true
+  },
+  "tradingview": {
+    "command": "docker",
+    "args": [
+      "run",
+      "--rm",
+      "-i",
+      "-v",
+      "tradingview-mcp-session:/data",
+      "-e",
+      "TV_SESSION_FILE=/data/.tv_session.json",
+      "mikeh1975/tradingview-mcp:latest"
+    ],
+    "timeout": 120
+  },
+  "ctrader-remote": {
+    "url": "${CTRADER_REMOTE_MCP_URL}",
+    "enabled": false,
+    "trust": "full"
+  }
+}

@@ -1,0 +1,7 @@
+name: slopguard
+version: 1.0.0
+description: "Deterministic anti-slop enforcement: blocks secret-bearing file writes (.env exempt) and installs of nonexistent npm/PyPI packages (slopsquatting). Port of manpreet171/slopguard. Audit log: ~/.hermes/logs/slopguard.log"
+author: "notjitin"
+homepage: "https://github.com/manpreet171/slopguard"
+hooks:
+  - pre_tool_call

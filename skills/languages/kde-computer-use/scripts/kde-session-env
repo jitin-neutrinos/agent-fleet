@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  printf 'Usage: source %s OR %s -- command [args...]\n' "${BASH_SOURCE[0]}" "${BASH_SOURCE[0]}" >&2
+}
+
+uid="$(id -u)"
+runtime="${XDG_RUNTIME_DIR:-/run/user/$uid}"
+bus="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$runtime/bus}"
+
+wayland="${WAYLAND_DISPLAY:-}"
+if [[ -z "$wayland" ]]; then
+  if [[ -S "$runtime/wayland-0" ]]; then
+    wayland="wayland-0"
+  else
+    first_wayland="$(find "$runtime" -maxdepth 1 -type s -name 'wayland-*' -printf '%f\n' 2>/dev/null | sort | head -n 1 || true)"
+    wayland="${first_wayland:-}"
+  fi
+fi
+
+display="${DISPLAY:-}"
+if [[ -z "$display" ]]; then
+  display="$(ps -u "$USER" -o args= | sed -n 's/.*--xwayland-display \(:[0-9][0-9]*\).*/\1/p' | head -n 1)"
+fi
+if [[ -z "$display" && -S /tmp/.X11-unix/X0 ]]; then
+  display=":0"
+fi
+
+export XDG_RUNTIME_DIR="$runtime"
+export DBUS_SESSION_BUS_ADDRESS="$bus"
+if [[ -n "$wayland" ]]; then
+  export WAYLAND_DISPLAY="$wayland"
+fi
+if [[ -n "$display" ]]; then
+  export DISPLAY="$display"
+fi
+
+if [[ "${1:-}" == "--" ]]; then
+  shift
+  if [[ $# -eq 0 ]]; then
+    usage
+    exit 2
+  fi
+  exec "$@"
+fi
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+printf 'export XDG_RUNTIME_DIR=%q\n' "$XDG_RUNTIME_DIR"
+printf 'export DBUS_SESSION_BUS_ADDRESS=%q\n' "$DBUS_SESSION_BUS_ADDRESS"
+if [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+  printf 'export WAYLAND_DISPLAY=%q\n' "$WAYLAND_DISPLAY"
+fi
+if [[ -n "${DISPLAY:-}" ]]; then
+  printf 'export DISPLAY=%q\n' "$DISPLAY"
+fi

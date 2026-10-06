@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+enter="0"
+delay="100"
+hold="50"
+text=""
+text_source="arg"
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: kde-type-text [--enter] [--delay MS] [--hold MS] TEXT
+       kde-type-text [--enter] [--delay MS] [--hold MS] --stdin
+       kde-type-text [--enter] [--delay MS] [--hold MS] --file PATH
+
+Type text through ydotool and optionally press Enter. Focus and click the target
+window first, for example with kde-focus-window --click.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --enter)
+      enter="1"
+      shift
+      ;;
+    --delay)
+      delay="${2:-}"
+      [[ -n "$delay" ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    --hold)
+      hold="${2:-}"
+      [[ -n "$hold" ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    --stdin)
+      [[ "$text_source" == "arg" && -z "$text" ]] || { usage; exit 2; }
+      text="$(cat)"
+      text_source="stdin"
+      shift
+      ;;
+    --file)
+      [[ "$text_source" == "arg" && -z "$text" ]] || { usage; exit 2; }
+      file="${2:-}"
+      [[ -n "$file" && -f "$file" ]] || { usage; exit 2; }
+      text="$(<"$file")"
+      text_source="file"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      if [[ -z "$text" ]]; then
+        text="$1"
+        shift
+      else
+        usage
+        exit 2
+      fi
+      ;;
+  esac
+done
+
+if [[ -z "$text" ]]; then
+  usage
+  exit 2
+fi
+
+"$script_dir/kde-session-env" -- systemctl --user start ydotool.service
+ydotool type -d "$delay" -H "$hold" "$text"
+if [[ "$enter" == "1" ]]; then
+  sleep 0.1
+  ydotool key -d "$delay" 28:1 28:0
+fi

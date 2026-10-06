@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# mcp/claude.list — claude Code user-scope MCP definitions.
+# name|kind|spec|args|ENV_NAMES|notes
+# kind: http | stdio
+# claude.ai OAuth MCPs (n8n, Miro, Figma, Lovable, MS365) are deliberately absent
+# (they authenticate per-account via claude.ai and never enter the fleet).
+context7|http|https://mcp.context7.com/mcp||CONTEXT7_API_KEY|remote docs search
+neutrinos-docs|http|https://neutrinos-mcp.jitinnair.com/mcp|||owner's docs MCP
+laya-decisions|http|http://127.0.0.1:8015/mcp|||laya System-1 decision engine (local)
+agentmemory|stdio|npx|-y @agentmemory/mcp|AGENTMEMORY_URL,AGENTMEMORY_SECRET,AGENTMEMORY_TOOLS|shared memory
+chroma-mcp|stdio|uvx|chroma-mcp||vector database MCP
+chrome-devtools|stdio|npx|-y chrome-devtools-mcp@latest||browser inspection
+playwright|stdio|npx|-y @playwright/mcp@latest||browser automation
+shadcn|stdio|npx|-y shadcn@latest mcp||UI component registry
+mcp-hfspace|stdio|npx|-y @llmindset/mcp-hfspace|HF_TOKEN|Hugging Face spaces
+graphify|http|http://127.0.0.1:8390/mcp|||shared graphify knowledge-graph server (kurama-core; ONE instance :8390 for all harnesses)
+cloudflare-docs|http|https://docs.mcp.cloudflare.com/mcp|||OAuth on first use; read-mostly; complements cloudflare-tunn
+sentry|http|https://mcp.sentry.dev/mcp||SENTRY_TOKEN(Optional PAT)|OAuth or PAT; free tier; needs sentry.io org signup
+tavily|stdio|npx|-y tavily-mcp@latest|TAVILY_API_KEY|free 1k credits/mo at tavily.com; NO KEY YET - placeholder u
+brave-search|stdio|npx|-y @modelcontextprotocol/server-brave-search@latest|BRAVE_API_KEY|free key at brave.com/search/api; NO KEY YET
+figma-context|stdio|npx|-y figma-developer-mcp@latest --stdio|FIGMA_API_KEY|free Figma PAT; NO KEY YET; alt: official Figma remote MCP
+firecrawl|stdio|npx|-y firecrawl-mcp@latest|FIRECRAWL_API_KEY|free 500 credits at firecrawl.dev; NO KEY YET
+youtube-transcript|stdio|npx|-y @kimtaeyoon83/mcp-server-youtube-transcript@latest||no key needed
+gmail|http|https://gmail.mcp.googleapis.com/mcp||GMAIL_OAUTH|requires Google Cloud OAuth setup - DEFER until user wants i
+notion|http|https://mcp.notion.com/mcp|||OAuth; free
+arxiv|stdio|uvx|arxiv-mcp||free local; package check on first run
+quillhub|http|https://mcp.quillhub.ai/mcp||QUILLHUB_KEY|free tier; NO KEY YET - lowest urgency
+lottiefiles|http|https://mcp.lottiefiles.com/mcp|||official, OAuth, free
+lottiefiles-creator|stdio|npx|-y @lottiefiles/creator-mcp@latest||official free; needs Lottie Creator tab open with MCP enable
+21st-magic|stdio|npx|-y @21st-dev/magic@latest|API_KEY(21st)|free search + logo search; generation paid; key at 21st.dev/
+#mermaid|stdio|npx|-y mcp-mermaid@latest||v0.4.1 confirmed on npm; free local
+penpot|stdio|npx|-y @penpot/mcp@latest||needs Penpot plugin bridge; skip unless Penpot adopted
+iconify|stdio|npx|-y iconify-mcp@latest||verify pkg name
+canva|http|https://mcp.canva.com/mcp|||OAuth; free Canva account
+figma-official|http|https://mcp.figma.com/mcp|||OAuth; Figma seat needed; alt to figma-context
+puppeteer-screenshot|stdio|npx|-y @modelcontextprotocol/server-puppeteer@latest||official reference; NOTE playwright+chrome-devtools already 
+color-palette|stdio|npx|-y color-mcp@latest||verify pkg name
+brandfetch|http|https://mcp.brandfetch.com/mcp||BRANDFETCH_KEY|free tier; verify endpoint
+github|stdio|docker|run -i --rm -e GITHUB_PERSONAL_ACCESS_TOKEN ghcr.io/github/github-mcp-server stdio|GITHUB_PERSONAL_ACCESS_TOKEN|official; token via gh auth token (verified 41 chars)
+serena|stdio|uvx|--from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant||LSP semantic code edit; local; 300s first-run clone
+sequential-thinking|stdio|npx|-y @modelcontextprotocol/server-sequential-thinking@latest||official, name verified 2026.8.31
+n8n|stdio|npx|-y n8n-mcp@latest|N8N_API_URL,N8N_API_KEY|n8n-mcp 2.89.0 verified (czlonkowski); needs n8n API key
+excalidraw|stdio|npx|-y mcp-excalidraw@latest||mcp-excalidraw 1.0.3 verified; live canvas diagramming
+skillspector|stdio|skillspector|["mcp"]|OPENAI_API_KEY(optional)|NVIDIA SkillSpector; static+LLM skill security scan; ollama provider set in .bashrc
+reticle|stdio|npx|["@reticlehq/server","mcp"]|-|Reticle; installer pre-registered claude+agy
+alphavantage|stdio|uvx --with mcp<2 alphavantage-mcp|cwd=/home/notjitin/Work/scratch/alphavantage-mcp-work|ALPHAVANTAGE_API_KEY|financial data; upstream CWD bug - run from dummy pyproject dir; free key alphavantage.co, demo key limited
+deepwiki|http|https://mcp.deepwiki.com/mcp|[]|-|Devin DeepWiki; remote no-auth repo docs Q&A
+industrylens|http|https://api.industry-lens.com/mcp/public|[]|-|IndustryLens competitive intel; remote public tier no key
+gcloud|stdio|npx -y @google-cloud/gcloud-mcp|[]|-|Google Cloud SDK 586 installed user-space ~/Work/google-cloud-sdk; MCP live v0.5.3; needs gcloud auth login for a project
+next-devtools|stdio|npx -y next-devtools-mcp@latest|[]|-|Vercel Next.js 16+ dev server diagnostics
+chrome-devtools|stdio|npx -y chrome-devtools-mcp@latest|[]|-|official Chrome DevTools MCP
+jevnav|stdio|uvx --from jevnav[mcp] jevnav mcp|[]|TYPESAFE_API_KEY(optional)|browser automation gated+replayable; replay needs no key
+
+# removed 2026-09-25 on desktop (broken/unneeded): mcpfinder, docker-mcp, obsidian, postgres, telegram
+aceternity|stdio|npx|-y aceternityui-mcp@latest||Aceternity UI components; free no-key
+magicui|stdio|npx|-y @magicuidesign/mcp@latest||official Magic UI animated components; free no-key
+
+openviking|http|http://127.0.0.1:1934/mcp|-|-|Laya-gated memory context DB (write-protected)
+tradingview|stdio|docker|run --rm -i -v tradingview-mcp-session:/data -e TV_SESSION_FILE=/data/.tv_session.json mikeh1975/tradingview-mcp:latest||TradingView unofficial API MCP; needs one-time TV login via mikeh1975/tradingview-mcp:login; RESEARCH-ONLY (cannot place cTrader orders); throws at TradingView protocol changes
+ctrader-remote|http|${CTRADER_REMOTE_MCP_URL}||CTRADER_REMOTE_MCP_URL|Spotware OFFICIAL cTrader Remote MCP (cTrader Web Settings -> Remote MCP, per-account token); DORMANT until URL+token set; can place/modify/close REAL orders - keep confirmation gate ON
+laya-browser|stdio|/home/notjitin/Work/laya-browser-agent/.venv/bin/localdecide-mcp||local Laya browser decider (decide,page_decide)

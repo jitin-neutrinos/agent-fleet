@@ -1,0 +1,9 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "agent-fleet",
+  "owner": { "name": "jitin-neutrinos" },
+  "plugins": [
+    { "name": "ponytail", "source": "./plugins/marketplace/src/ponytail", "description": "Lazy senior dev mode. YAGNI, stdlib first." },
+    { "name": "caveman", "source": "./plugins/marketplace/src/caveman", "description": "Ultra-compressed communication mode." }
+  ]
+}

@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+mode="active"
+pattern=""
+limit="20"
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: kde-window-info [--active]
+       kde-window-info (--title REGEX | --class REGEX | --any REGEX) [--limit N]
+
+Print KWin window ids plus title, class, pid, desktop, and geometry for the
+active window or matching windows. Patterns are kdotool regular expressions.
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --active)
+      mode="active"
+      pattern=""
+      shift
+      ;;
+    --title)
+      mode="title"
+      pattern="${2:-}"
+      [[ -n "$pattern" ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    --class)
+      mode="class"
+      pattern="${2:-}"
+      [[ -n "$pattern" ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    --any)
+      mode="any"
+      pattern="${2:-}"
+      [[ -n "$pattern" ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    --limit)
+      limit="${2:-}"
+      [[ "$limit" =~ ^[0-9]+$ ]] || { usage; exit 2; }
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      exit 2
+      ;;
+  esac
+done
+
+case "$mode" in
+  active)
+    mapfile -t window_ids < <("$script_dir/kde-session-env" -- kdotool getactivewindow getwindowid)
+    ;;
+  title)
+    mapfile -t window_ids < <("$script_dir/kde-session-env" -- kdotool search --title --limit "$limit" "$pattern" getwindowid %@)
+    ;;
+  class)
+    mapfile -t window_ids < <("$script_dir/kde-session-env" -- kdotool search --class --limit "$limit" "$pattern" getwindowid %@)
+    ;;
+  any)
+    mapfile -t window_ids < <("$script_dir/kde-session-env" -- kdotool search --limit "$limit" "$pattern" getwindowid %@)
+    ;;
+  *)
+    usage
+    exit 2
+    ;;
+esac
+
+if [[ "${#window_ids[@]}" -eq 0 ]]; then
+  printf 'No matching windows found.\n' >&2
+  exit 1
+fi
+
+for window_id in "${window_ids[@]}"; do
+  [[ -n "$window_id" ]] || continue
+  printf 'id: %s\n' "$window_id"
+  printf 'title: %s\n' "$("$script_dir/kde-session-env" -- kdotool getwindowname "$window_id" 2>/dev/null || true)"
+  printf 'class: %s\n' "$("$script_dir/kde-session-env" -- kdotool getwindowclassname "$window_id" 2>/dev/null || true)"
+  printf 'pid: %s\n' "$("$script_dir/kde-session-env" -- kdotool getwindowpid "$window_id" 2>/dev/null || true)"
+  printf 'desktop: %s\n' "$("$script_dir/kde-session-env" -- kdotool get_desktop_for_window "$window_id" 2>/dev/null || true)"
+  "$script_dir/kde-session-env" -- kdotool getwindowgeometry "$window_id" 2>/dev/null || true
+  printf '\n'
+done
