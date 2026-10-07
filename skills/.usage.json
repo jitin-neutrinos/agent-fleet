@@ -312,14 +312,14 @@
     "first_seen_at": null,
     "last_patched_at": "2026-10-06T02:23:13.465009+00:00",
     "last_reused_patch_generation": 11,
-    "last_used_at": "2026-10-06T17:32:31.806135+00:00",
-    "last_viewed_at": "2026-10-06T17:32:31.803483+00:00",
+    "last_used_at": "2026-10-06T18:58:30.969916+00:00",
+    "last_viewed_at": "2026-10-06T18:58:30.966587+00:00",
     "patch_count": 11,
     "patch_generation": 11,
     "pinned": false,
     "state": "active",
-    "use_count": 63,
-    "view_count": 63
+    "use_count": 64,
+    "view_count": 64
   },
   "astra-canvas-v6": {
     "archived_at": null,
@@ -391,14 +391,14 @@
     "first_seen_at": null,
     "last_patched_at": "2026-10-06T14:37:43.212675+00:00",
     "last_reused_patch_generation": 4,
-    "last_used_at": "2026-10-06T17:11:48.374557+00:00",
-    "last_viewed_at": "2026-10-06T17:11:48.372085+00:00",
+    "last_used_at": "2026-10-06T19:24:13.738229+00:00",
+    "last_viewed_at": "2026-10-06T19:24:13.735898+00:00",
     "patch_count": 4,
     "patch_generation": 4,
     "pinned": false,
     "state": "active",
-    "use_count": 48,
-    "view_count": 48
+    "use_count": 49,
+    "view_count": 49
   },
   "baoyu-infographic": {
     "archived_at": null,
