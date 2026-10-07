@@ -343,14 +343,14 @@
     "created_by": "agent",
     "last_patched_at": "2026-10-07T10:52:07.267852+00:00",
     "last_reused_patch_generation": 340,
-    "last_used_at": "2026-10-07T12:20:24.263838+00:00",
-    "last_viewed_at": "2026-10-07T12:20:24.260947+00:00",
+    "last_used_at": "2026-10-07T18:34:13.874550+00:00",
+    "last_viewed_at": "2026-10-07T18:34:13.872487+00:00",
     "patch_count": 340,
     "patch_generation": 340,
     "pinned": false,
     "state": "stale",
-    "use_count": 360,
-    "view_count": 360
+    "use_count": 361,
+    "view_count": 361
   },
   "astra-webui-architecture": {
     "archived_at": null,
@@ -2230,14 +2230,14 @@
     "created_by": null,
     "last_patched_at": null,
     "last_reused_patch_generation": 0,
-    "last_used_at": "2026-10-07T12:18:03.718888+00:00",
-    "last_viewed_at": "2026-10-07T12:18:03.715973+00:00",
+    "last_used_at": "2026-10-07T18:34:13.865475+00:00",
+    "last_viewed_at": "2026-10-07T18:34:13.861823+00:00",
     "patch_count": 0,
     "patch_generation": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 49,
-    "view_count": 49
+    "use_count": 50,
+    "view_count": 50
   },
   "ponytail-audit": {
     "archived_at": null,

@@ -3,8 +3,8 @@ model:
     X-Headroom-Base-Url: https://api.z.ai/api/coding/paas/v4
     X-Headroom-Original-Path: /chat/completions
     X-Headroom-Cwd: /home/notjitin/.hermes
-  default: grok-4.7
-  provider: xai
+  default: glm-5.3-flash
+  provider: zai
   fallback_providers:
     - model: stealth/space-bunny-alpha
       provider: opencode-go
@@ -19,7 +19,8 @@ model:
       base_url: https://ai-gateway.vercel.sh/v1
       api_key: ${VERCEL_API_KEY}
       model: typesafe-ai/jev
-  base_url: https://api.x.ai/v1
+  base_url: https://api.z.ai/api/coding/paas/v4
+  api_mode: chat_completions
 fallback_providers:
   - model: glm-5.3-flash
     provider: opencode-go
