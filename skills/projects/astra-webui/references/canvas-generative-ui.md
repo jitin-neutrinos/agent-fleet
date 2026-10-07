@@ -594,6 +594,18 @@ curl -s http://127.0.0.1:3011/$CSS | grep -o '\.ast-cv-callout{[^}]*}'
 Tell the owner to hard-reload; browsers cache the old CSS and the hash only
 changes on rebuild.
 
+## Media-grid doc tiles: fill previews for every artifact
+
+The chat's bento media grid previously showed a real preview for images/video/pdf only; md/txt/json/csv and office formats got an icon tile. Owner law: **all artifacts carry a full-fill bleed preview covering the entire tile.** Implementation lives in `media-grid.tsx`:
+
+- text kinds → fetch the file (cap 8 KB), paint a fading monospaced bleed (`pre` + gradient fade, absolute inset:0 over a midnight ground);
+- csv/xls → parse rows client-side, paint a mini grid (first rows, 3 columns, ellipsis cells);
+- docx/pptx/xlsx → unzip client-side with `fflate` (lazily imported, 8 KB gz, code-split as its own chunk) and paint `word/document.xml`'s `w:t` nodes / slide 1's `a:t` nodes / sharedStrings — no office render library needed for a preview;
+- pdf → page-1 thumbnail with `object-fit: cover` so it fills instead of letterboxing.
+
+- **Fail-soft back to the icon tile.** Fetch failure, empty extracted text, or unparseable zip silently returns the classic icon tile — a broken preview is never shown, and `archive`/`other` kinds keep the icon (nothing meaningful to preview client-side).
+- **Verify the lazy split in the built output** — grep dist chunks for `unzipSync`-bearing files; the fflate code must NOT land in `index-*.js`.
+
 ## Parser contract worth preserving
 
 - **Parse at TURN level, never per segment — this is the rule that keeps getting broken.** The segment engine opens a NEW text segment whenever the previous one is not a running text segment: a `tool.start` barrier, a message boundary, or a `text-final` that does not extend the live text each split ONE assistant message into several. A fence crossing that boundary is unparseable in BOTH halves, so it degrades to a code block and the owner reports "canvas missing from mid responses". `planTurnCanvases(segTexts, streaming)` in `canvas-schema.ts` stitches the turn's text segments and parses the whole. Because the planner lives in `TurnTimeline`, live streaming AND history reload are fixed by the same change.
@@ -608,6 +620,9 @@ changes on rebuild.
 - A degrade that the user cannot see costs a full debugging round every time — log it (`console.warn` guarded by `import.meta.env?.DEV`) with the first ~160 chars of the fence, so the next failure is self-diagnosing.
 - While streaming, a trailing unterminated canvas fence is HIDDEN (raw JSON mid-stream is noise); once finalized, an unterminated fence is PRESERVED as markdown. Reversing either half loses content on reload.
 - Diagram edges referencing an unknown node id invalidate the whole diagram — a dangling arrow is worse than no arrow. Same for a tree node whose `children` names a missing id.
+- **SVG in narrow cards must derive sizes from content, not constants.** The `sequence` block hardcoded 160px lanes, 100px actor head boxes, unwrapped labels and a `minWidth: bounds.w` — with 8 actors the SVG forced a 1280px scroll inside a ~700px card, long labels collided with neighbouring lanes, and wide actor names spilled their fixed box. Now: lane width derives from the widest actor label (clamped 110–220), message labels pre-wrap to the drawn segment (max 3 lines, ellipsis), a wrapped message grows ONLY its own row height, and actor heads fit their label with 2-line support. Audit any new diagram block at ~8 actors and ~360px width before shipping.
+- **Emitted cards must use the renderer's ACTUAL vocabulary — re-validate per emission.** A `table` whose `columns` are objects (`[{key,label}]`) instead of `string[]` rejects the whole card (columns are header strings only), and a `mermaid` code fence renders as raw text forever because the canvas has NO mermaid engine (rejected at 5.3 MB+ bundle cost, deliberately) — author flows as native `diagram`/`sequence` blocks. Never assume a syntax exists because the canvas is rich; check `canvas-schema.ts` before emitting a shape for the first time.
+- **A card heading can bleed past the card edge when the title is a flex child with no shrink floor.** `.ast-canvas-title` needed `flex: 1 1 auto; min-width: 0; overflow-wrap: break-word` plus `gap` on the head row — long derived titles (table column lists joined with '·', long callout headings) beat the container on phones and sometimes desktop. Any future head-row change must re-check the shrink floor.
 
 ## Diagramming without a graph library
 

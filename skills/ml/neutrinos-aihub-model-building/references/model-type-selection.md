@@ -47,3 +47,18 @@ audit than a span model, and every assertion gets a label.
 2. Confirm the confirmation step's semantics: manual span tagging, or optional row confirmation.
 3. If the interface behaves in a way the data does not support, the model type is wrong. Say so
    rather than reinterpreting the data to fit the screen.
+
+## The "Table field can absorb anything" trap
+
+A Table field in Extraction — Document is NOT a catch-all for structured output. Its columns must
+exist as PRINTED column structure in the document, because at annotation the cursor positions over
+each printed column. When the output you want is rows-of-text (clause blocks, statement lines) with
+no printed grid, String fields extract it and a downstream Prediction — Text classifier does any
+labelling the document doesn't print. The Table field earns its cost only on a document that
+actually prints a grid (a benefit schedule, an invoice). Sequence check before adding one:
+
+1. Does the document print the columns? (Not "does the deck want a table" — does the PDF show one.)
+2. Is any column a value a human supplies? Then it's not a Table column at all — supplied values
+   break at inference when no human is present to type them.
+3. Are the values needed as strings downstream (quoted verbatim into a pack/feed)? Then String
+   fields deliver them ready; a Table's cells need flattening anyway.

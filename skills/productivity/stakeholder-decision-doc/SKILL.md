@@ -80,6 +80,35 @@ companion artifact** — do not merge them. Ship both and name the split.
   run, or no customer has been asked, the document must say so — ideally as the
   reason the ask is scoped to validation rather than build.
 
+## Structure — the reading order rule
+
+The owner's standing requirement for any document a stakeholder reads end-to-end: **strictly
+linear, sequential, one section per question, no forward references, no assumed knowledge.**
+"Reading the document from start to finish, the user must understand exactly what is
+happening, no questions left in their minds."
+
+The reliable construction is to derive sections from the questions a first-time reader asks,
+IN THE ORDER THEY ASK THEM — What is this? → Who are the people in it? → Where does the input
+come from? → What exactly gets submitted? → What does each component do? → In what order does
+the work happen? → What comes out? → Who reviews it and how? → What keeps it safe? → Where
+does this stand now and what is the ask? Each section builds ONLY on the ones before it. If a
+section needs a concept the reader has not met yet, the section is in the wrong place — move
+it, do not add a forward reference.
+
+Worked example, sequence of a walkthrough-style report that satisfies this: What This Is
+(plain-English paragraph + the one-sentence version + what it is NOT) → Who Touches This
+System (roles table + the note that the end customer never sees the system) → Where the
+Input Comes From (channels + the single integration hook) → What Gets Submitted (the exact
+item list) → The Components One by One (each: reads/produces/why-it-exists-as-separate) →
+The Order of Work (numbered steps from intake to delivery) → The Output (full example + how
+to read it) → Review, Correction and Filing (the human loop) → The Safety Net → Status, Limits
+and Asks. Ten numbered sections; each divider names its question; the worked example
+introduced in section 3 is carried through every later section so nothing is reintroduced.
+
+Contrast with decision-document structure: a decision doc front-loads the ask; a walkthrough
+doc front-loads comprehension. Pick the structure from the reader's job, and keep spec tables
+in the companion artifact either way.
+
 ## Explaining the domain to a non-expert reader
 
 When the reader is new to the subject (the owner may own the platform without

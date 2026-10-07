@@ -33,6 +33,21 @@ Derivation source of truth: `scripts/theme/compute-palette.mjs` — OKLCH with g
 
 `scripts/theme/parity/run.mjs --dist dist --out <dir>` captures 40 rendered states as computed-style JSON. Grep the JSON `c` fields for old/new hexes as painted-pixel evidence.
 
+## Retinting chat bubbles (the five-var, two-scope rule)
+
+The chat bubble skin is driven by CSS vars, not Tailwind. There are FIVE of them, all in `src/index.css`:
+
+- AI / assistant: `--bubble-ai-bg`, `--bubble-ai-border`, `--bubble-ai-code-bg`, `--bubble-ai-inline-bg` — consumed by `.chat-turn` and `.chat-bubble-ai`.
+- User: `--bubble-user-bg`, `--bubble-user-border`, `--bubble-user-text` — consumed by `.chat-bubble-user`; `.chat-user-chip` (header icon) also reads `--bubble-user-text` for its colour.
+
+Rules that bite if forgotten:
+
+1. **Two scopes, not one.** Every one of those tokens is declared in `:root` AND re-declared under `[data-theme="light"]` further down the same file. Patching only `:root` leaves light mode painting the previous tint while dark mode updates — reads as a half-applied change. Patch both.
+2. **Keep AI and user on different channels.** The user bubble is NEUTRAL GRAY (`rgb(var(--c-110))` in dark, `color-mix(in srgb, #1a1a1f 8%, #ffffff 92%)` in light); the AI bubble carries the visible accent wash (`--color-accent` ~22% oklab dark, ~24% srgb mixed into `#ffffff` light). Never point the user bubble back at `--color-emerald` — that was the pre-2026-10-07 state and the owner had it replaced.
+3. **Light-mode tints mix toward the paper, not toward transparent.** With a chat backdrop set, a transparent bubble lets dark media show straight through and light ink sits on it unreadable. Always keep a `#ffffff` (light) or near-void (dark) portion in the mix; accent % controls how strong the wash reads, paper % controls legibility.
+4. **The user-bubble glow is hardcoded to its channel.** When swapping the user bubble off a coloured channel, rewrite the `box-shadow` on `.chat-bubble-user` (around line 1518) — a stale emerald glow around a gray bubble reads as a bug.
+5. **Verify against the SERVED bundle.** `npm run build` == deploy, then grep `dist/assets/index-*.css` for the new percentages (e.g. `color-mix(in oklab, var(--color-accent) 22%`). Source-level greps prove nothing once lightningcss has rewritten the file.
+
 ## v2 palette facts
 
 - Dark: void #090c12 / midnight #11151d / depth #1a1f29 / surface #252b39 / brandtext #f2f3f7 / muted #8d929e / accent #2bc8f3 (hue 222.1, chroma 0.135 — was #22d3ee hue 211.5, so the blue family is retained) / violetx #8f9eef (was a duplicate of emerald) / fuchsiax #dc6dd4 / redx #ef6661 / emerald #49cc95 / amber #e6b14e.

@@ -3,8 +3,8 @@ model:
     X-Headroom-Base-Url: https://api.z.ai/api/coding/paas/v4
     X-Headroom-Original-Path: /chat/completions
     X-Headroom-Cwd: /home/notjitin/.hermes
-  default: longcat-2.5-preview-free
-  provider: opencode-go
+  default: grok-4.7
+  provider: xai
   fallback_providers:
     - model: stealth/space-bunny-alpha
       provider: opencode-go
@@ -19,12 +19,11 @@ model:
       base_url: https://ai-gateway.vercel.sh/v1
       api_key: ${VERCEL_API_KEY}
       model: typesafe-ai/jev
-  base_url: https://opencode.ai/zen/go/v1
-  api_mode: chat_completions
+  base_url: https://api.x.ai/v1
 fallback_providers:
   - model: glm-5.3-flash
     provider: opencode-go
-  - model: stealth/space-bunny-alpha
+  - model: poolside/laguna-s-2.1:free
     provider: openrouter
   - model: longcat-2.5-preview-free
     provider: opencode-go
@@ -329,7 +328,7 @@ gateway:
     max_concurrent_runs: 10
 streaming:
   enabled: true
-  cursor: ' ▉'
+  cursor: " ▉"
 onboarding:
   seen:
     busy_input_prompt: true

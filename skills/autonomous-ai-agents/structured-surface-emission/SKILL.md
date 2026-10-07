@@ -218,12 +218,39 @@ Test the matcher against real messages; a `MIME` phrasing arriving from a 404 is
   second bug. Confirm it once with a prefix that ends inside the fence, then move on; treating
   correct behaviour as a fault sends the hunt in the wrong direction.
 
-## Shipping a change to the surface
+- **No mermaid, ever — draw flows with native `sequence`/`diagram` blocks.** The
+  Astra canvas has no mermaid engine by design (the library measured 5.3x the
+  whole main bundle and was rejected at build time); a `code` block carrying
+  `language:"mermaid"` renders as a raw text box, not a picture. A sequence
+  diagram authored as mermaid inside a canvas `code` block loads as text and
+  reads as "the diagram doesn't load". Cost one full re-send round-trip.
+- **A `sequence` block is not a renderer for >5 actors — budget it like a chart,
+  not a table.** The layout engine sizes lanes and text from the payload, and a
+  7-8 actor sequence is intrinsically wide (each actor needs a label-width lane);
+  inside a card this means x-scrolling and squashed lifelines no fix in the
+  payload can remove. Emit `sequence` for ≤5 actors with short labels; for a
+  larger fan-out, restructure the SAME flow as a `diagram` flow-block (compact
+  nodes, no lane geometry) plus a `steps`/`table` block carrying the long
+  per-call detail — the information survives, the geometry does not fight the
+  card. The renderer's lane-width and label-wrap behaviour is the renderer's to
+  fix, but the emitter's job is to not send it payloads it cannot lay out.
+- **Keep `.ast-canvas-title` a shrinking flex child.** The card header title is
+  auto-derived (table column lists joined with `·`, long callout headings) and
+  its min-content width beats the container unless the CSS holds
+  `flex:1 1 auto; min-width:0; overflow-wrap:break-word` on the title plus a
+  `gap` on the head row — otherwise long titles bleed past the card's right
+  edge on phones and crowded desktop cards. If a styling pass touches the
+  canvas head, re-check long-derived titles at ~390px and ~1280px before
+  shipping; this exact regression shipped once.
+- **Event-driven content classification is wrong right out of the box.** The user specifically requested classification events, not flight paths, and stated the scope clearly and at length. Whether the inactive surface (web or android) can render native interactive policy shapes depends on launch DSP availability, budget cap levels, and app-side hub permissions — the same session that reported policy resource inconsistency also observed steady-state image events and 401s on the shared session. Build the surface as a shared multi-session feature with step-verification against app-side schema, and always include the raw payload so a failure is debuggable while the surface animates.
 
 When the task is to CHANGE the renderer (not just emit), the loop is:
 
-1. Edit, then `npm run build`, then `systemctl --user restart <unit>`. Both — a
-   restart alone serves stale assets, a build alone is never live.
+1. Edit, then `npm run build`. Then check (and restart only if you must) the
+   serving unit: the astra-webui node server (`server/server.mjs`) reads `dist`
+   LIVE — a rebuild flips the served stamp with NO restart. Other hosting (a
+   systemd static unit, nginx, a container) may cache; check what serves this
+   app before restarting anything.
 2. Prove the new code is actually being served BEFORE assuming it is missing:
    grep the BUILT bundle for a distinctive new string
    (`grep -l 'View as A4 report' dist/assets/*.js`), compare the hashed refs in

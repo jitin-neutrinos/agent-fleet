@@ -113,6 +113,10 @@ Rule-derived labels have their own failure modes. Run the gates in
 a domain word counts as opinion, read samples from every class, cap oversampling at ~2x rather than
 flat-targeting it, and emit a stratified calibration slice for the user to check.
 
+Sanitize every CSV to fully-ASCII before advising an upload — the user's standing requirement is
+clean data with no special characters, and row count plus class distribution must survive the clean
+unchanged. Replacement table and post-write audit: `references/dataset-sanitization.md`.
+
 ### 4. Configure the wizard
 
 Full step sequences per model type are in `references/wizard-and-runtime.md`.
@@ -156,6 +160,27 @@ value is shown once.
   a Table needs a rectangle drawn, columns annotated, Apply, then Confirm — per document. But a field
   whose text is not printed in the document never auto-fetches at all — no footer line means no
   candidate and no green marker, which is correct behaviour, not a stuck field.
+
+- **The Table field's columns must exist as printed structure in the document — prose blocks are
+  String fields, full stop.** The docs' Extract-From-Table example is an invoice whose columns are
+  printed on the page, because at annotation the cursor positions over each printed column. A clause
+  block (heading + paragraph) has no columns to position over; a one-column Table degenerates into
+  exactly what a String field does, but with column-annotation friction. Verify the target document
+  actually prints a table before adding any Table field.
+
+- **Metadata the API response already carries needs no training field.** source_document and page
+  arrive as `file_name` (top level) and `bbox` (per entity) at inference time — do not invent
+  String fields for them and do not spend tagging effort on values the document never printed.
+  This is the same printed-vs-supplied test, extended to response-time metadata.
+
+- **A classifier for a label that is not printed in the input is a Prediction, never an Extraction
+  field.** The tell is the wizard shape: a value typed by a human at confirmation time ("exclusion",
+  "copay") trains an Extraction field on labels that will not exist at inference. Route it to a
+  Prediction — Text model whose training rows reuse the extractor's already-labeled dataset — the
+  same CSV rows reshaped as a text column + a target column, no new labeling. Before training,
+  reconcile the classifier's class vocabulary against the consumer (assistant schema) — collapsing
+  near-synonym classes (`condition` + `waiting_period` → `waiting_or_condition`) before training
+  beats mapping them at assembly; one label set everywhere.
 
 - **Correct platform-extracted text before confirming it.** Auto-fetched values can drop spaces
   between words the PDF renders with tight kerning, so a two-word heading arrives run together.
@@ -209,7 +234,22 @@ value is shown once.
   Each fix for a discovered bug creates new blind spots. Stop after the second round of
   bug-chasing-from-output rather than a third, and hand the remaining work back as manual review.
 
+- **The wizard requires the header row to exist, and requires you to discard it.** A headerless CSV is rejected outright ('file has no <column> column. Use the sample file's columns') because the platform names its columns from row 1; always ship CSVs WITH the header row, and tick 'Discard the First Row' so the header is not read as a data row plus a phantom category. Ticking it on a headerless file instead silently eats a real row.
+
+- **The knowledge-source uploader uses pdf-lib, which rejects many real-world PDFs.** Its signature error ('Expected instance of PDFDict, but got instance of undefined') hits designed documents (InDesign output, cross-reference streams) even when they open fine everywhere else. Fix by canonical rewrite — read the PDF and write a fresh copy (pypdf works); content is identical, the parser takes the rebuilt xref. Pre-empt the trap: rewrite EVERY externally-sourced knowledge PDF before the user uploads it, and verify with pdf-lib itself (node + `pdf-lib` load) rather than pypdf, which is too lenient to catch this.
+
+- **'N chunks failed' on a knowledge upload means the chunker, not the data — flatten the document.** Designed PDFs yield irregular segments their embedder rejects. Rebuild as a uniform text PDF: extract the text page-by-page, normalize punctuation to ASCII, re-render through WeasyPrint under simple headings. If flatten-once is not enough, split into two uploads rather than iterating on rendering.
+
 - **Watch for variable shadowing in parallel extraction scripts.** An inner loop reusing the outer
   loop's index variable silently corrupts page numbers — producing values beyond a document's page
   count, which is the tell. Assert `page <= total_pages` over the whole output rather than reading
   samples; the samples looked fine.
+
+- **Run the model-testing artifacts via one seeded generator, not ad-hoc samples.** Draw 2–4 items per
+  class from the real corpus with a fixed seed, ship them as: a JSON artifact (sample id, full input
+  text, expected label) + a one-column CSV ready for the Batch tab + a README naming the model,
+  nav path, pass criteria and the class's known failure mode. Examples of failure modes to embed:
+  signal classifier 'none for everything' (natural-prior collapse), provenance 'fact for everything'
+  (rebalance failed), clause-type class-spread collapse (minority classes didn't take). Separate
+  smoke-testing from accuracy reporting in the artifact itself — drawing from the training corpus is
+  fine for smoke tests; held-out splits from the data_split folders are for reported accuracy.

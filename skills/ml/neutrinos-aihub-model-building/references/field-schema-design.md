@@ -38,6 +38,20 @@ Final schema — four fields:
 Two fields point at the same region: the Table reads the wording out, the String field is told what
 kind of clause it is.
 
+### v3 correction — works only when the document prints a table
+
+This worked schema assumed the source PDFs print real clause tables. Verify that assumption
+against the actual documents before opening the wizard: the docs' Extract-From-Table annotation
+step positions the cursor over each printed column, which presumes the columns exist as printed
+structure. When the source is prose (a clause heading + paragraph in running text), there is no
+column to position over; the one-column Table then costs per-column annotation friction while
+doing exactly what a String field does. In that case the schema degrades to String fields only:
+`policy_product`, `clause_heading`, `clause_quoted_wording` — one box, one region, one Confirm per
+clause. And `clause-type` moves OUT of the extractor entirely: a classification typed by a human at
+tagging time has no value source at inference. Build it as a separate Prediction — Text classifier
+trained on the extractor's already-labeled rows (text column + target column), reconciling its
+class vocabulary against the consumer's schema first so no assembly-time mapping layer is needed.
+
 ## Do not create fields the response already carries
 
 The extraction response includes `file_name` at the top level and a `bbox` on every entity — the

@@ -18,7 +18,25 @@ Hyperparameters (JSON): `validation_split` (default 0.2), `preset`
 (best_quality/medium/highest), `training_time_limit` (25000s), `optimization.patience` (25),
 `optimization.val_check_interval`, `optimization.top_k` (3),
 `optimization.top_k_average_method` (`greedy_soup`), `optimization.max_epochs` (10),
-`model.timm_image.checkpoint_name`.
+`model.timm_image.checkpoint_name`, `model.hf_text.max_text_len` (truncates silently — set at or
+above the 95th-percentile text length of the text column; for English prose estimate ~4 chars per
+token, so a corpus with p95 ≈ 800 chars needs a max_text_len comfortably above 200 tokens, and any
+sensible default clears it — the check is worth doing because truncation is the silent failure).
+
+### Steps worth integrating from the clause-type-classifier build
+
+For a classifier whose rows are one text string + one class label (e.g. clause text → clause
+type), the exact sequence above works with three additional checks before Upload:
+
+1. Column name the target unambiguously (e.g. `clause_type`) so the dropdown at Step 4 picks it
+   without hunting among near-synonym columns.
+2. Strip leading list-numbering prefixes (`1. `, `2. `) from the text column when present — the
+   platform does not strip them and models can latch on to the numbering token as a feature.
+3. Keep classes with a hard minimum of ~150 rows each. Below that floor a text classifier tends to
+   overfit 1–2 surface tokens of the minority class ("waiting period" appears verbatim in most
+   `waiting_period` rows, so it learns the token, not the concept) — which shows in the batch test
+   as near-perfect precision on that class with poor recall everywhere else. Merge or re-label
+   instead of training on a thin class.
 
 ## Wizard — Extraction, Document
 
@@ -79,7 +97,14 @@ Output rules — configure them separately from the start.
 
 Link models: type dropdown (Prediction / Extraction / Assistant) → Data Type → Model → Model Version
 → **mandatory Description**. The Description is context the assistant reads, not a label — write it
-as an instruction.
+as an instruction. A sequence block that names the linked models and their roles in one sentence
+per link is the fastest correct pattern: the assistant reads each Description verbatim at runtime.
+
+**Attach, never rebuild, an existing guardrail.** If the tenant already has a configured guardrail,
+the assistant setup attaches that one in its configuration — creating a second guardrail with
+overlapping rules duplicates enforcement and can double-block. Custom PII categories (national ID,
+policy numbers) live in the guardrail, not re-entered at the assistant level; the assistant-level
+PII Masking switch is just the on/off for that layer.
 
 Two invocation modes:
 
@@ -90,6 +115,18 @@ Two invocation modes:
 
 For any evidence- or compliance-adjacent product use **Assisted**. An assistant choosing which
 evidence to gather is the failure mode a regulator would object to.
+
+### Knowledge sources
+
+**The uploader's PDF parser is pdf-lib** — the error string `Expected instance of PDFDict, but got
+instance of undefined` is its signature, and it rejects PDFs whose cross-reference structure it
+cannot parse (compressed xref streams from InDesign exports do this; the document itself opens fine
+everywhere else). Fix by canonically rewriting before upload: `pypdf` read → `PdfWriter().append()`
+→ fresh write regenerates the xref and the file then passes pdf-lib. Do not hand-edit bytes; do not
+assume "valid in a viewer" means "valid to the uploader" — verify against pdf-lib specifically
+before re-delivering, since pdf.js and pypdf accept files pdf-lib refuses.
+
+Baseline FCA guidance PDFs (FG21/1 vulnerability, FG22/5 Consumer Duty) both had this defect.
 
 ## Runtime
 
@@ -116,6 +153,24 @@ grouped under `section_name`. `file_name` at the top level. `result` carries raw
 
 `bbox` is what makes an extraction auditable: it is how the platform draws the highlight over the
 document and how a reviewer checks the read without re-reading the page.
+
+**Assistant — request (sync).** Two calls minimum: `assistant/conversation/create`
+(`{metadata, translation_enabled}`) → returns `_id` (the conversation thread), then
+`assistant/message/create` with `conversation_id` + `text` + (`file` XOR `file_id`) + optional
+`sources` (knowledge-source `_id`s from `assistant/knowledge/find-all` — multiple ids as a
+comma-separated array) + `metadata`. `file` (direct upload) and `file_id` (from the generic
+`inferenceservice/file/upload` endpoint, which also returns `page_count`) are **mutually
+exclusive per call** — pick one.
+
+**Assistant — response.** `{output: {text | json}, status: "Completed", inference_time,
+conversation_id, created_at, metadata}` — the output shape follows the assistant's configured
+Output format; with JSON configured, `output` carries the schema-shaped object.
+
+**Assistant — batch/async.** `assistant/conversation/create/batch`
+(`{metadata, callback_url, translation_enabled}`) → `_id` → `assistant/message/upload/batch`
+per message (each message uploaded individually, all treated as ONE conversation) → results
+pushed to the `callback_url`. `translation_enabled` in the request only works if translation is
+also enabled in the platform UI per assistant.
 
 **Batch** is four calls: `classification/create/batch` → `classification/upload/batch/{id}` →
 `classification/start/batch/{id}` (returns 201, PENDING) → `classification/batch/find/{id}`.

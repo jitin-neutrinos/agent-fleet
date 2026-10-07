@@ -55,6 +55,19 @@ the extra verification loop is worth it; for one-off print pieces,
 
 ## Pitfalls
 
+- **An `img` with only a height stretches — give every logo/img both dimensions.**
+  `height:11mm` with no width lets the engine's default sizing stretch a ~3:1 horizontal
+  lockup into a square; the defect is invisible in the HTML and obvious on the rendered
+  cover/back. Always add `width` (sized to the file's real aspect ratio) plus
+  `object-fit:contain` — `object-fit` alone is not honored for the implicit width.
+- **A single-hue document is a grep, not a render check.** The owner's recurring brief
+  is "only the brand blue, dark and light, no other colors". Accents slip back in through
+  CSS defaults (callout colors, warn/success hues, accent pills) and survive a visual
+  glance on small renders. Grep the built HTML for every non-blue accent hex before
+  rendering, and replace them with derived blue tints (`#9FC7FF`, `#BBD4FF`, `#E5F0FF`
+  on dark, `#0066FF` on light). Verify with a rendered-page pixel pass when vision is
+  available, `pdftotext` + grep when it is not.
+
 - **The HTML lives in scratch, not next to the skills — relative asset paths
   break.** From a scratch dir, `../neutrinos-brand-core/assets/` resolves to
   nothing and the logo/fonts render silently blank. Fix: symlink the skills
