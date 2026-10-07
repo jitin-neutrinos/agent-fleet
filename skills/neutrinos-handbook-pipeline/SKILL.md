@@ -33,7 +33,10 @@ the extra verification loop is worth it; for one-off print pieces,
    `../neutrinos-print/scripts/html_to_pdf.py handbook.html handbook.pdf
    --fonts ../neutrinos-brand-core/assets/fonts`. The script can also set this
    up itself with `--allow-install` (venv at `~/.cache/neutrinos-designer/venv`).
-4. **Deliver** the PDF through the host's file/media channel.
+   CHECK FOR THE SHARED VENV FIRST: reuse `~/.cache/neutrinos-designer/venv`
+   (`<venv>/bin/python -c "import weasyprint"`) before creating a new one.
+4. **Deliver** the PDF through the host's file/media channel (copy to
+   `~/uploads/<name>.pdf` for the chat MEDIA tag).
 
 ## Design rules (hard requirements)
 
@@ -52,6 +55,18 @@ the extra verification loop is worth it; for one-off print pieces,
 
 ## Pitfalls
 
+- **The HTML lives in scratch, not next to the skills — relative asset paths
+  break.** From a scratch dir, `../neutrinos-brand-core/assets/` resolves to
+  nothing and the logo/fonts render silently blank. Fix: symlink the skills
+  dir into the scratch dir (`ln -sfn ~/.hermes/skills <dir>/skills-link`) and
+  rewrite asset URLs to that prefix before rendering; pass the fonts dir
+  explicitly via `--fonts` (the script's own path still finds its defaults).
+- **WeasyPrint not on the system python is expected, not a failure.**
+  `python3 -c "import weasyprint"` failing on PATH means 'wrong interpreter',
+  never 'unavailable' — the pipeline's own venv carries it (see step 3).
+- **Bare npm style assets (radial-gradient divs, not images) count as
+  supergraphics** and satisfy the momentum-graphic rule without any bundled
+  asset dependency.
 - WeasyPrint paint order: an absolutely-positioned panel can bury a sibling
   logo image; fix with explicit `z-index`.
 - Margin-box content can clip at page edges; center boxes and keep bottom

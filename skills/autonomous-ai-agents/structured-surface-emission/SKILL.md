@@ -135,6 +135,11 @@ Test the matcher against real messages; a `MIME` phrasing arriving from a 404 is
   (`null` = dropped) before touching the renderer. The usual cause is a natural data
   shape the whitelist does not accept; fix it by normalising in the parser (and pinning
   it in the parser's check), not by teaching every future author a stricter shape.
+  **Concrete instance:** `table.columns` must be a plain string array
+  (`["A","B"]`), never an array of objects (`[{"key":"a","label":"A"}]`). The
+  schema validator checks `isStrArr(b.columns)`; an object array fails and the WHOLE
+  table block returns null — the card renders a blank section with no error. Always
+  emit column headers as plain strings.
 - **A control block nested inside a `steps`/`checklist` item is not a block.** `{"type":"steps","items":[{"title":"…","type":"toggle","label":"…"}]}` is valid JSON and reads as a control in the draft, but the validator rejects the WHOLE `steps` block — one illegal member drops every step, not just that item. Interactive blocks (`slider`, `select`, `multiselect`, `segmented`, `toggle`, `search`) are top-level siblings in `blocks`, never item fields. This is worse than a missing control: the steps it was documenting vanish with it, so the card silently loses a whole section. Compose, validate, then hoist anything the validator names.
 - **Test counts written into a skill go stale — re-measure and patch in place.** The
   documented "expected: 43 pass" was 46. Run the suite, then correct the sentence.

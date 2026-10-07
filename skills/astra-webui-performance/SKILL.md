@@ -116,6 +116,35 @@ KeyError here reads as a broken endpoint. A `Secure` session cookie also will no
 travel over plain HTTP, so script-driven calls to the public hostname 403 even
 with a valid token — measure public latency from inside the browser.
 
+### 12. Pagination slice — render only the current page
+When accumulating pages via `mergeRows(prev, next)`, the visible list MUST be sliced to the current page. Without the slice, clicking "Next" fetches page 2 but the list grows from 15→30 items while the indicator says "16-30 of N" — reads as broken AND renders hundreds of unnecessary DOM nodes.
+
+```tsx
+// WRONG — shows all accumulated rows (correctness + perf bug)
+const visible = useMemo(() => sortRows(sessions), [sessions]);
+
+// RIGHT — slices to current page
+const visible = useMemo(() => {
+  const sorted = sortRows(sessions);
+  return sorted.slice(offset, offset + limit);
+}, [sessions, offset, limit]);
+```
+
+### 13. Proxy route patterns: regex matching, title search, enrichment
+
+**Regex on `req.url`:** `req.url` includes the query string. `$`-anchored patterns fail when query params are present. Use `(\?|$)` instead of `$`.
+
+```js
+// WRONG — fails on ?q=...
+if (/^\/api\/hx\/sessions\/titles\/?$/.test(req.url)) { ... }
+// RIGHT
+if (/^\/api\/hx\/sessions\/titles\/?(\?|$)/.test(req.url)) { ... }
+```
+
+**Title search:** The gateway's `/api/sessions/search` searches MESSAGE content, not titles. A separate proxy route `/api/hx/sessions/titles?q=...` paginates through all sessions (gateway limit=100/page) and filters by title (case-insensitive). Must call `enrichSessions` + `stampRunningTurns` + `enrichLastReplies` on results — same as the main list.
+
+**Any new session-list route** must call the full enrichment pipeline or the client gets incomplete rows (missing unread pills, stale previews, no turn status).
+
 ## pitfalls
 
 - **Concurrent session reversion:** Claims that "fix X is applied" may not be true. In shared repos with parallel work, a claimed fix can be reverted by another session without updating this skill. Always verify via grep/git log before trusting a claimed fix — the verification checklist items (section below) are not optional guardrails, they are the proof. Session 2026-10-03 found that TurnTimeline memo (item 4 below) was claimed applied but `grep memo(TurnTimeline` returned 0 hits.

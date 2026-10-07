@@ -17,8 +17,9 @@ the streaming relay, the server databases, client persistence, and message
 ordering. Perf/layout work is `astra-webui-performance`; deploy and bug
 recurrence is `astra-webui-regression-fixes`.
 
-Measured figures, retention gates and the body-vs-reference split live in
-`references/stream-persistence-and-sync.md`.
+Connection-layer depth (log signatures, the four-layer attribution table, interval
+arithmetic, deployment gaps) is in `references/connection-churn.md`; the raw
+client-vs-server isolation probe is `scripts/ws-liveness-probe.mjs`.
 
 ## The shape, in one paragraph
 
@@ -150,6 +151,62 @@ safe across devices:
   cases.
 
 Read the cap before designing any feature that lets the user attach something.
+
+### 12. Connection churn is diagnosed from logs, not from symptoms
+
+"It keeps disconnecting" spans four layers (page client, native Android legs, the
+proxy, the CF edge). Attribute the churn from the server logs before touching any
+client code:
+
+- `handleWsUpgrade` logs `filter=`, `device=`, `since=` and the request UA; the
+  shared ping loop logs `ws-reap` with `lq=` (that socket's last pong), `dev`, `f`.
+  Together they name the offender by leg and user agent.
+- Count `ws-upgrade` per minute: tens per minute is a reconnect loop; one or two is
+  normal app lifecycle (WebView handoff on background/foreground).
+- A reap whose `lq` equals that socket's OPEN time means the leg never ponged once —
+  dead transport (Doze/NAT) and expected. A leg that ponged and then stopped is the
+  bug. `peers=` climbing monotonically with no matching closes is a leak, not a loop.
+- Group by `filter`/UA: `filter=1` + `ua=okhttp` isolates the native background leg,
+  `filter=0` + browser UA is the page leg.
+
+**Isolate client vs server with a raw probe before fixing anything.** Connect a
+hand-rolled RFC 6455 client to BOTH `127.0.0.1:3011` and the public tunnel host,
+answer server pings, and hold for 100s+. If both survive and every ping is answered,
+the proxy/relay/edge path is healthy and the churn is entirely client-side — stop
+editing server code. `scripts/ws-liveness-probe.mjs` is that probe.
+
+**Close-before-overwrite introduces a loop unless the callbacks are guarded.**
+Adding a defensive `close()` to a socket-replacing connect function fires the OLD
+socket's own `onClosed`/`onFailure`, which schedules a redial, which closes the next
+socket — self-sustaining at the backoff floor. Measured: ~44 reconnects/min on one
+filter. Guard every close/failure callback with a superseded-socket check
+(`if (ws !== currentSocket) return`) so only the live socket drives reconnects.
+
+**Backoff must not reset on instant death.** `onOpen` unconditionally resetting the
+attempt counter pins the redial at the base delay forever when a socket opens then
+dies instantly. Reset only when the previous socket lived past a floor (~5s), so a
+broken path escalates instead of hammering.
+
+**Keep the intervals ordered.** The server reap threshold needs at least one full
+round of grace beyond the client ping, and the client ping must be shorter than the
+server ping round. Measured zero-grace bug: ping 30s / reap 30s reaped healthy
+sockets whose single pong was seconds late, and OkHttp `pingInterval(60)` straddled
+two 30s rounds. Working shape: client ping 20s, server ping round 30s, reap 65s.
+
+**Native edits ship only through their own deploy plus an on-device restart.**
+Kotlin/Java/manifest changes go out via `tools/deploy.sh android` AND an install; a
+web deploy never carries them, and an APK install alone leaves the old process
+running with the old behaviour. Force-stop the app, then re-measure. The script's
+"no native changes" skip keys on COMMITTED diffs — commit before deploying or the
+rebuild is silently skipped. Confirm the device took the new build by comparing the
+served `/api/build-id` against the commit you shipped.
+
+**Run the repo check suite with the SERVICE's interpreter:**
+`ASTRA_WEBUI_PASSWORD=… ~/.local/node-22.23.3/bin/node scripts/run-checks.mjs`. The
+shell's `node` is a different build whose bundled SQLite sits below the pinned-safe
+version, so `scripts/sqlite-runtime.check.mjs` fails and `regression-gate` reports a
+regression that does not exist. Compare `sqlite_version()` under both interpreters
+before believing a red gate.
 
 ## Theme engine: the subsystems and their traps
 
