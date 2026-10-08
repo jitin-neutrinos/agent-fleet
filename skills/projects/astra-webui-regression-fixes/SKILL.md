@@ -34,6 +34,22 @@ Procedure when a verified fix recurs:
    a dirty file wholesale — you may erase their in-flight header fix along with your
    one-line revert.
 
+## 1.1 "Site works, app broken": audit order and the never-built commit (2026-10-08)
+
+Owner: "astra seems broken." Server 200, served bundle == dist, 138 checks green —
+yet any NEW session mount died with the error boundary ("OriginBadge is not
+defined"). ffe7bb5 had used `OriginBadge`/`useOriginsStore` in chat-landing.tsx
+without importing them: tsc -b was red AT HEAD (TS2304 x4), so the broken source
+never reached dist/ and the previously deployed bundle kept the site looking
+healthy. The bug surfaced only on the one code path that renders the dangling
+reference.
+
+- Audit order: probe the LIVE UI (click the flows, not just load the page) →
+  `npx tsc -b` at HEAD. Served==dist proves deploy freshness, not source health.
+- A green check suite does not imply a green build — run-checks doesn't run tsc.
+- Fix = the missing imports only; don't refactor the sibling feature. E2E the
+  exact broken flow (new session → send → reply renders) before committing.
+
 ## 2. `<video>` "playing" is not `<video>` decoding
 
 Three fixture traps, each faking success differently:

@@ -214,6 +214,12 @@ value is shown once.
   resolves to `DataFrame.product`, not the column; `df['product']` or `df.product` guarded is the
   only correct form.
 
+- **'Cannot be used in worksheets' on upload = control characters in the CSV.** PDF
+  extraction leaves BEL/ETX bytes from bullet glyphs (one model5 row had
+  `5. \x07Pre-Hospitalization...`); worksheet parsers hard-reject them. Strip C0/C1
+  first and audit the WRITTEN bytes — and never let the clean pass itself emit NULs
+  (the first model5 clean added 417). See `references/dataset-sanitization.md`.
+
 - **Audit generated datasets by reading samples.** Recurring defect classes in extracted clause
   corpora: page footers (registered-office addresses) bleeding into the last block of each page, and
   keyword-matching fragments that match a type word while stating no clause. Filtering them costs

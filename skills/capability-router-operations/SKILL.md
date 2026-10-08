@@ -109,7 +109,7 @@ everything", measure the pair:
 
 NEVER let a membership pass reorder or re-scope what it draws from. Measured 2026-10-08 (commit e02aca7): `_top_combined` split skills/others by the tail CUT, not by KIND — a dominant leader (1.87, tail cut 1.029) pushed 40+ sub-cut SKILL rows into `others`, the kind-quota pass filled every slot from that pool, and the fill loop never ran: the true #1 vanished from the card while 0.915 rendered on top. Fix: quota reserves slots for non-skill kinds ONLY (the coverage line's actual promise); skills flow through the fill loop; the output is re-sorted to score order before returning because `_score_cliff` (largest-relative-drop walk) and `diversify` ("rows must be in score order") both assume it. Pinned in `t_quota_keeps_score_order`. Symptom signature to recognise fast: card omits an item that instrumented BM25 ranks #1 — the loss happened in a post-ranking stage, so instrument the stage boundaries, not the scorer.
 
-"Why is the card disproportionate in X?" is answered by a measurement, not inspection:
+"Why is the card disproportionate in X?" is answered by a measurement, not
 inspection: over a sample of real queries, count picks per kind and compare
 each kind's picked share with its corpus share. Result on the live corpus:
 skills UNDER-picked (73% of corpus, ~54% of picks) while MCPs/commands/fleet
@@ -223,15 +223,39 @@ it:
 - **Serve with explicit cache headers**: a naive static server lets the edge
   cache a mutable script; users then run yesterday's installer against
   today's repo. Hash-named artifacts may cache forever; mutable entrypoints
-  (`install.sh`, checksums) must be `no-store`.
-- **End-to-end test the installer from a clean context**, not the dev
+  (`install.sh`, checksums) must be `no-store`. An origin that EVER served a
+  long TTL for a mutable URL poisons edge objects that outlive the origin
+  fix — without a CDN API token there is no purge, so also publish immutable
+  versioned twins of mutable files (e.g. `checksums-<stamp>.txt` whose name
+  matches the immutable-cache regex) and verify what the edge serves with
+  cache-busted requests (`?v=$RANDOM`), never only the origin.
+- **End-to-end test the installer from a clean context, per OS** — not the dev
   machine's already-installed state: `curl … | bash` into a temp HOME is the
-  only run that proves a stranger's path.
+  only run that proves a stranger's path, and a Linux temp-HOME run proves
+  nothing about Windows. Three Windows-only defects invisible to every Linux
+  test: (1) directory symlinks need Developer Mode or admin (`WinError 1314`)
+  — probe symlink capability once with a throwaway link and fall back to
+  copying silently; (2) Windows Store Python has no `python3.exe` alias, so
+  hook commands hardcoded `python3` install "successfully" and never fire —
+  build every hook command from the installer's own `sys.executable`, quoted;
+  (3) PowerShell 5.1 conhost prints ANSI escape codes as raw stacked lines
+  unless VT processing is enabled (SetConsoleMode) before any rendering.
 - **Installer payloads must be self-contained**: every module a harness branch
   imports at install time must be inside the shipped file list. A wirer living
   outside the published payload crashes install on exactly the machines that
   detect that harness — the public path, which the dev machine can never hit
   because its working tree has everything.
+- **A hosted landing page is part of the product — QA animations as the user
+  receives them, not as code.** GSAP `.from()` tweens toward the element's
+  CURRENT value, so against a CSS `opacity:0` reveal class it animates 0→0:
+  an invisible hero with zero console errors. Force the end-state first
+  (`el.style.opacity = 1`), then `fromTo` with explicit from/to. Screenshot
+  only after entrance timelines complete — a mid-animation frame grades as a
+  broken layout in vision QA. ScrollTrigger-driven counters resting a few px
+  below their start line at load never fire: trigger above-the-fold counters
+  immediately (no ScrollTrigger) and call `ScrollTrigger.refresh()` on
+  `document.fonts.ready`, because web-font load shifts layout past trigger
+  lines.
 - One local session model is a real resolution source: the harness's session
   store records the model per session and refreshes every turn. A per-turn
   billing-API poll is the forbidden hot-path hop; reading the session store
@@ -508,6 +532,15 @@ selftests — and did nothing on any real route.
 
 - One named regression per defect, each citing the measurement that motivated
   it. A check with no measurement behind it is a guess.
+- When instrumented behavior contradicts your line-by-line reading of a function,
+  inline-replicate the function's internals with the REAL rows before widening the
+  search — a comment or docstring can describe an older intent ("quota reserves
+  non-skill slots" sitting over a split by score cut), and the comment/code
+  divergence IS the bug. Reading harder never finds it; running the pieces does.
+- Deduction has a budget: when two instrumented runs of the same code disagree,
+  suspect input/environment differences (stack tokens, learned priors, env vars,
+  breakers) before suspecting nondeterminism — and replicate the caller exactly
+  (same args, same env) before believing either run.
 - The runner must report a raising check and continue. One check that throws
   aborts the run and hides every other check's state.
 - When a check fails in the full run but passes in isolation, bisect with

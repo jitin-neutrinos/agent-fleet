@@ -36,7 +36,10 @@ parser BEFORE emitting.** One command replaces the round-trip.
 1. **Compose the payload as data, not as prose.** Build the JSON in a scratch file
    (or an `execute_code` cell), never by hand-typing a fence into the reply —
    hand-typed fences pick up smart quotes, truncated tails, and stray prose after
-   the closer, all of which parse as garbage.
+   the closer, all of which parse as garbage. The longer the card, the likelier
+   the tail truncates mid-string: emit large payloads pretty-printed (one block
+   per line) so truncation is visible and repairable, not one enormous
+   single-line object whose validity cannot be eyeballed.
 2. **Run the consumer's real validator over that file.** For Astra, run `scripts/validate-canvas-spec.mjs`
    (in this skill's `scripts/`). It imports the astra-webui checkout and calls its
    `validateBlock` on every block plus `splitCanvasBlocks` on the wrapped fence,

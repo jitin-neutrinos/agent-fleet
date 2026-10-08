@@ -63,3 +63,19 @@ dominates.
 If a stage needs a model call on a hot path, the free tiers will not hold a
 latency budget. Use them off the critical path, or budget for their worst case
 and design the stage to be skippable.
+
+## Authenticated and broke: HTTP 402 is a billing state, not an auth bug
+
+- `HTTP 402` (`Insufficient account funds`) on every call, failing in seconds,
+  means the provider account is out of credits or entitlement. A 429 is
+  quota-with-a-reset-window; a 402 will not heal on retry — top up or switch
+  provider. Background children on the dead provider each fail in seconds with
+  the provider named in the error body; read it before re-dispatching to the
+  same provider.
+- One 402 does not condemn the wallet family. Provider chains share a name,
+  not a bill — a free tier being empty says nothing about a paid plan on a
+  different vendor. Move the in-flight work to a live provider; do not pause
+  the task waiting for a reset.
+- A research/lookup child that dies cheaply has no capability the parent
+  lacks: re-run its queries inline rather than paying the same 402 twice on
+  re-dispatch.

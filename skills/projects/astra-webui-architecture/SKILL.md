@@ -215,6 +215,7 @@ shape and branding are usually three hardcoded literals plus a few hundred
 hand-written values. Establish which before planning — the built half should be
 left alone, and the missing half is most of the work.
 
+- **backdrop-filter: the alias line is poison, and the drop is silent per-rule.** (2026-10-08, composer shell) Adding `-webkit-backdrop-filter` alongside the standard prop in the SAME rule makes lightningcss emit ONLY the -webkit- form for that rule; Chromium ignores it alone → computed `backdrop-filter: none`, no frost, no warning. Source must carry the STANDARD prop only (let the builder prefix), and every backdrop-filter change is verified with `getComputedStyle(el).backdropFilter` in a real browser — dist-grep alone lies.
 - **A `var()` with no definition is not "no radius", it is an INVALID declaration.**
   An unresolved custom property makes the whole declaration invalid at computed
   value time, so it falls back to the property's initial value — `border-radius`
@@ -280,6 +281,44 @@ left alone, and the missing half is most of the work.
   control-character strip built on `\s` eats the spaces inside path data.
   Rendering the asset through an image element is a stronger guarantee than any
   sanitizer, since an image-referenced SVG cannot execute script.
+- **Raising a fill token's colour quotient flips every text rule painted into
+  that surface.** A translucent accent-derived fill (20-25% mix) can carry
+  accent-coloured body text; raise the mix (34%+ reads as a coloured bubble,
+  not tinted glass) and the same text rule becomes accent-on-accent —
+  invisible text with no error anywhere. When a mix percentage changes,
+  re-audit every text rule targeting that surface in the same change: body
+  text wants the neutral bright token, accent reserved for links/emphasis.
+
+## Per-surface awareness: notes, stamps, presence vs status
+
+Multi-device awareness (which surface sent a message; routing output format
+per surface) rides three mechanisms that already exist — never build a fourth.
+
+- **The per-turn note channel is the only cache-safe home for surface/format
+  directives.** `tui_gateway/session_notifications.py::_hud_surface_note` keys
+  on `session["client_surface"]` (set per submit from `prompt.submit`'s
+  `surface` param against a validated frozenset) and `_prepend_note` puts the
+  note on the MODEL INPUT for that turn only. `gateway/run_turn.py`'s
+  `turn_sidecar_notes` (staged via `_set_pending_turn_sidecar_notes`) is the
+  messaging-platform mirror. Notes must never enter the system prompt or a
+  context file — that is the one mutation class that re-keys every cached
+  conversation.
+- **Stamps join on the RPC id; stamp only what is provable.** The proxy sees
+  both directions of every frame. Correlate the submit frame's JSON-RPC `id`
+  plus the socket's presence `device` with the result frame's `user_row_id`
+  (same id, upstream→client direction). `user_row_id` is absent on
+  queued/steered inputs — those rows get NO badge. Persist only socket-proven
+  stamps in astra's own db; compute inherited origins (a telegram/cli
+  session's rows) at read time from `sessions.source`. A wrong badge is worse
+  than a missing one.
+- **Result-frame hooks live on the upstream→browser relay path.** Results
+  travel gateway→client; a bind hook placed on the browser→proxy leg never
+  fires and the feature reads as "intermittent". Forwarded frames stay
+  byte-identical; derived events (`message.origin`, `external.status`) are
+  proxy-originated and downstream-only.
+- **Presence and status are different claims.** Connected web/android sockets
+  are real presence. Messaging/terminal surfaces only ever prove
+  last-activity — label it "last active", never render it as live presence.
 
 ## pitfalls
 

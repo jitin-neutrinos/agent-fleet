@@ -96,3 +96,7 @@ figures need correcting.
 
 - `references/cache-and-ttl.md` — auditing cache TTLs and provider defaults,
   including the silent default-TTL change and compression/caching interference.
+- `references/token-optimization-levers.md` — decision table for CUTTING token
+  spend without quality loss: provider caching economics and break-evens, batch
+  discounts, compaction research anchors (what improves vs degrades quality),
+  and the usage fields that prove a cache actually hit.

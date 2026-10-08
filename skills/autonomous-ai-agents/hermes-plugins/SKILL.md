@@ -93,7 +93,13 @@ the fast path for a newly enabled plugin AND the repair for a boot-time miss: af
 restart, check the per-message artifact's mtime (cache/log) against live traffic — silence
 after a restart means boot activation skipped it, and re-running activate_plugin_now re-arms
 it with zero downtime. Restart remains the coarse fallback. Confirm with a real message, not
-just the activation result. `hermes plugins enable <name>` also hot-reloads the running
+just the activation result.
+
+If the boot-time miss reproduces on every restart, automate the re-arm instead of repeating
+it by hand: a user-level `Type=oneshot` unit that runs the activation snippet (with retries
+and fail-open exit 0), plus a `Wants=<unit>` drop-in (`hermes-gateway.service.d/*.conf`) so
+every gateway (re)start pulls it ~1 s after boot. Lay both from the plugin's installer so a
+fresh machine gets the automation too; log each re-arm to an audit file. `hermes plugins enable <name>` also hot-reloads the running
 gateway itself (the enable output says so) — a newly enabled hook plugin is usually live
 immediately; still verify firing on real traffic.
 
