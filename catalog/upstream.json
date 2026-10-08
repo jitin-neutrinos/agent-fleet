@@ -1,90 +1,85 @@
 {
- "generated_at": "2026-10-06 22:00 UTC",
+ "generated_at": "2026-10-07 22:00 UTC",
  "repos": {
   "99designs/gqlgen": {
    "repo": "99designs/gqlgen",
-   "stars": 10764,
-   "pushed_at": "2026-10-05T16:53:26Z",
+   "stars": 10765,
+   "pushed_at": "2026-10-07T02:12:22Z",
    "default_branch": "master",
    "latest_tag": "v0.17.95",
    "head_sha": "12292b2ce4",
    "head_date": "2026-10-05T16:53:23Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "ChromeDevTools/chrome-devtools-mcp": {
    "repo": "ChromeDevTools/chrome-devtools-mcp",
-   "stars": 53038,
-   "pushed_at": "2026-10-06T15:02:53Z",
+   "stars": 53084,
+   "pushed_at": "2026-10-07T14:52:11Z",
    "default_branch": "main",
    "latest_tag": "chrome-devtools-mcp-v1.10.1",
-   "head_sha": "5ddb0a3110",
-   "head_date": "2026-10-06T10:53:49Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "6f2b48ae5b",
+   "head_date": "2026-10-07T14:38:10Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "Cocoon-AI/architecture-diagram-generator": {
    "repo": "Cocoon-AI/architecture-diagram-generator",
-   "stars": 7402,
+   "stars": 7405,
    "pushed_at": "2026-05-13T23:04:17Z",
    "default_branch": "main",
    "latest_tag": "1.1",
    "head_sha": "4b9087d552",
    "head_date": "2026-05-13T23:04:16Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "JimLiu/baoyu-skills": {
    "repo": "JimLiu/baoyu-skills",
-   "stars": 26373,
+   "stars": 26396,
    "pushed_at": "2026-09-10T15:13:43Z",
    "default_branch": "main",
    "latest_tag": "v2.5.2",
    "head_sha": "1567581c26",
    "head_date": "2026-09-10T15:13:43Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "NVIDIA-AI-Blueprints/rag": {
    "repo": "NVIDIA-AI-Blueprints/rag",
-   "stars": 781,
+   "stars": 785,
    "pushed_at": "2026-09-03T05:38:54Z",
    "default_branch": "main",
    "latest_tag": "v2.6.2",
    "head_sha": "f20716d73a",
    "head_date": "2026-08-20T08:18:57Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "NVIDIA-NeMo/Evaluator": {
    "repo": "NVIDIA-NeMo/Evaluator",
    "stars": 348,
-   "pushed_at": "2026-10-01T19:36:47Z",
+   "pushed_at": "2026-10-07T08:55:29Z",
    "default_branch": "main",
    "latest_tag": "v0.3.0",
    "head_sha": "c87f9b2176",
    "head_date": "2026-10-01T19:36:43Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "NousResearch/hermes-agent": {
    "repo": "NousResearch/hermes-agent",
-   "stars": 251675,
-   "pushed_at": "2026-10-06T21:59:47Z",
+   "stars": 251921,
+   "pushed_at": "2026-10-07T21:43:58Z",
    "default_branch": "main",
    "latest_tag": "v2026.9.24",
-   "head_sha": "5bff65203e",
-   "head_date": "2026-10-06T21:59:06Z",
-   "checked_at": "2026-10-06 22:00 UTC"
-  },
-  "OWNER/REPO": {
-   "repo": "OWNER/REPO",
-   "error": "unreachable",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "c538ec5f40",
+   "head_date": "2026-10-07T21:24:22Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "Panniantong/Agent-Reach": {
    "repo": "Panniantong/Agent-Reach",
-   "stars": 92593,
-   "pushed_at": "2026-09-15T16:16:24Z",
+   "stars": 93177,
+   "pushed_at": "2026-10-07T17:17:29Z",
    "default_branch": "main",
    "latest_tag": "v1.5.0",
-   "head_sha": "a19a171fa9",
-   "head_date": "2026-09-15T16:16:24Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "94f06c1969",
+   "head_date": "2026-10-07T17:17:26Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "Stable-Baselines-Team/stable-baselines3-contrib": {
    "repo": "Stable-Baselines-Team/stable-baselines3-contrib",
@@ -94,67 +89,57 @@
    "latest_tag": "v2.9.0",
    "head_sha": "075bd5be8d",
    "head_date": "2026-06-15T17:04:20Z",
-   "checked_at": "2026-10-06 22:00 UTC"
-  },
-  "acme/weather_station": {
-   "repo": "acme/weather_station",
-   "error": "unreachable",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "agent-sh/computer-use-linux": {
    "repo": "agent-sh/computer-use-linux",
-   "stars": 659,
-   "pushed_at": "2026-10-04T04:39:13Z",
+   "stars": 662,
+   "pushed_at": "2026-10-07T19:19:00Z",
    "default_branch": "main",
-   "latest_tag": "v0.7.11",
-   "head_sha": "c4d4162263",
-   "head_date": "2026-10-04T04:37:26Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "latest_tag": "v0.7.12",
+   "head_sha": "4ee706926c",
+   "head_date": "2026-10-07T17:34:28Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "apollographql/rust-best-practices": {
    "repo": "apollographql/rust-best-practices",
-   "stars": 154,
+   "stars": 155,
    "pushed_at": "2026-09-28T16:23:11Z",
    "default_branch": "main",
    "latest_tag": "",
    "head_sha": "eb485a5ddb",
    "head_date": "2026-09-21T13:55:25Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "astral-sh/uv": {
    "repo": "astral-sh/uv",
-   "stars": 90452,
-   "pushed_at": "2026-10-06T21:36:01Z",
+   "stars": 90480,
+   "pushed_at": "2026-10-07T21:53:00Z",
    "default_branch": "main",
    "latest_tag": "0.12.23",
-   "head_sha": "822539467a",
-   "head_date": "2026-10-06T18:00:22Z",
-   "checked_at": "2026-10-06 22:00 UTC"
-  },
-  "axolotl-ai-cloud/diff-transf": {
-   "repo": "axolotl-ai-cloud/diff-transf",
-   "error": "unreachable",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "1f85ea1015",
+   "head_date": "2026-10-07T20:55:24Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "blader/humanizer": {
    "repo": "blader/humanizer",
-   "stars": 54395,
+   "stars": 54638,
    "pushed_at": "2026-09-28T05:55:12Z",
    "default_branch": "main",
    "latest_tag": "v3.1.0",
    "head_sha": "225a6f39ac",
    "head_date": "2026-09-28T05:54:38Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "chroma-core/chroma-mcp": {
    "repo": "chroma-core/chroma-mcp",
-   "stars": 598,
+   "stars": 597,
    "pushed_at": "2025-09-17T20:20:13Z",
    "default_branch": "main",
    "latest_tag": "v0.2.6",
    "head_sha": "98ff67589b",
    "head_date": "2025-09-17T20:20:13Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "evalstate/mcp-hfspace": {
    "repo": "evalstate/mcp-hfspace",
@@ -164,17 +149,17 @@
    "latest_tag": "0.54",
    "head_sha": "b9e3903f1f",
    "head_date": "2025-06-13T17:05:31Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "ggml-org/llama.cpp": {
    "repo": "ggml-org/llama.cpp",
-   "stars": 130504,
-   "pushed_at": "2026-10-06T21:06:52Z",
+   "stars": 130606,
+   "pushed_at": "2026-10-07T21:16:06Z",
    "default_branch": "master",
    "latest_tag": "v0.6.0",
-   "head_sha": "5ad1c5da0a",
-   "head_date": "2026-10-06T20:36:21Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "bd4eeaa047",
+   "head_date": "2026-10-07T20:48:06Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "google/wire": {
    "repo": "google/wire",
@@ -184,12 +169,7 @@
    "latest_tag": "v0.7.0",
    "head_sha": "9c25c9016f",
    "head_date": "2025-08-22T13:52:05Z",
-   "checked_at": "2026-10-06 22:00 UTC"
-  },
-  "home/notjitin": {
-   "repo": "home/notjitin",
-   "error": "unreachable",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "jitin-neutrinos/ToolR": {
    "repo": "jitin-neutrinos/ToolR",
@@ -199,17 +179,17 @@
    "latest_tag": "",
    "head_sha": "b4b0c452ea",
    "head_date": "2026-10-06T06:35:00Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "jitin-neutrinos/agent-fleet": {
    "repo": "jitin-neutrinos/agent-fleet",
    "stars": 0,
-   "pushed_at": "2026-10-06T18:45:04Z",
+   "pushed_at": "2026-10-07T18:45:06Z",
    "default_branch": "main",
    "latest_tag": "",
-   "head_sha": "0e8538b15c",
-   "head_date": "2026-10-06T18:45:02Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "8e33986eaa",
+   "head_date": "2026-10-07T18:45:02Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "jitin-neutrinos/neutrinos-designer": {
    "repo": "jitin-neutrinos/neutrinos-designer",
@@ -219,107 +199,107 @@
    "latest_tag": "",
    "head_sha": "dbf27bf7ee",
    "head_date": "2026-09-14T10:43:40Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "leonardomso/rust-skills": {
    "repo": "leonardomso/rust-skills",
-   "stars": 568,
+   "stars": 570,
    "pushed_at": "2026-06-14T22:51:13Z",
    "default_branch": "master",
    "latest_tag": "",
    "head_sha": "fd2a861ab0",
    "head_date": "2026-06-14T22:51:09Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "matplotlib/matplotlib": {
    "repo": "matplotlib/matplotlib",
-   "stars": 23330,
-   "pushed_at": "2026-10-06T16:31:59Z",
+   "stars": 23335,
+   "pushed_at": "2026-10-07T19:35:12Z",
    "default_branch": "main",
    "latest_tag": "v3.11.2",
-   "head_sha": "e8eebffcc4",
-   "head_date": "2026-10-06T10:52:09Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "d2115ba4ec",
+   "head_date": "2026-10-07T19:35:12Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "microsoft/playwright-mcp": {
    "repo": "microsoft/playwright-mcp",
-   "stars": 37877,
-   "pushed_at": "2026-09-28T23:19:44Z",
+   "stars": 37901,
+   "pushed_at": "2026-10-07T18:17:42Z",
    "default_branch": "main",
    "latest_tag": "v0.0.83",
    "head_sha": "f183dad4a5",
    "head_date": "2026-09-28T23:12:55Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "neondatabase/agent-skills": {
    "repo": "neondatabase/agent-skills",
    "stars": 99,
-   "pushed_at": "2026-10-05T22:10:45Z",
+   "pushed_at": "2026-10-07T02:13:47Z",
    "default_branch": "main",
    "latest_tag": "",
-   "head_sha": "9e4a570592",
-   "head_date": "2026-10-03T21:20:03Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "bfd013c352",
+   "head_date": "2026-10-07T02:11:26Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "openai/codex": {
    "repo": "openai/codex",
-   "stars": 128046,
-   "pushed_at": "2026-10-06T21:30:24Z",
+   "stars": 128186,
+   "pushed_at": "2026-10-07T21:53:01Z",
    "default_branch": "main",
-   "latest_tag": "rust-v0.160.1",
-   "head_sha": "0b47040dc9",
-   "head_date": "2026-10-06T21:30:08Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "latest_tag": "rust-v0.161.0",
+   "head_sha": "cba716c0f1",
+   "head_date": "2026-10-07T21:52:43Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "pimalaya/himalaya": {
    "repo": "pimalaya/himalaya",
-   "stars": 7401,
-   "pushed_at": "2026-10-06T08:34:38Z",
+   "stars": 7406,
+   "pushed_at": "2026-10-07T15:22:22Z",
    "default_branch": "master",
    "latest_tag": "v2.2.1",
-   "head_sha": "fd83fbce61",
-   "head_date": "2026-10-06T08:33:57Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "a45b40185a",
+   "head_date": "2026-10-07T15:22:20Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "pyg-team/pytorch_geometric": {
    "repo": "pyg-team/pytorch_geometric",
-   "stars": 24110,
+   "stars": 24111,
    "pushed_at": "2026-10-06T01:41:35Z",
    "default_branch": "master",
    "latest_tag": "2.8.1",
    "head_sha": "79d33965a4",
    "head_date": "2026-09-01T23:22:41Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "rohitg00/agentmemory": {
    "repo": "rohitg00/agentmemory",
-   "stars": 29182,
+   "stars": 29214,
    "pushed_at": "2026-10-06T18:00:18Z",
    "default_branch": "main",
    "latest_tag": "v0.9.30",
    "head_sha": "007a1a7fe8",
    "head_date": "2026-10-06T14:53:42Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "samber/cc-skills-golang": {
    "repo": "samber/cc-skills-golang",
-   "stars": 3406,
+   "stars": 3416,
    "pushed_at": "2026-10-01T12:32:20Z",
    "default_branch": "main",
    "latest_tag": "v2.0.0",
    "head_sha": "8e899e20ff",
    "head_date": "2026-10-01T12:32:12Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "samber/do": {
    "repo": "samber/do",
-   "stars": 2817,
+   "stars": 2818,
    "pushed_at": "2026-10-06T13:04:54Z",
    "default_branch": "master",
    "latest_tag": "v2.1.0",
    "head_sha": "9bae325c66",
    "head_date": "2026-09-07T16:52:04Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "samber/godig": {
    "repo": "samber/godig",
@@ -329,7 +309,7 @@
    "latest_tag": "v0.2.0",
    "head_sha": "78a62ecf3f",
    "head_date": "2026-10-01T22:54:26Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "samber/hot": {
    "repo": "samber/hot",
@@ -339,17 +319,17 @@
    "latest_tag": "v0.13.1",
    "head_sha": "0058f60945",
    "head_date": "2026-09-12T20:11:56Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "samber/lo": {
    "repo": "samber/lo",
-   "stars": 21435,
+   "stars": 21438,
    "pushed_at": "2026-10-01T04:44:31Z",
    "default_branch": "master",
    "latest_tag": "v1.53.0",
    "head_sha": "5c6ddcb706",
    "head_date": "2026-10-01T04:41:54Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "samber/mo": {
    "repo": "samber/mo",
@@ -359,7 +339,7 @@
    "latest_tag": "v1.17.0",
    "head_sha": "502998f13e",
    "head_date": "2026-10-01T23:14:30Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "samber/oops": {
    "repo": "samber/oops",
@@ -369,52 +349,47 @@
    "latest_tag": "v1.23.2",
    "head_sha": "cf12269c1e",
    "head_date": "2026-10-01T19:34:47Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "samber/ro": {
    "repo": "samber/ro",
-   "stars": 691,
-   "pushed_at": "2026-10-05T15:40:46Z",
+   "stars": 692,
+   "pushed_at": "2026-10-07T07:40:47Z",
    "default_branch": "main",
    "latest_tag": "v0.4.1",
    "head_sha": "34ba05cc80",
    "head_date": "2026-10-05T12:45:50Z",
-   "checked_at": "2026-10-06 22:00 UTC"
-  },
-  "samber/slog": {
-   "repo": "samber/slog",
-   "error": "unreachable",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "shadcn-ui/ui": {
    "repo": "shadcn-ui/ui",
-   "stars": 125210,
-   "pushed_at": "2026-10-06T20:23:13Z",
+   "stars": 125255,
+   "pushed_at": "2026-10-07T12:55:59Z",
    "default_branch": "main",
-   "latest_tag": "shadcn@4.21.3",
-   "head_sha": "e8c3143b1c",
-   "head_date": "2026-10-06T20:21:25Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "latest_tag": "shadcn@4.21.4",
+   "head_sha": "97ddbf4274",
+   "head_date": "2026-10-07T12:51:00Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "spf13/cobra": {
    "repo": "spf13/cobra",
-   "stars": 44685,
+   "stars": 44692,
    "pushed_at": "2026-07-11T00:43:07Z",
    "default_branch": "main",
    "latest_tag": "v1.10.2",
    "head_sha": "adbc881390",
    "head_date": "2026-07-11T00:43:07Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "spf13/viper": {
    "repo": "spf13/viper",
-   "stars": 30482,
+   "stars": 30483,
    "pushed_at": "2026-01-12T21:42:47Z",
    "default_branch": "master",
    "latest_tag": "v1.21.0",
    "head_sha": "528f7416c4",
    "head_date": "2025-10-15T21:20:01Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "spotware/homebrew-tap": {
    "repo": "spotware/homebrew-tap",
@@ -424,67 +399,67 @@
    "latest_tag": "",
    "head_sha": "2ce4aa71a4",
    "head_date": "2026-08-19T12:21:54Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "steipete/songsee": {
    "repo": "steipete/songsee",
    "stars": 81,
-   "pushed_at": "2026-09-28T00:39:32Z",
+   "pushed_at": "2026-10-07T12:20:59Z",
    "default_branch": "main",
    "latest_tag": "v0.1.3",
-   "head_sha": "d266462585",
-   "head_date": "2026-09-28T00:39:29Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "43b7eb5ec2",
+   "head_date": "2026-10-07T12:20:56Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "stretchr/testify": {
    "repo": "stretchr/testify",
-   "stars": 26221,
+   "stars": 26222,
    "pushed_at": "2026-09-24T14:59:34Z",
    "default_branch": "master",
    "latest_tag": "v1.12.1",
    "head_sha": "87a7b9d576",
    "head_date": "2026-09-24T14:59:34Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "swaggo/swag": {
    "repo": "swaggo/swag",
-   "stars": 13040,
+   "stars": 13042,
    "pushed_at": "2026-09-30T06:38:40Z",
    "default_branch": "master",
    "latest_tag": "v2.0.0-rc6",
    "head_sha": "eb131898e4",
    "head_date": "2026-09-30T06:36:53Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "timescale/pg_textsearch": {
    "repo": "timescale/pg_textsearch",
-   "stars": 4014,
-   "pushed_at": "2026-10-06T07:35:52Z",
+   "stars": 4013,
+   "pushed_at": "2026-10-07T07:36:49Z",
    "default_branch": "main",
    "latest_tag": "v1.5.1",
    "head_sha": "a5fdfeb1b7",
    "head_date": "2026-10-02T02:27:17Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "trycua/cua": {
    "repo": "trycua/cua",
-   "stars": 28450,
-   "pushed_at": "2026-10-06T21:47:22Z",
+   "stars": 28708,
+   "pushed_at": "2026-10-07T20:50:51Z",
    "default_branch": "main",
    "latest_tag": "cua-sdk-v0.4.1",
-   "head_sha": "4c3fad87c1",
-   "head_date": "2026-10-06T21:44:16Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "head_sha": "b0a6348133",
+   "head_date": "2026-10-07T20:48:13Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "upstash/context7": {
    "repo": "upstash/context7",
-   "stars": 62745,
-   "pushed_at": "2026-10-06T15:38:11Z",
+   "stars": 62774,
+   "pushed_at": "2026-10-07T13:59:55Z",
    "default_branch": "master",
-   "latest_tag": "ctx7@0.5.13",
-   "head_sha": "72181dd4ac",
-   "head_date": "2026-10-06T15:37:34Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "latest_tag": "@upstash/context7-mcp@4.2.0",
+   "head_sha": "4219aa2ce7",
+   "head_date": "2026-10-07T13:40:29Z",
+   "checked_at": "2026-10-07 22:00 UTC"
   },
   "xdevplatform/xurl": {
    "repo": "xdevplatform/xurl",
@@ -494,7 +469,7 @@
    "latest_tag": "v1.3.4",
    "head_sha": "18dcb447f0",
    "head_date": "2026-09-29T21:20:22Z",
-   "checked_at": "2026-10-06 22:00 UTC"
+   "checked_at": "2026-10-07 22:00 UTC"
   }
  }
 }
