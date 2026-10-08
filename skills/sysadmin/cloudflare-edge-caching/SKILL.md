@@ -84,6 +84,7 @@ curl -sI https://<host>/ | grep 'cf-cache-status'
 - **CDN-Cache-Control alone is not enough**: The header tells Cloudflare *how* to cache, but a Cache Rule with "Cache Everything" is what actually makes it cache HTML. Without the rule, HTML stays `DYNAMIC`.
 - **Image optimizer TTL**: Next.js defaults to `max-age=60, must-revalidate` for optimized images. Set `minimumCacheTTL: 31536000` in `images` config or every image revalidates at the edge every minute.
 - **Static asset pattern**: Use `headers()` in next.config with a regex like `/(.*)\.(png|jpg|jpeg|gif|webp|avif|svg|ico|woff2?|ttf|eot)` to apply immutable caching to all static assets.
+- **override_origin beats origin headers.** When the zone's catch-all rule sets an edge TTL override (this zone's does), origin `no-store`/`max-age` headers are IGNORED at the edge for covered hosts — an origin-side cache fix alone never protects mutable files there. Levers: a dedicated higher-priority cache rule for the host, or purge after every content change; verify with cache-busted requests (`?nocache=$(date +%s)`), because a plain curl happily reads the poisoned entry and sends you debugging a healthy origin.
 
 ## Relationship to tunnel hosting
 

@@ -13,6 +13,8 @@ Every copy affordance goes through ONE system. Never hand-roll a copied-state bu
 - Deleted one-off skins (`.ai-term-copy`, `.ast-canvas-copy`, `.ast-cv-copy-swap`, `cc-*`) stay deleted.
 - `float` renders `position:absolute` — inside a static bar, override position under the parent class in CSS rather than stacking `!` utilities in JSX (a CSS override survives refactor; JSX `!` spam fights the cascade). Tailwind `!` utilities are the fallback when a one-off skin (e.g. a vault row) shouldn't touch index.css.
 - The chip skin carries `margin-left:auto; flex:none` so it right-aligns in `space-between` heads and long titles can't shrink it — keep both when touching it.
+- **Canvas card-header chips are ICON-ONLY (owner steer).** A `label` widens the chip to its text, crowding the `.ast-canvas-head` flex row until it bleeds past the card's right edge on narrow phones. Drop `label` and keep `title` — `AnimatedCopyButton` keeps `aria-label`/tooltip, so discoverability survives; the Copy→Check swap already tells the story. Icon-only in the head; labelled chips elsewhere (editable docs captions) are fine where the row has room.
+- **Every copy button is a BARE icon — no plate, no outline (owner steer, whole family).** Rest state = `background:transparent; border:none`; hover tint alone carries affordance. This applies to all three skins and their parent-scoped variants: `.chat-actions > *` (no glass chip/blur), `.chat-copy-chip` (28px icon box, no pill chrome), `.chat-code-copy` float (no glass plate/outline; also scrub dead `border-color` lines from parent-scoped overrides — a stale `border-color` re-arms an outline if the base border ever returns). Geometry stays per-skin (44px action rows, 28px head chips, 22px terminal-bar). Do not reintroduce a fill/border "for discoverability" — the icon + hover + swap animation is the affordance, per owner reversal precedent.
 
 ## Check-suite conventions
 - `src/lib/copy-system.check.mjs` sweeps src/: fails on clipboard bypasses, duplicated skin rules, resurrected dead skins, private swap classes. Pinned as a REGRESSIONS row in `scripts/regression-gate.check.mjs`.
@@ -20,7 +22,7 @@ Every copy affordance goes through ONE system. Never hand-roll a copied-state bu
 - The gate re-runs pinned checks from DISK: an unpinned check file another agent left uncommitted fails the suite for everyone. Don't pin or 'fix' foreign checks; leave them to their author.
 
 ## Known-red baseline (verify around, don't fix)
-- `scripts/sqlite-runtime.check.mjs` fails while the host Node bundles SQLite < 3.51.3 (WAL-reset bug) — an interpreter problem, fixed by a Node upgrade, not by a repo change.
+- `scripts/sqlite-runtime.check.mjs` fails while the host Node bundles SQLite < 3.51.3 (WAL-reset bug) — an interpreter problem, fixed by a Node upgrade, not by a repo change. Its crash also paints the regression gate red with "1 regression-gate failure" — classify that as the same environment red before reading the gate as a product regression, and prove any diff innocent with a stash-isolation re-run on the clean tree (see `check-suite-and-ci.md`).
 - Run `node scripts/run-checks.mjs` BEFORE a change to learn the baseline; after it, require only 'same failures as before, none new'. Don't chase pre-existing reds.
 
 ## Build + deploy

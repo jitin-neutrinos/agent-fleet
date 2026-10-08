@@ -348,5 +348,11 @@ never re-narrate the bug reports:
    product regression. An interpreter/SQLite version failure is an environment constraint, not app code.
    The gate refuses duplicate ids wholesale, so ONE dupe row turns the whole gate red — distinguish its
    failure class before reading it as 129 real regressions.
-5. **Report verified vs inferred separately, per row** — bundle grep + live curl for what was proven,
+5. **KNOWN environment failure (2026-10-08): `sqlite-runtime.check.mjs` fails on Node v22.22.2**
+   ("SQLite 3.51.2 is vulnerable to the WAL-reset bug (fixed in 3.51.3)"), which also paints the
+   regression gate red (1 failure = this check crashing). Verified pre-existing via clean-tree
+   stash-isolation — any diff present at the time is NOT the cause. Fix is a Node interpreter
+   upgrade on the host (Node 24.9 bundles only 3.50.4, so verify the bundled version, never the
+   Node number); until then treat this one check as a known-red environment constraint.
+6. **Report verified vs inferred separately, per row** — bundle grep + live curl for what was proven,
    ranked verdict for what was inferred. State which artifacts (APK, dist, tunnel) each verdict depends on.

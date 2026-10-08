@@ -17,13 +17,10 @@ The local router (`~/Work/tool-router`, entry `~/.tool-router/route`) intercepts
 every prompt on every harness and emits a ranked card of skills, MCPs, agents
 and commands. This skill is how to change it safely. Measuring quality is
 `retrieval-eval-harness`; finding and installing new capabilities is
-`agent-skill-sourcing`. The project is published as **ToolR**
-(github.com/jitin-neutrinos/ToolR, installer at toolr.jitinnair.com via
-`tools/deploy.sh` + a static-file service); the published repo and the working
-tree are the same code — deploy after every shipped change, and the installed
-skill tree is symlinked to the working tree so the two can never drift. The
-product is named **Toutur**; the site is toutur.jitinnair.com and the repo
-github.com/jitin-neutrinos/Toutur (old ToolR name/URLs redirect).
+`agent-skill-sourcing`. The project is published as **Toutur** — toutur.jitinnair.com, repo
+github.com/jitin-neutrinos/Toutur (old ToolR name/URLs redirect) — via
+`tools/deploy.sh` + a static-file service; the published repo and the working
+tree are the same code — deploy after every shipped change.
 
 ## Card depth is dynamic: complexity, cliffs, diversity, adoption
 
@@ -95,6 +92,29 @@ everything", measure the pair:
   `len(picks & loads) > 0` per card-bearing session. A measured 0% pair rate
   is the decisive finding — no scorer tuning can fix it, because the scorer
   never sees the failure.
+- **A global adoption ratio across harnesses is fiction — scope the ledger per
+  harness.** The failure shape: one harness's PostToolUse hook is the only load
+  counter while the denominator counts every route from every harness; the
+  resulting single-digit percent reads as total adoption collapse and escalates
+  enforcement on a number no harness produced. Rules: per-harness routed/paired
+  counters; the gate reads only its OWN harness's ratio; a harness with no load
+  source reads null (no verdict), never 0%.
+- **The denominator is routes that suggested skills, not all routes.** Most
+  routed prompts name zero skill-kind picks (measured ~78%) — an MCP/agent/
+  command pick cannot be 'loaded' like a skill, so counting those routes
+  dilutes the ratio toward zero regardless of behavior. Filter at record time
+  on skill-kind picks, not at report time.
+- **Never escalate on absent data — put a measurement floor under the ratio.**
+  Below a handful of routed-with-suggestions samples the ratio returns null and
+  below-floor is false. A floor evaluated on one or two samples produces the
+  same false escalations the per-harness rewrite exists to kill.
+- **Hookless harnesses still have a numerator: harvest loads from their session
+  store.** A harness that injects the card via a gateway plugin has no load
+  hook, but its skill-load tool calls sit in its own session DB — an hourly
+  cron counting new loads and new routed prompts since the last run fills the
+  ledger off the hot path. State the caveat in the data: bulk harvest cannot
+  replay pairing windows over historical traffic, so early paired counts
+  undercount until the harvest runs continuously.
 - Prose-only delivery has no teeth; the measured consequence is the model
   treating the card as boilerplate. The binding mechanism (`--enforce`:
   PreToolUse deny-once when card-named skills were not loaded, PostToolUse
@@ -328,6 +348,12 @@ silently** — no card, no error. So the budget is a correctness property.
 
 ## Sourcing and installs need a relevance gate, not just safety gates
 
+Shipped commands: `route --finder "<need>"` (search registries, inspect real
+SKILL.md bodies + scripts, injection-screen, IOC + typosquat check, list with
+commit SHAs) and `route --finder-install <n>[:sha]` (install pinned to the
+reviewed commit, refuse on sha drift, then verify the route fires). `--source`
+remains as the legacy listing-only path.
+
 Free-ness, install count and injection-screening say nothing about whether a
 candidate does what was asked. Measured failure: a multi-role chatroom skill
 was auto-installed for `fix the astra chat streaming bug` because it matched
@@ -368,7 +394,11 @@ the word "chat".
   CREATE the intent entry when absent: finder installs do not record gaps,
   so a marker that only updates existing entries is silently dropped and
   trap (2) returns. Never swallow the marker write in a bare `except` — the
-  swallow is what turned a data-shape quirk into a wrong verdict.
+  swallow is what turned a data-shape quirk into a wrong verdict. All three
+  traps were found by running the real lifecycle end-to-end against a FRESH
+  intent while every unit test stayed green — sign a new sourcing feature off
+  with at least one full finder→install→verify→rollback run per intent shape,
+  never on unit tests alone.
 - **A corpus change and the dense rebuild are not atomic.** Vectors refresh
   on the reindex timer/full rebuild, so a route in the window fuses stale
   dense hashes against a fresh BM25 index and the card can flip between

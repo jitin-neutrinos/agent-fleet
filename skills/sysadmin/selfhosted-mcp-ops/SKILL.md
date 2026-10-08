@@ -30,7 +30,9 @@ tunnels, systemd user units, one-command installers, local embedding models.
    ("is X up/functional?") gets answered with a live probe, never from memory or
    project docs — docs rot, endpoints move. For an MCP endpoint: POST a JSON-RPC
    `initialize` with `Accept: application/json, text/event-stream`; a 200 with
-   `serverInfo` name+version is definitive. For static files (installers): GET
+   `serverInfo` name+version is definitive, and a 401/403 to the unauthenticated
+   probe means ALIVE (credential-gated) — classify auth refusals as up and
+   report them separately from real failures. For static files (installers): GET
    each file and check the byte count, and check BOTH the wrapper script and the
    payload it fetches — a 200 wrapper can still point at a dead domain.
 2. **Separate local from public.** `systemctl --user is-active <unit>` answers
@@ -93,7 +95,9 @@ tunnels, systemd user units, one-command installers, local embedding models.
   and model files; idle RSS hides the real tax and misleads sizing decisions.
 - **A high lifetime %CPU on a local MCP daemon is usually burst-on-use, not a
   leak.** `ps` %CPU is averaged over process lifetime; `top -H -p <pid>` showing
-  all threads sleeping at 0.0% means idle now. Audit the request log for what
+  all threads sleeping at 0.0% means idle now. The exception: high CPU AND the
+  endpoint timing out = wedged (a long-running proxy died exactly this way with
+  no log error) — restart first, investigate after. Audit the request log for what
   consumed the time (per-call ms lines, request volume) before restarting the
   service as a 'fix'. Memory is the real signal to watch: peak RSS ≈ sum of
   preloaded checkpoints (LRU `max_loaded` × model size) is by design, not a leak;
@@ -123,6 +127,12 @@ tunnels, systemd user units, one-command installers, local embedding models.
   pages; stage the config dormant (`url: \${ENV_VAR}`, enabled: false) and wait for
   the user's snippet. A 406-to-200 initialize probe proves a server is MCP, not
   WHICH server it is — always read `serverInfo.name` and `instructions`.
+- **A valid TLS certificate does not prove the hostname is served.** Wildcard
+  edges complete TLS for any matching subdomain while no vhost exists behind it —
+  TLS handshakes fine, every HTTP request then fails with no TLS error. Verify
+  with a full POST initialize; when one host of a domain family is dead, probe
+  its siblings (the shorter-label form of the same domain) before concluding the
+  service is down — the fix was the hostname, not the network.
 
 ## references/
 

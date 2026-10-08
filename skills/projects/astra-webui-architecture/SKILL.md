@@ -19,7 +19,9 @@ recurrence is `astra-webui-regression-fixes`.
 
 Connection-layer depth (log signatures, the four-layer attribution table, interval
 arithmetic, deployment gaps) is in `references/connection-churn.md`; the raw
-client-vs-server isolation probe is `scripts/ws-liveness-probe.mjs`.
+client-vs-server isolation probe is `scripts/ws-liveness-probe.mjs`. The five-layer
+cross-chat isolation audit (per-tab identity, wire ownership, event filter,
+stale-reply guard, queue flush) lives in the pitfalls section.
 
 ## The shape, in one paragraph
 
@@ -72,6 +74,24 @@ partition, so N devices are N independent caches, never one shared store.
 underlying heuristic needs a bookmarkable origin a WebView does not have); treat
 it as a hint and record `persisted()` for diagnostics only. Server stays
 authoritative; local loss must degrade to a slow first paint, never data loss.
+
+### 4.1 A queued prompt records its target session; the flush matches that target, never the connector
+
+The offline queue is the one send path that crosses a chat switch: a prompt queued
+while chat A was open survives a switch to chat B, and the flush fires whenever any
+session's create/resume reply lands. A flush filter shaped "everything not
+explicitly targeting a DIFFERENT session" sends chat A's queued text into B's
+freshly minted session — typed in A, answered in B (the Android shape: offline →
+queue → chat switch → reconnect).
+
+- A resume-mode row carries `sessionId` = the stored sid CAPTURED AT ENQUEUE TIME;
+  it flushes only on a reply whose sid equals it. A missing sessionId on a resume
+  row is an enqueue bug — fix the capture, never widen the flush into a wildcard.
+- Fresh-mode rows have no target yet: flushing them on the create reply that mints
+  their session is the one legitimate cross-reply flush.
+- Filter shape: `p.mode === "fresh" ? true : p.sessionId === sid`. A mis-targeted
+  row stays queued for its own chat's next resume; the 24h staleness cap is the
+  backstop.
 
 ### 5. Before trusting a component's own doc comment, read its code
 A header comment claiming a guarantee the code no longer provides is worse than
@@ -335,6 +355,15 @@ per surface) rides three mechanisms that already exist — never build a fourth.
   (it only rejects an axis the family lacks) and a claim that a CSS utility was
   never emitted (it was) both survived until re-tested. Re-run the load-bearing
   claims yourself and say which ones you corrected.
+- **Mid-turn send targeting rides the rebind order, not the resume reply.** A chat
+  switch nulls `liveSessionId` BEFORE the new resume goes out; a send in the switch
+  window therefore targets the new chat's stored sid, never the old one. Preserve
+  that ordering in any refactor of `rebindToStored` — inverting it (resume first,
+  unbind after) reopens a window where a send fires into the previous chat.
+- **Commit-on-shared-repo etiquette for queue/engine fixes:** grep `git status --porcelain`
+  first; concurrent sessions routinely land CSS-only commits mid-audit (verify your
+  messaging-path fix survived with a line grep before building), and a dirty
+  `src/index.css` you did not touch is theirs — never commit or revert it with your fix.
 - **Dedupe before sort.** Identity and ordering are separate concerns; a retried
   message that sorts into the wrong place is a duplicate AND a chronology bug.
 - **Full re-derivation on every keystroke.** Rebuilding a transcript from all
@@ -344,6 +373,8 @@ per surface) rides three mechanisms that already exist — never build a fourth.
   saying two processes share a database is evidence of intent; `lsof` on the
   file, or the presence of a second opener, is evidence of fact.
 - **Dual-state desynchronization.** When two pieces of state must stay in sync (e.g. `selectedSessionId` and `activeSessionId` in App.tsx), updating one without the other causes silent UI bugs — the active chat row never highlights, or a stale highlight persists after ending a session. Always audit every setter call site: if state A is set in a callback, state B must be set in the SAME callback. Grep for both names across the file to find all sync points.
+- **A cross-chat leak audit walks all FIVE isolation layers — the queue flush is the one that bypasses the other four.** (1) per-tab identity: a tab resumes from its own URL/sessionStorage, never shared localStorage; (2) wire ownership: a tab adopts a session only on a reply to an RPC id it sent; (3) event filter: foreign-session frames drop at the engine; (4) stale-reply guard: a resume reply is discarded when the stored sid changed while it was in flight; (5) queue flush: runs on reconnect, after the user may have switched chats — filter it on the row's recorded target session (rule 4.1). Layers 1-4 passing proves nothing about 5. Two supporting separations keep layers 2-4 honest: the watchdog probe is its OWN RPC id class (handled before the resume branch in the message pump — a probe reply can never be mistaken for a chat resume), and the replay-dedupe of completions keys on turn id with a frame-id fallback (a same-ms replay without either can double-bump a pill by one — cosmetic, self-heals on open, not worth a fix). Verify the suite, don't re-derive: `npx tsx src/lib/tab-isolation.check.ts`, `npx tsx src/lib/concurrent-queue.check.ts`, `node --import ./scripts/ts-resolve.mjs src/lib/ws-durable-queue.check.ts`, `npx tsx src/lib/wake-probe.check.ts`, and `node server/ws-filter.check.mjs` with the service's node.
+- **A 503 from a dashboard-proxied gateway endpoint is read, not diagnosed around.** Astra reaches the model catalog through the Hermes dashboard (`/api/hx/*` → `127.0.0.1:9119` → gateway). When the checkout moves under a running dashboard/gateway process, the skew guard refuses the endpoint with a `detail` field naming the two SHAs — provider config is fine, the process is stale. Read the body before touching config; fix is a dashboard service restart (the GATEWAY itself can never be restarted from inside a Hermes chat — every session runs inside it; schedule the restart from outside the process tree and remove the scheduler entry afterwards, or the service bounces on every interval).
 
 ## verification
 

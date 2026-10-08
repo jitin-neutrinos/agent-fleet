@@ -5,16 +5,24 @@ description: "Use when exposing a web app via the Cloudflare tunnel."
 
 # Cloudflare tunnel hosting (kurama-core)
 
-All public hostnames (neutrinos-mcp, astra, neutrinos-designer, agent-fleet, vdloader, …) ride ONE named tunnel:
-- systemd user unit: `neutrinos-mcp-tunnel.service` — restart with `systemctl --user restart neutrinos-mcp-tunnel.service` (blips ALL hostnames briefly; do it deliberately)
-- ingress config: `~/.cloudflared/config.yml` (back it up before edits)
-- journal: `journalctl --user -u neutrinos-mcp-tunnel.service --since "-15 min"` — origin dial failures and stream errors land here; tunnel-disconnected errors are edge-side only
+Multiple named tunnels serve this host, each with its own yml and its own
+process. Identify the LIVE one before any edit — `ps aux | grep cloudflared`
+shows each running process's `--config <path>`:
+- ingress config: the per-tunnel yml named on the running process (back it up first)
+- ingress changes hot-reload: `kill -HUP <cloudflared-pid>` — adding or re-pointing
+  a hostname needs no restart; a full unit restart blips ALL hostnames on that
+  tunnel and is for credential/tunnel-level changes only
+- when re-pointing, KEEP the old hostname's ingress entry alongside so existing
+  links never 404
+- journal: `journalctl --user -u <unit> --since "-15 min"` — origin dial failures
+  and stream errors land here; tunnel-disconnected errors are edge-side only
 
 ## Workflow — adding / re-pointing a hostname
 1. Edit `~/.cloudflared/config.yml`: add the `hostname → service:` entry BEFORE the 404 catch-all. Additive edits only — never disturb other hostnames. Back up first.
 2. Route DNS: `cloudflared tunnel route dns <tunnel-id> <hostname>` (the tunnel id is the `tunnel:` line at the top of config.yml). Ingress alone is NOT enough — without the CNAME the hostname never reaches the tunnel.
-3. Restart the unit (above).
+3. Hot-reload: `kill -HUP <cloudflared-pid>` (pid via `ps aux | grep cloudflared`). Full unit restart only for credential/tunnel-level changes — it blips every hostname on the tunnel.
 4. Verify from the outside: `curl -sI https://<host>/<known-open-endpoint>` — pick a deterministic endpoint; auth-gated pages may legitimately 401/redirect.
+5. If the zone has a catch-all cache rule, purge the zone cache after go-live — the pre-HUP window's responses (typically 404s) were already cached under the long edge TTL and otherwise serve stale for a year. Probe with cache-busted query strings (`?nocache=$(date +%s)`).
 
 ## Edge caching
 

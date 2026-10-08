@@ -34,6 +34,17 @@ Same trap runs in reverse on the user bubble if its fill ever goes accent-colour
 
 `index.css` declares some of these overrides TWICE — once near the `:root` token block and again further down the file (e.g. `.chat-turn .chat-md strong` around line 1524 AND again around line 2306). CSS source order means the LATER rule wins. A patch that only edits the first occurrence is silently shadowed and the visible bug stays. When fixing bubble ink, `grep -n` for the selector and edit EVERY match, or scope your fix tighter (`.chat-turn .chat-md …`) so it outranks the loose rule regardless of order.
 
+## The action row inside the bubble (copy / edit / regenerate)
+
+The row is absolutely positioned bottom-right INSIDE the bubble (`.chat-actions`; the bubble is the positioning context, so it must keep `position: relative`). Geometry lives in two coupled numbers — set them together:
+
+- `.chat-turn, .chat-bubble-user { padding-bottom }` — reserve below the last text line
+- `.chat-actions { right / bottom }` — the row's inset
+
+The row clears the text only while reserve >= inset + row height. On an overlap report raise reserve AND inset together: a bigger reserve at the old smaller inset leaves the icons crowded into the rounded corner.
+
+The buttons are BARE ICONS on the bubble surface (owner steer) — no tinted chip fill, no `backdrop-filter` on `.chat-actions > *`. Glass on glass doubles the frosting and reads as noise; the hover tint on `.chat-actions button:hover` carries feedback.
+
 ## Verification chain
 
 After any bubble-colour change:

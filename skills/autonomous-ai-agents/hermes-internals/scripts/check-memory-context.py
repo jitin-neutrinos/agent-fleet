@@ -52,6 +52,8 @@ span = (q("select max(timestamp) from messages")[0][0]
 per_day = msgs / max(span, 1)
 comp = q("select count(*) from messages where _compressed_summary=1")[0][0]
 ck("compression has fired", comp > 0, f"{comp} summarised rows")
+# 2026-10-08: auto_vacuum=INCREMENTAL was enabled on kurama-core so deletes
+# actually reclaim space (freelist was 12/240k pages — the file only ever grew).
 ck("auto_vacuum enabled", q("pragma auto_vacuum")[0][0] != 0,
    f"auto_vacuum={q('pragma auto_vacuum')[0][0]} (0 = file only ever grows)")
 print(f"       growth: {mb:.0f} MB, {msgs} msgs, {per_day:.0f}/day -> ~{mb/max(span,1)*365/1024:.1f} GB/yr")
@@ -109,9 +111,14 @@ if total:
     linked = fq("select count(distinct fact_id) from fact_entities")[0][0]
     ck("entity coverage supports contradiction detection", linked / total > 0.8,
        f"{linked}/{total} linked ({100*linked/total:.0f}%)")
-    prov = fq("""select count(*) from facts where content like '%msg\\_%' escape '\\'
-                or content like '%message_id%'""")[0][0]
-    ck("facts carry provenance", prov > total * 0.5, f"{prov}/{total} name a source id")
+    # 2026-10-08: the old content-LIKE provenance probe was wrong (source ids
+    # live in dedicated columns). The patch makes extraction stamp message id
+    # or live session id; legacy rows stay empty (backfill would invent
+    # provenance). Gate: zero NEW empty-source extraction facts.
+    empty_new = fq("""select count(*) from facts where source_kind='extraction'
+                      and source_id='' and created_at >= '2026-10-08 21:00'""")[0][0]
+    ck("new extraction facts carry provenance", empty_new == 0,
+       f"{empty_new} post-fix extraction facts without source_id")
     ck("no dangling entity links",
        fq("""select count(*) from fact_entities fe left join facts x on x.fact_id=fe.fact_id
             where x.fact_id is null""")[0][0] == 0)

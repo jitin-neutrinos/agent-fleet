@@ -65,6 +65,27 @@ real harness dirs for symlinks resolving into the scratch tree and `ln -sfn` the
 a disposable clone behind a live skill symlink breaks the harness the moment the scratch
 dir is deleted.
 
+## Landing revamps: fail-open reveals and the edge-cache override (2026-10-08)
+
+- **GSAP entrances freeze at opacity:0 in throttled/backgrounded tabs** (probe
+  harnesses, mobile browsers with the page backgrounded mid-load): the tween
+  clock stalls, the hero strands invisible, zero console errors. Gate
+  hide-for-animation behind a rAF-alive check — only add the `html.anim` class
+  (which carries `.anim .rv{opacity:0}`) after a probe rAF actually fires;
+  otherwise the page ships fully visible and static. CSS fallbacks in media
+  queries must target `.anim .rv`, not bare `.rv`, or they lose the specificity
+  fight when JS half-runs. Verified fail-open: a tab whose rAF never fired
+  rendered 0/43 elements hidden.
+- **A Cloudflare zone cache rule can override origin `no-store` for HTML**
+  (edge answered `cf-cache-status: HIT, age: 24h+`, `max-age=31536000` despite
+  origin `Cache-Control: no-store`): bare-URL deploys look live from origin
+  while every real visitor gets the pinned old page. Verify with a
+  query-busted fetch (`?v=$RANDOM`) compared byte-for-byte against the origin
+  file — the mutable-URL twins (`checksums-<stamp>`) dodge this for artifacts,
+  but `index.html` itself stays mutable. Purge needs a zone API token; none
+  exists on the host, so HTML deploys stay pinned until Jitin supplies one or
+  deletes the zone rule.
+
 ## Delivery wiring (verified live)
 
 - **Claude Code**: UserPromptSubmit hook (`settings.json`) → `route.py --hook`.

@@ -83,6 +83,7 @@ figures need correcting.
 - **Unknown pricing must be visible, not silent.** A model with no rate that
   writes `0.0` is indistinguishable from a genuinely free model. Keep a distinct
   marker or report the uncovered models.
+- **"Base_url routed through the proxy" in config is a claim, not a wire.** Kurama-core ran Hermes outside its headroom proxy for months: `model.base_url` is metadata for named providers — the runtime router resolves the endpoint from the auth credential resolver (zai's probes and caches endpoints). The designed force-through knob was the provider's `base_url_env_var` (`GLM_BASE_URL`), honored BEFORE probe/cache by design. Verify by counting the proxy's own request counter across one real call; remember long-running processes snapshot `.env` at startup (CLI picks changes up next invocation, gateway only after restart). Keep fallback legs direct — outage paths must not gain a proxy dependency.
 - **Cache-vs-compression interference is worth measuring, not assuming.**
   Compressing content inside a cached prefix pays back in cache writes; compare
   bust tokens against compression savings and report the ratio before proposing
