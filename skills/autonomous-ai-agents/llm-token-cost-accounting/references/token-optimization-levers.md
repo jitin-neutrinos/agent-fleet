@@ -5,6 +5,27 @@ Condensed from provider docs + 2026 research (links at the end). Ordering rule:
 discounted), **lossy levers only where benchmarks show <2% deltas or the raw
 text stays recallable**.
 
+## 0. Decision table — adopt vs skip (added from the 2026 survey pass)
+
+| Lever | Saving | Quality risk | Verdict |
+|---|---|---|---|
+| Provider prompt caching (§1) | up to ~90% on repeated prefix | zero | adopt |
+| Batch/Flex (§2) | flat 50% both directions | zero (latency only) | adopt for evals/nightly |
+| Context editing / stale tool-result clearing | Anthropic measured −84% tokens, +29–39% accuracy in 100-turn agentic search | none measured | adopt (Claude platform: `clear_tool_uses_20250919`; SDK compaction covers the rest) |
+| Anthropic 1-hour cache tier | cheap on high hit rates | zero | adopt ONLY at ≥67% hit rate — below that the 2× write premium loses money vs 5-min refreshes |
+| Sub-agents / just-in-time context | large (summaries only in parent) | low | default architecture |
+| Online KV compaction (TokenPilot-class) | 56–87% in papers | low with delayed eviction | n/a for API harnesses; vLLM-class self-serving only |
+| Model routing / cascades (RouteLLM) | 2×+ | real: "quality parity" = 90–95% | skip as automation; manual tiering (premium for judgment, cheap for mechanics) is the safer version |
+| Semantic caching (GPTCache/LiteLLM) | 25–40% of traffic | HIGH: published tables show 3–7% of hits are confidently WRONG at sane thresholds; near-identical phrasings collide at 0.91 similarity | skip for coding/agent workloads (hit rate only 20–30% there anyway); if ever used: threshold ≥0.95, short TTL, exact-match only for anything stateful |
+| LLMLingua-class prompt compression | up to 20× static prompts | moderate; never on live agent state | reference docs only (§4) |
+
+Unifying research anchor: the rate–distortion compaction survey — irreversible
+summarization compounds errors on every re-compaction, while reversible
+operators (archive original + retrieve on demand) hold accuracy indefinitely.
+Prefer reversible-by-design levers (external files, scratch notes, memory
+stores) over aggressive summarization. TokenPilot adds: compact on a delayed
+schedule using the agent's own future queries as the signal, never immediately.
+
 ## 1. Provider prompt caching (structural, zero quality risk)
 
 | Provider | Enable | Read mult | Write mult | Break-even reuse |
@@ -74,3 +95,9 @@ reasoning-effort pinned per tier (premium for judgment, cheap for mechanics).
 - https://ar5iv.labs.arxiv.org/html/2607.23809 (ACM)
 - https://arxiv.org/pdf/2608.06503 (TRACE)
 - https://github.com/redhat-ai-americas/memory-hub/blob/main/research/context-compaction-survey.md
+- https://www.anthropic.com/news/context-management (context editing + memory tool; −84% / +accuracy data)
+- https://platform.claude.com/docs/en/agents-and-tools/tool-use/manage-tool-context (tool search vs caching vs context editing decision table)
+- https://www.alphaxiv.org/abs/2607.08032 (rate–distortion compaction survey: irreversible vs reversible)
+- https://arxiv.org/pdf/2608.00902 (online KV compaction: delayed proxy queries beat immediate)
+- https://arxiv.org/html/2406.18665 (RouteLLM: 2× at ~90% quality — read the caveat, not the headline)
+- https://dev.to/dublecc/semantic-caching-for-llm-apis-how-similarity-based-response-caching-actually-works-1gkg (threshold/false-positive tables)

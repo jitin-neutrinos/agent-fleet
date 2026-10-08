@@ -21,7 +21,9 @@ and commands. This skill is how to change it safely. Measuring quality is
 (github.com/jitin-neutrinos/ToolR, installer at toolr.jitinnair.com via
 `tools/deploy.sh` + a static-file service); the published repo and the working
 tree are the same code — deploy after every shipped change, and the installed
-skill tree is symlinked to the working tree so the two can never drift.
+skill tree is symlinked to the working tree so the two can never drift. The
+product is named **Toutur**; the site is toutur.jitinnair.com and the repo
+github.com/jitin-neutrinos/Toutur (old ToolR name/URLs redirect).
 
 ## Card depth is dynamic: complexity, cliffs, diversity, adoption
 
@@ -203,10 +205,10 @@ Fail-open: parse failure means the surface shows prose, not that routing
 dies. Route the transform through the card cache like the card itself so a
 cache hit still renders.
 
-## Publishing the router as a product (ToolR)
+## Publishing the router as a product (Toutur)
 
-The repo is public (github.com/jitin-neutrinos/ToolR) with a hosted one-line
-installer (`curl -fsSL toolr.jitinnair.com/install.sh | bash`) served by a
+The repo is public (github.com/jitin-neutrinos/Toutur) with a hosted one-line
+installer (`curl -fsSL toutur.jitinnair.com/install.sh | bash`) served by a
 small static service behind the cloudflared tunnel. Rules that shipped with
 it:
 
@@ -256,6 +258,27 @@ it:
   immediately (no ScrollTrigger) and call `ScrollTrigger.refresh()` on
   `document.fonts.ready`, because web-font load shifts layout past trigger
   lines.
+- **Renaming a published product: split user-facing from runtime identifiers,
+  and sweep them differently.** Display names, URLs, repo links, install-dir
+  defaults and docs get the new name; internal runtime identifiers (~/.tool-router
+  paths, the `route` command, the skill slug, env var prefixes, systemd unit
+  names) stay — renaming them breaks self-heal markers, existing users'
+  installs and every rulebook quote at once, for zero visible gain. GitHub
+  rename auto-redirects old repo URLs, so existing `git pull` flows survive.
+- **A new hostname go-live is four steps, and the cache purge is not optional:**
+  `cloudflared tunnel route dns -f <tunnel-id> <host>` → add the ingress rule
+  (old hostname kept alongside, so existing links never 404) → `kill -HUP` the
+  cloudflared PID (config does not hot-reload without it) → purge the zone
+  cache, because the pre-reload window's 404s were already cached under the
+  zone's 1-year catch-all rule and will otherwise serve stale for a year.
+  Probe with cache-busted requests (`?nocache=$(date +%s)`); a plain curl can
+  read the poisoned edge entry and send you debugging a healthy origin.
+- **install.py --copy destroys same-file-linked skill dirs on SameFileError.**
+  When a harness skill dir is a hardlink/same-file into the canonical
+  ~/.agents pack, the copy path crashes mid-run and leaves earlier-processed
+  dirs deleted. Use the fleet sync as the install path, copy the stragglers
+  directly, and grep-verify the new content marker in EVERY harness dir — a
+  successful exit from a partially-crashed installer proves nothing.
 - One local session model is a real resolution source: the harness's session
   store records the model per session and refreshes every turn. A per-turn
   billing-API poll is the forbidden hot-path hop; reading the session store
@@ -306,6 +329,24 @@ the word "chat".
   must mean "do not install". Never map uncertainty to permission.
 - Cache registry results per intent. Nothing is installed from a cache without a
   freshness check, so a cache is a latency win, not a safety hole.
+- **Screen the BODY, not the listing.** The 2026 marketplace audits (ClawHavoc,
+  ToxicSkills, Unit 42) proved semantic attacks hide agent-directed instructions
+  in SKILL.md bodies that code scanners read as documentation — listing text and
+  install counts are not safety. Before any trust decision: clone the repo,
+  read the real SKILL.md + inline scripts, run the injection screen over body +
+  scripts combined, scan for destructive IOCs (curl|sh pipes, base64 decodes,
+  credential paths, exfil hosts, raw IPs, persistence edits), and flag
+  near-name publishers (edit-distance <=2 against a known-publisher list;
+  typosquat clones are how campaigns spread). Body unavailable = never
+  auto-install (fail closed), display-only in HITL.
+- **Install at the reviewed commit.** Record the sha the screen approved and
+  pass it to the installer; refuse the install when the repo's current sha has
+  moved since review — 'reviewed once != trusted forever', and the pin is what
+  makes upstream rug-pulls detectable instead of silent.
+- **Close the loop after install: re-route the original prompt and check the
+  installed skill now surfaces in the picks.** 'Installed but never fires'
+  (description never matches) is the dominant post-install failure, and no
+  registry checks it. Report 'route fires' vs 'not in top picks' explicitly.
 - On rollback, clear the intent's installed marker too, or the intent stays
   locked out against the correct candidate forever.
 
