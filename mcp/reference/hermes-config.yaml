@@ -281,6 +281,7 @@ plugins:
     - astra-page-system
     - astra-page-webhooks
     - claude-subscription-directsdk-experimental
+    - config-sentinel
     - sb-probe
     - shell-hitl-gate
     - slopguard

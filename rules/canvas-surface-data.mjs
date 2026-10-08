@@ -98,9 +98,10 @@ export const RECIPES = [
 
 // Always-on rules for the harness block (kept short: cheap models read this)
 export const HARNESS_RULES = [
-  "Astra/Android: answer with canvas cards, not md tables. Prose argues; canvas evidences.",
-  "Use blocks for data/structure. 2-4 cards/answer normal; don't split ONE idea across blocks. Use `page:a4` or `slide`.",
+  "Astra/Android: answer with canvas cards, not md tables — canvas evidences.",
+  "Use blocks for data/structure. 2-4 cards/answer; don't split ONE idea across blocks. `page:a4`/`slide`.",
   "CLI: use prose. A `code` block containing ``` needs 4-backtick fence.",
+  "Always wrap the card in its ```astra-canvas fence; bare JSON never renders.",
   "Hex colors as WHOLE table cell/keyvalue render as swatches. Separate code/text into columns."
 ];
 
@@ -117,6 +118,8 @@ export const SOUL_RULES = [
   "A canvas stays in the chat; only an approval or review gate notifies the phone. Do not promise a phone notification for a card.",
   "When unsure a card parses, validate it: `node ~/.hermes/skills/autonomous-ai-agents/structured-surface-emission/scripts/validate-canvas-spec.mjs <file>`. A repair that invents a block is worse than raw JSON shown honestly.",
   "**Swatches**: a colour code as a WHOLE `table` cell or `keyvalue` value (`#020C1B`, `rgb(…)`, `oklch(…)`) renders as a swatch of that colour plus the code. Palette and design-token reports are therefore plain tables of code values — no special block, no emoji fakery, no colour codes buried in prose. Mixed text in the cell suppresses the paint (whole-string match only), so name and code go in separate columns.",
+  "**Envelope rule**: the recipes above are block ORDER inside `\"blocks\"`, never a key layout. Every card is `{\"v\":1,\"blocks\":[…]}` with the blocks in recipe order inside the array. `{\"badges\":{…},\"kpi\":[…]}` (types as keys) is ALSO accepted — the parser aliases it (RG-148); what is never valid is wrapping blocks in `markdown`/`artifacts`/`spec` envelopes.",
+  "**Fence discipline (RG 2026-10-08)**: every card is emitted inside a ` ```astra-canvas ` fenced JSON block — a card pasted as bare JSON between prose paragraphs paints as raw code/text instead of rendering (this killed a real report). The envelope is `{\"v\":1,\"title\":?,\"state\":?,\"blocks\":[…]}` and nothing else: `markdown`/`artifacts`/`spec` wrappers are the Android app's shapes, not valid cards here. When answering on astra.jitinnair.com, wrap the card; when answering on the Android app or another surface, use THAT surface's native output, not this JSON.",
 ];
 
 // One stanza per kind of work; applied under `## Canvas output` to the skills listed in SKILL_GROUPS

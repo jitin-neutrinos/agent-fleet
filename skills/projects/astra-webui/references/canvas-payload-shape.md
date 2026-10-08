@@ -22,3 +22,9 @@ Anything else — named sections (kpi/table/checklist objects as top-level keys)
 1. Re-emit with the correct envelope (do NOT debug the renderer; the fail-soft path worked as designed).
 2. Own the mistake in one line — a session that told the owner it was a renderer bug and tried to patch the pipeline was actually shipping malformed payloads.
 3. Only if the renderer genuinely degrades a VALID `{"v":1,"blocks":[…]}` payload should you investigate `src/lib/canvas-schema.ts` / `chat-timeline.tsx` parsing — extend the existing check suite (`scripts/regression-gate.check.mjs` pins the canvas checks), never replace it.
+
+## Related
+
+- Card fails with "unreadable payload" instead of rendering as JSON: the parser-side repair
+  ladder and the stream-log replay workflow live in `references/canvas-parse-repair.md`.
+

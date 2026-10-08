@@ -79,7 +79,14 @@ everything", measure the pair:
   harness's plugin-enable list is a silent no-op — those surfaces route with
   no card at all. Grep the harness's own logs for the card marker, not the
   plugin directory listing: "installed" and "firing every prompt" are
-  different claims.
+  different claims. Disk + enable-list still is not firing: run the host's own
+  plugin DISCOVERY (Hermes: `collect_directory_manifests()` in its venv) and
+  require the interceptor's name in the result — a plugin missing its manifest
+  or its `register()` is invisible to the host while looking installed. The
+  cheapest death test is the timestamp stop: a per-prompt cache or audit file
+  whose mtime stopped days ago, against known live traffic, dates the death to
+  the last process restart — with no error anywhere, because every stage fails
+  open.
 - **Adoption pairing**: over a window, per session, collect the card's pick
   names (regex the pick lines) and the model's actual `Skill` tool inputs
   (`tool_use` records — name Skill, input command value); the pair rate is
@@ -100,7 +107,9 @@ everything", measure the pair:
 
 ## A kind-representation audit: compare picked share to corpus share
 
-"Why is the card disproportionate in X?" is answered by a measurement, not
+NEVER let a membership pass reorder or re-scope what it draws from. Measured 2026-10-08 (commit e02aca7): `_top_combined` split skills/others by the tail CUT, not by KIND — a dominant leader (1.87, tail cut 1.029) pushed 40+ sub-cut SKILL rows into `others`, the kind-quota pass filled every slot from that pool, and the fill loop never ran: the true #1 vanished from the card while 0.915 rendered on top. Fix: quota reserves slots for non-skill kinds ONLY (the coverage line's actual promise); skills flow through the fill loop; the output is re-sorted to score order before returning because `_score_cliff` (largest-relative-drop walk) and `diversify` ("rows must be in score order") both assume it. Pinned in `t_quota_keeps_score_order`. Symptom signature to recognise fast: card omits an item that instrumented BM25 ranks #1 — the loss happened in a post-ranking stage, so instrument the stage boundaries, not the scorer.
+
+"Why is the card disproportionate in X?" is answered by a measurement, not inspection:
 inspection: over a sample of real queries, count picks per kind and compare
 each kind's picked share with its corpus share. Result on the live corpus:
 skills UNDER-picked (73% of corpus, ~54% of picks) while MCPs/commands/fleet
@@ -150,13 +159,34 @@ any such resolver, measured in one session:
   the *installed* entrypoint, not in-process functions: module tests can pass
   while the CLI path reads a different precedence.
 
-An authority/self-heal gate ("check the harness's always-on docs grant tool
-authority; write the delegation block if missing; notice on the card if that
-fails") is the same shape: scan small files for a marker, memoise per
-process, fail-open to the pre-gate behavior. '~' must be expanded with
-`Path.home() / path[2:]`, not `/` joins on a string containing '~' — the naive
-join produces a root-relative path that silently never matches, and the gate
-then reports missing authority on a machine that granted it.
+The authority/self-heal gate is the same file-scan shape but with an owner-mandated stricter contract: it must run on EVERY route (no memo — the whole point is catching an update or healing pass that undid the delegation), detect which harness is calling from hook env (TOOLR_HARNESS override, then ANTHROPIC_MODEL/HERMES_MODEL/OPENCODE_MODEL/…), verify BOTH the delegation mandate in that harness's always-on file AND the interception shim (settings.json hook / plugin.yaml / plugin.ts / hooks.json), re-write whatever is missing via the owning installer's idempotent writers, log every repair to a JSONL audit file, and stamp a one-line notice on the card when it repaired something so the user sees the heal. An owner adoption floor (≥75% of routed picks actually loaded) belongs on the same gate: track kept/total in the per-prompt state file, and when below floor after a warmup, escalate the deny-once enforcement to deny-twice with an explicit reason — the smallest lever that changes model behavior without becoming a loop. '~' must be expanded with `Path.home() / path[2:]`, not `/` joins on a string containing '~' — the naive join produces a root-relative path that silently never matches, and the gate then reports missing authority on a machine that granted it.
+
+## Wiring a Hermes gateway plugin so it actually loads (and survives restarts)
+
+- A Hermes directory plugin needs BOTH a `plugin.yaml` manifest (name, version,
+  description, author, `provides_hooks`) AND an `__init__.py` exposing
+  `register(ctx)` that calls `ctx.register_hook(hook_name, fn)`. Discovery
+  (`collect_directory_manifests()` in the Hermes venv) silently skips a
+  manifest-less dir — the plugin looks installed and routes nothing. Verify
+  with that exact function, not with the directory listing.
+- Boot-time plugin activation does not register gateway-transform hooks
+  (`pre_gateway_dispatch`); the post-boot path does. After every gateway
+  restart the hook is silently dead while files and enablement stay intact.
+  Re-arm with `activate_plugin_now("<name>")` run by the Hermes venv
+  interpreter, and make it durable with a oneshot systemd user unit pulled by
+  a `Wants=` drop-in on `hermes-gateway.service` — every (re)start then
+  re-registers the hook automatically (fail-open, ~1 s, audit line in a log).
+- The `pre_tool_call` deny shape is `{"action": "block", "message": ...}`;
+  `pre_gateway_dispatch` returns `{"action": "rewrite", "text": ...}`.
+  Returning None passes untouched — every failure path should.
+- NEVER restart the gateway you are chatting through directly — the restart
+  kills the conversation mid-turn. Arm it: `systemd-run --user --unit=<name>
+  --on-active=120 sh -c 'systemctl --user restart hermes-gateway.service'`,
+  finish your reply, and let it fire.
+- When a config change must ride along with a plugin install, write it
+  through Hermes' own writer (`hermes_cli.config.atomic_config_write`) —
+  merging only the keys you touch. The plugins.enabled list is a list-valued
+  key: pass the FULL new list as a one-key dict, not a hand-edited dump.
 
 ## The card has two audiences: the model and the user
 
@@ -197,6 +227,11 @@ it:
 - **End-to-end test the installer from a clean context**, not the dev
   machine's already-installed state: `curl … | bash` into a temp HOME is the
   only run that proves a stranger's path.
+- **Installer payloads must be self-contained**: every module a harness branch
+  imports at install time must be inside the shipped file list. A wirer living
+  outside the published payload crashes install on exactly the machines that
+  detect that harness — the public path, which the dev machine can never hit
+  because its working tree has everything.
 - One local session model is a real resolution source: the harness's session
   store records the model per session and refreshes every turn. A per-turn
   billing-API poll is the forbidden hot-path hop; reading the session store
@@ -205,7 +240,10 @@ it:
   (`route` launcher), not in-process: a stale copy in the install dir made
   the CLI behave differently from the module tests, and only a launcher-level
   probe showed it. A symlink from the install dir to the working tree removes
-  the whole discrepancy class.
+  the whole discrepancy class — but AUDIT the symlinks: a harness dir pointing
+  at a path that later moved or vanished (e.g. a pre-rename project dir) dangles
+  silently and serves whatever stale copy it landed on. `ls -la` every harness
+  skill dir after any rename, and repoint with `ln -sfn`.
 
 ## Latency is a hard requirement, not a goal
 
@@ -213,9 +251,12 @@ A routing card that arrives after the harness hook timeout is **discarded
 silently** — no card, no error. So the budget is a correctness property.
 
 - Measure the per-stage cost before changing anything: BM25 ~4 ms, dense embed
-  ~400 ms, local rerank ~800 ms (off by default). The whole route is 0.17 s
-  today; anything that moves it toward seconds needs a measurement, not a
-  guess.
+  ~350 ms cold / ~40 ms warm, local rerank ~800 ms (off by default). The whole
+  warm route is 0.23–0.38 s measured across entrypoints (pipeline / CLI /
+  hook JSON); anything that moves it toward seconds needs a measurement, not a
+  guess. When a latency-budget selftest fails in the full run but passes
+  alone, suspect concurrent embed traffic before suspecting your diff (stash-
+  bisect proves it in one command).
 - Enforce the budget **between stages, never mid-flight**, so the card is always
   coherent. Skip the optional stage when the remaining budget cannot cover the
   call plus what follows it, and say so in the card — a silent skip reads as a
@@ -467,8 +508,13 @@ selftests — and did nothing on any real route.
 
 - One named regression per defect, each citing the measurement that motivated
   it. A check with no measurement behind it is a guess.
-- **The runner must report a raising check and continue.** One check that throws
+- The runner must report a raising check and continue. One check that throws
   aborts the run and hides every other check's state.
+- When a check fails in the full run but passes in isolation, bisect with
+  `git stash` BEFORE assuming your change caused it — live-service contention
+  (concurrent embed calls, busy local models) reproduces the exact
+  latency-budget-failure signature your edit is suspected of. Pin the
+  isolation-vs-suite difference as the diagnostic, not as a skip.
 - Assert against a function's *code default* when it memoises into a module
   global, or the assertion silently tests whatever an earlier check loaded.
 - Monkeypatch the layer under test, not its caller, and restore module globals
@@ -498,12 +544,45 @@ in one session, all in my own reporting, none caught by a test:
   at a healthy value — is a harness fault, not variance.** Have the harness flag
   lane health and drop degraded rows from the regression log; a false zero reads
   as "this technique is worthless" and can get a working method deleted.
+  Corollary: CLEAR the breaker files (`~/.tool-router/breaker-*.json`) before
+  diagnosing any remote lane as dead — an open breaker makes every probe return
+  `[]` in milliseconds, and a fail-open function fed a wrong argument returns
+  `[]` just as silently. Zero rows from a lane probe means "breaker, bad args,
+  or genuinely dead", in that order of likelihood.
 - A short `"Reply with exactly: OK"` probe ranked candidate models one way and
   the real payload ranked them another. Toy probes measure queue depth, not
   capability.
 
 Prefer the cheap falsification before the claim: one extra command that could
 disprove the sentence beats a confident paragraph you later have to retract.
+
+## Config sentinel: agent config writes are hook-guarded (2026-10-08)
+
+A tool-router session's valid-YAML SUBSET rewrite of `~/.hermes/config.yaml`
+dropped `dashboard.basic_auth` + 60 MCP servers for hours (astra "busy 503").
+Guards live in `~/.hermes/plugins/config-sentinel` (+ `claude_hook.py` wired
+into `~/.claude/settings.json` PreToolUse/PostToolUse): snapshot before gated
+calls, sentinel key-check after, atomic auto-restore from the newest
+sentinel-valid backup, escalate after 3 restores/hour. Rules that came out of
+building it:
+
+- **Verify sentinel keys against the LIVE healthy file before enabling.** The
+  first list included `dashboard.basic_auth.password_hash` — but this host's
+  password comes from `.env`, so the healthy file legitimately lacks it: the
+  guard "restored" the healthy file over itself 4x and escalated on every
+  call within a minute of going live. A sentinel key absent from the real
+  healthy state is a false stub signal; derive the list from the live file,
+  never from what the config "should" contain.
+- Valid YAML passes every parse check; only a KEY-SUPERSET check catches a
+  stub (PCHECK OSDI'16: config errors of this class are semantic, not
+  syntactic — Hermes's own recovery only serves `.good` backups on parse
+  FAILURE, so a valid stub sails through).
+- The guard's own config lives in the plugin dir, NOT in config.yaml — the
+  guard must not depend on the file it guards.
+- The rulebook mandate also ships in `install.py` MANDATE (all harness
+  AGENTS/CLAUDE/GEMINI rulebooks) and the published ToolR pack — re-running
+  `install.py` keeps it; selfcheck: `python3
+  ~/.hermes/plugins/config-sentinel/selfcheck.py` (17 asserts, sandboxed).
 
 ## References
 

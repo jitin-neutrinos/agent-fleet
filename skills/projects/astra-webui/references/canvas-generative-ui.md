@@ -295,6 +295,12 @@ Five shapes that all used to degrade to a raw-JSON code block, now coerced in
 | NDJSON, no envelope | one `{…}` per line | `parseNdjson`, per line |
 | misnested fence | ```` ```astra-canvas ```` then ```` ```kpi ```` | `healMisnestedFence` + type hint |
 | unquoted keys | `{label:"x",value:1}` | `quoteBareKeys`, string-aware |
+| pair inside an array | `[["cell","cell","tone":"pro"]]` | tier 1.65, pair dropped cleanly |
+| block-type-keyed root (recipe shorthand, no envelope) | `{"badges":{…},"kpi":[…]}` | coercion case E — type keys collected in order, one block per object/array element; `title`/`state`/`page` still read from the root |
+
+Case E matters most: the directive's recipes (`badges → callout → kpi ×3 → table`) teach block ORDER, and a model following them literally emits block-type names as top-level keys — valid JSON, every block valid, every earlier coercion case returned `[]`, whole card dead. The parser accepts that shape now, but the DIRECTIVE must still state the envelope rule (`{"v":1,"blocks":[…]}` is the card; recipes are order inside `blocks`, never a key layout) and SOUL.md carries it — fixing only the parser leaves the emitter writing shapes that need rescuing. Duplicate type keys at root follow JSON.parse last-key-wins: earlier sections are unrecoverable, which is an emitter bug to prevent, not a parser gap.
+
+**Dead cards get defence-in-depth, not just a better parser:** a generated strict schema (`docs/canvas.schema.json`, regenerate from canvas-schema.ts on every schema change), a strict validator (`canvas-validate.ts` — strict-accepts must remain a SUBSET of renderer-accepts, pinned by `scripts/canvas-validate.check.mjs`), and retry-with-feedback (`card-repair.ts`: on message.complete, fences the REAL parser rejects get ONE repair turn carrying the strict errors + the envelope rule; deduped per message, 60 s cooldown, per-session budget; shapes the lenient tiers already rescue must NEVER trigger it or they double-fire). When auditing card failures, rebuild every fence from the stream log's `message.delta` payloads and replay through `parseCanvasSpec` — it measures the true rescue rate and pins each dead-card class as an RG row with tests written from the REAL failing body, not an idealized shape (idealized tests pass green while the live case still fails).
 
 The misnested one is the nastiest: the outer fence closes on the **empty first
 line**, so the payload lands outside the fence and the body handed to the parser
@@ -310,9 +316,15 @@ typeless payload objects can't validate.
 | tier | what it fixes | where it runs |
 |---|---|---|
 | comments / trailing commas / bare keys | sloppy JSON | sync |
+| 1.65 `fixKeyValueInArray` | a `"key":"value"` pair emitted INSIDE an array (model loses container type mid-row) — pair dropped, array cells kept (jsonrepair only splits it into junk cells) | sync |
 | 2 `balanceBrackets` | surplus trailing closer | sync |
+| 1.75 `healMisnestedClosers` | closers that MISMATCH the innermost open container (implied closers inserted at the mismatch, strays dropped, EOF completed) — defects that cancel in any naive brace count | sync, tried on BOTH the truncated and un-truncated text |
 | 1 `extractOutermostJson` | prose wrapped around the payload | **async only** |
 | 3 `jsonrepair@3.12.0` | missing commas, single quotes | **async only**, own 6.4 kB chunk |
+
+**The tiers CHAIN — each consumes the previous tier's output, or an earlier fix is silently discarded.** `fixTruncatedString` must take the tier-1.65 output, not the comma-fixed text: a real card carried BOTH a pair-in-array defect mid-body AND a truncated final string, and feeding stale text to the later tier made the card die anyway. Equally, the misnested healer must also be tried on the UN-completed text — the truncation tier's phantom bracket-completion closes brackets around a misnesting and makes it unhealable. When adding a tier, thread it into the chain and replay the corpus; a tier that is wired in but not fed downstream is a silent no-op.
+
+**A defect-check tier must PEEK the value before mutating output.** Tier 1.65's bail once stripped a comma and left a stray quote: a legit object key seen through a MISNESTED context (`"badges":[…]` while a row object is still open) looks like a pair-in-array until you look at the value — a structured (`{`/`[`) value means emit the string untouched and let the healer own the structure. Diagnose tiers by extracting the function standalone and stepping ladder inputs through it; instrument the suspect branch before reasoning.
 
 **Three constraints that are not obvious and cost real debugging time:**
 

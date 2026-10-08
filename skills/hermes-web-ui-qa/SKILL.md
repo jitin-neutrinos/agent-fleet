@@ -19,7 +19,7 @@ metadata:
 The file `.hermes/web-ui-build-stamp.json` records the last web UI build. Before any Hermes update that touches the web UI, check this stamp. If the hash changed from your last known good value, your custom modifications may have been overwritten.
 
 ### 2. Theme/skin persistence through updates
-Custom UX is composed of two parts that both survive Hermes updates. Dashboard theme (`~/.hermes/dashboard-themes/astra.yaml`) defines color palette, typography, layout, and component styles. Skin (`~/.hermes/skins/astra.yaml`) defines UI surface colors. Both persist across Hermes updates — never delete or rename them after an update without backing up first. Most of the custom UI, however, is plugin-based (`~/.hermes/plugins/astra-brand`, `astra-page-*`, `astra-login`); the theme/skin files only paint the stock chrome and the sign-in page. The maintenance procedure, hard rules and QA recipes for that plugin surface live in the **astra-webui** skill (`references/qa-auth.md`, `references/contract-probes.md`) — read it before touching anything here.
+Custom UX is composed of two parts that both survive Hermes updates. Dashboard theme (`~/.hermes/dashboard-themes/astra.yaml`) defines color palette, typography, layout, and component styles. Skin (`~/.hermes/skins/astra.yaml`) defines UI surface colors. Both persist across Hermes updates — never delete or rename them after an update without backing up first. Most of the custom UI, however, is plugin-based (`~/.hermes/plugins/astra-brand`, `astra-page-*`, `astra-login`); the theme/skin files only paint the stock chrome and the sign-in page. The maintenance procedure, hard rules and QA recipes for that plugin surface live in the **astra-webui** skill (its `references/qa-auth.md`, `references/contract-probes.md` — under `~/.hermes/skills/projects/astra-webui/`, not this skill's directory) — read it before touching anything here.
 
 ### 3. Named Cloudflare tunnel persistence
 The Hermes MCP setup uses a named Cloudflare tunnel that survives reboots. Tunnel endpoint: `https://mcp.glitchzerolabs.com/mcp`. Never recreate the tunnel with a quick tunnel URL — always use the named tunnel. If the tunnel URL changes, update the config and restart the service.
@@ -52,6 +52,9 @@ The astra.jitinnair.com endpoint uses the named Cloudflare tunnel `mcp.glitchzer
 - **Why**: The job outputs a diff report; without delivery configured, the report is written to `/tmp/ui-diff-report.md` but never seen.
 
 ## troubleshooting
+
+### "Agent backend busy (503)" on astra.jitinnair.com
+Not an update-stamp problem and rarely real backend load: the UI maps ANY 503 from the astra proxy to that string, and the usual cause is the proxy's login to the Hermes dashboard failing (`dashboard.basic_auth` lost from `~/.hermes/config.yaml` → provider unregistered → shared 127.0.0.1 rate-limit bucket saturates). Full chain — reproduce locally, read the 503 body, check config size (~22KB healthy, <1KB stub), restore newest pre-collapse `config.yaml.good.*`, restart `hermes-dashboard.service` — plus the red herrings: `references/astra-outage-triage.md`. (The astra-webui skill's Pitfalls carries the same lesson; that SKILL.md is currently over the size limit, so this file is the readable home.)
 
 ### Web UI appears broken after Hermes update
 1. Check `~/.hermes/web-ui-build-stamp.json` - if contentHash changed, the UI was rebuilt.
