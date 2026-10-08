@@ -1,7 +1,7 @@
 ---
 name: capability-router-operations
 description: "Operate and tune the local capability router."
-version: 1.4.0
+version: 1.5.0
 author: Hermes Agent
 license: MIT
 platforms: [linux]
@@ -110,6 +110,7 @@ everything", measure the pair:
 ## A kind-representation audit: compare picked share to corpus share
 
 NEVER let a membership pass reorder or re-scope what it draws from. Measured 2026-10-08 (commit e02aca7): `_top_combined` split skills/others by the tail CUT, not by KIND — a dominant leader (1.87, tail cut 1.029) pushed 40+ sub-cut SKILL rows into `others`, the kind-quota pass filled every slot from that pool, and the fill loop never ran: the true #1 vanished from the card while 0.915 rendered on top. Fix: quota reserves slots for non-skill kinds ONLY (the coverage line's actual promise); skills flow through the fill loop; the output is re-sorted to score order before returning because `_score_cliff` (largest-relative-drop walk) and `diversify` ("rows must be in score order") both assume it. Pinned in `t_quota_keeps_score_order`. Symptom signature to recognise fast: card omits an item that instrumented BM25 ranks #1 — the loss happened in a post-ranking stage, so instrument the stage boundaries, not the scorer.
+The same collapse has a SECOND mechanism when the complexity layer hands the card a small n: quota × noise-kinds ≥ n fills every slot before the fill loop runs, and the #1 skill (3.73) vanishes while a 0.72 command renders on top. Reserve one slot for the best skill whenever one cleared the floor (`quota_cap = n - 1` when any skill passed) — the fill loop then spends that slot on the leader, best-score-first. Both mechanisms fail the same way (the quota outlives its 'diversity trim' intent and becomes a leader-removal pass), so test quota behaviour at small n, not just at the default depth.
 
 "Why is the card disproportionate in X?" is answered by a measurement, not
 inspection: over a sample of real queries, count picks per kind and compare
@@ -315,6 +316,15 @@ silently** — no card, no error. So the budget is a correctness property.
 - Check the hook timeout in the harness config against the measured worst case
   and leave headroom. If the harness exposes one, set it; do not rely on the
   router being fast enough.
+- **Pin a test's latency envelope to the PRODUCTION budget, never to a number
+  observed while an expensive stage happened to skip.** Corpus composition
+  changes flip skip-gates: adding sourced skills raised the score leader
+  enough that the decisive-gap gate stopped skipping the CPU rerank for a
+  pinned prompt (~3.75 s, sanctioned, local, inside the 5 s hook budget) and
+  a 2 s test assert started failing with no regression anywhere. The
+  structural asserts (no network call, no rewriter import) are the teeth;
+  the timing assert is an envelope, and an envelope tighter than production
+  turns a sanctioned stage into a false alarm.
 
 ## Sourcing and installs need a relevance gate, not just safety gates
 
@@ -347,6 +357,26 @@ the word "chat".
   installed skill now surfaces in the picks.** 'Installed but never fires'
   (description never matches) is the dominant post-install failure, and no
   registry checks it. Report 'route fires' vs 'not in top picks' explicitly.
+  The verify loop has three silent-failure traps, each producing a confident
+  wrong answer instead of an error: (1) the CLI's `--json` output is the HOOK
+  ENVELOPE — card text only, no pick list — so verify must read the per-route
+  state file (`last_route.json`) the CLI always writes; parsing stdout for
+  `picks` yields `[]` forever and reads as 'installed but never fires'.
+  (2) Anchor the check to the INTENT's install, not the most recent install
+  overall — with several sourced intents, 'latest' names the wrong skill and
+  a perfectly firing card grades as a failure. (3) The install marker must
+  CREATE the intent entry when absent: finder installs do not record gaps,
+  so a marker that only updates existing entries is silently dropped and
+  trap (2) returns. Never swallow the marker write in a bare `except` — the
+  swallow is what turned a data-shape quirk into a wrong verdict.
+- **A corpus change and the dense rebuild are not atomic.** Vectors refresh
+  on the reindex timer/full rebuild, so a route in the window fuses stale
+  dense hashes against a fresh BM25 index and the card can flip between
+  junk and correct across runs. Any post-install verification settles and
+  retries once before declaring 'not in top picks', and the reindex line's
+  `embedded: N` count is the evidence the dense lane actually refreshed
+  (`0 embedded, N reused` after a corpus grew = the new item is missing
+  from the semantic lane).
 - On rollback, clear the intent's installed marker too, or the intent stays
   locked out against the correct candidate forever.
 

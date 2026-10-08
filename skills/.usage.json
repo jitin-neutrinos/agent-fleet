@@ -73,7 +73,7 @@
     "patch_count": 22,
     "patch_generation": 22,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 31,
     "view_count": 31
   },
@@ -88,7 +88,7 @@
     "patch_count": 6,
     "patch_generation": 6,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 8,
     "view_count": 8
   },
@@ -118,7 +118,7 @@
     "patch_count": 13,
     "patch_generation": 13,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 9,
     "view_count": 9
   },
@@ -348,7 +348,7 @@
     "patch_count": 347,
     "patch_generation": 347,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 377,
     "view_count": 377
   },
@@ -496,16 +496,16 @@
     "created_at": "2026-10-05T12:57:19.684312+00:00",
     "created_by": "agent",
     "first_seen_at": null,
-    "last_patched_at": "2026-10-08T10:22:53.203057+00:00",
-    "last_reused_patch_generation": 58,
-    "last_used_at": "2026-10-08T10:21:16.931245+00:00",
-    "last_viewed_at": "2026-10-08T10:21:16.929123+00:00",
-    "patch_count": 62,
-    "patch_generation": 62,
+    "last_patched_at": "2026-10-08T12:18:41.157530+00:00",
+    "last_reused_patch_generation": 62,
+    "last_used_at": "2026-10-08T12:17:13.890238+00:00",
+    "last_viewed_at": "2026-10-08T12:17:13.887207+00:00",
+    "patch_count": 67,
+    "patch_generation": 67,
     "pinned": false,
     "state": "active",
-    "use_count": 37,
-    "view_count": 37
+    "use_count": 38,
+    "view_count": 38
   },
   "caveman": {
     "archived_at": null,
@@ -579,7 +579,7 @@
     "patch_count": 4,
     "patch_generation": 4,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 4,
     "view_count": 4
   },
@@ -687,7 +687,7 @@
     "patch_count": 7,
     "patch_generation": 7,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 14,
     "view_count": 14
   },
@@ -859,7 +859,7 @@
     "patch_count": 7,
     "patch_generation": 7,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 9,
     "view_count": 9
   },
@@ -966,7 +966,7 @@
     "patch_count": 6,
     "patch_generation": 6,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 11,
     "view_count": 11
   },
@@ -1378,7 +1378,7 @@
     "patch_count": 15,
     "patch_generation": 15,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 16,
     "view_count": 16
   },
@@ -1408,7 +1408,7 @@
     "patch_count": 14,
     "patch_generation": 14,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 9,
     "view_count": 9
   },
@@ -1423,7 +1423,7 @@
     "patch_count": 10,
     "patch_generation": 10,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 15,
     "view_count": 15
   },
@@ -1531,7 +1531,7 @@
     "patch_count": 5,
     "patch_generation": 5,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 7,
     "view_count": 7
   },
@@ -1683,7 +1683,7 @@
     "patch_count": 16,
     "patch_generation": 16,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 14,
     "view_count": 14
   },
@@ -1947,7 +1947,7 @@
     "patch_count": 5,
     "patch_generation": 5,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 4,
     "view_count": 4
   },
@@ -2023,7 +2023,7 @@
     "patch_count": 4,
     "patch_generation": 4,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 5,
     "view_count": 5
   },
@@ -2083,7 +2083,7 @@
     "patch_count": 30,
     "patch_generation": 30,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 32,
     "view_count": 32
   },
@@ -2465,7 +2465,7 @@
     "patch_count": 25,
     "patch_generation": 25,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 31,
     "view_count": 31
   },
@@ -2728,7 +2728,7 @@
     "patch_count": 25,
     "patch_generation": 25,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 8,
     "view_count": 8
   },
@@ -2849,7 +2849,7 @@
     "patch_count": 0,
     "patch_generation": 0,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 1,
     "view_count": 1
   },
@@ -3172,7 +3172,7 @@
     "patch_count": 81,
     "patch_generation": 81,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 54,
     "view_count": 54
   },
@@ -3307,7 +3307,7 @@
     "patch_count": 6,
     "patch_generation": 6,
     "pinned": false,
-    "state": "stale",
+    "state": "active",
     "use_count": 10,
     "view_count": 10
   }
