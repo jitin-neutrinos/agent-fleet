@@ -73,7 +73,7 @@
       ]
     },
     "gmail": {
-      "httpUrl": "https://gmail.mcp.googleapis.com/mcp"
+      "httpUrl": "https://gmailmcp.googleapis.com/mcp/v1"
     },
     "notion": {
       "httpUrl": "https://mcp.notion.com/mcp"

@@ -24,7 +24,7 @@ brave-search|stdio|npx|-y @modelcontextprotocol/server-brave-search@latest|BRAVE
 figma-context|stdio|npx|-y figma-developer-mcp@latest --stdio|FIGMA_API_KEY|free Figma PAT; NO KEY YET; alt: official Figma remote MCP
 firecrawl|stdio|npx|-y firecrawl-mcp@latest|FIRECRAWL_API_KEY|free 500 credits at firecrawl.dev; NO KEY YET
 youtube-transcript|stdio|npx|-y @kimtaeyoon83/mcp-server-youtube-transcript@latest||no key needed
-gmail|http|https://gmail.mcp.googleapis.com/mcp||GMAIL_OAUTH|requires Google Cloud OAuth setup - DEFER until user wants i
+gmail|http|https://gmailmcp.googleapis.com/mcp/v1||GMAIL_OAUTH|requires Google Cloud OAuth setup - DEFER until user wants i
 notion|http|https://mcp.notion.com/mcp|||OAuth; free
 arxiv|stdio|uvx|arxiv-mcp||free local; package check on first run
 quillhub|http|https://mcp.quillhub.ai/mcp||QUILLHUB_KEY|free tier; NO KEY YET - lowest urgency

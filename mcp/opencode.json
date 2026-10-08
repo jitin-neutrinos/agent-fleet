@@ -104,7 +104,7 @@
   },
   "gmail": {
     "type": "remote",
-    "url": "https://gmail.mcp.googleapis.com/mcp"
+    "url": "https://gmailmcp.googleapis.com/mcp/v1"
   },
   "notion": {
     "type": "remote",
