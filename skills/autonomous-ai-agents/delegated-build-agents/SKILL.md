@@ -124,6 +124,11 @@ Two more orchestrator-side costs people forget:
   is a child of the service process, so a restart SIGKILLs it and strands the job in
   its `running` state until a stale-resume timer eventually fires. Check for live
   children before restarting, and prefer deploying UI-only changes when nothing runs.
+- **A subagent fan-out that died on the same upstream error within seconds is a
+  provider-capacity signal, not a task-shaped one.** Do not re-dispatch the same
+  fan-out on the same provider — that re-rolls dice on a known-failed path. Take
+  the highest-value slice of the scope inline yourself, finish it, and note the
+  uncovered remainder honestly in the report so it is not silently dropped.
 - **Do not filter processes by `comm`/name.** The hermes CLI's `comm` is `hermes`,
   not `python`, so `awk '$1=="python"'` reports "nothing running" while nine workers
   are live. Match the args pattern instead — and never on a pattern your own command

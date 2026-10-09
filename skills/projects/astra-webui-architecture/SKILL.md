@@ -354,7 +354,11 @@ per surface) rides three mechanisms that already exist — never build a fourth.
   was real: in one batch of three, a claim that a CDN validates axis ordering
   (it only rejects an axis the family lacks) and a claim that a CSS utility was
   never emitted (it was) both survived until re-tested. Re-run the load-bearing
-  claims yourself and say which ones you corrected.
+  claims yourself and say which ones you corrected. A batch that dies wholesale
+  on provider errors (HTTP 402/billing) will not self-heal on re-dispatch within
+  the session — do the scope inline instead of re-buying the same failure, and
+  check the first transcript lines to confirm a dispatch is actually working
+  before building a plan that depends on its parallel results.
 - **Mid-turn send targeting rides the rebind order, not the resume reply.** A chat
   switch nulls `liveSessionId` BEFORE the new resume goes out; a send in the switch
   window therefore targets the new chat's stored sid, never the old one. Preserve
@@ -376,6 +380,56 @@ per surface) rides three mechanisms that already exist — never build a fourth.
 - **A cross-chat leak audit walks all FIVE isolation layers — the queue flush is the one that bypasses the other four.** (1) per-tab identity: a tab resumes from its own URL/sessionStorage, never shared localStorage; (2) wire ownership: a tab adopts a session only on a reply to an RPC id it sent; (3) event filter: foreign-session frames drop at the engine; (4) stale-reply guard: a resume reply is discarded when the stored sid changed while it was in flight; (5) queue flush: runs on reconnect, after the user may have switched chats — filter it on the row's recorded target session (rule 4.1). Layers 1-4 passing proves nothing about 5. Two supporting separations keep layers 2-4 honest: the watchdog probe is its OWN RPC id class (handled before the resume branch in the message pump — a probe reply can never be mistaken for a chat resume), and the replay-dedupe of completions keys on turn id with a frame-id fallback (a same-ms replay without either can double-bump a pill by one — cosmetic, self-heals on open, not worth a fix). Verify the suite, don't re-derive: `npx tsx src/lib/tab-isolation.check.ts`, `npx tsx src/lib/concurrent-queue.check.ts`, `node --import ./scripts/ts-resolve.mjs src/lib/ws-durable-queue.check.ts`, `npx tsx src/lib/wake-probe.check.ts`, and `node server/ws-filter.check.mjs` with the service's node.
 - **A 503 from a dashboard-proxied gateway endpoint is read, not diagnosed around.** Astra reaches the model catalog through the Hermes dashboard (`/api/hx/*` → `127.0.0.1:9119` → gateway). When the checkout moves under a running dashboard/gateway process, the skew guard refuses the endpoint with a `detail` field naming the two SHAs — provider config is fine, the process is stale. Read the body before touching config; fix is a dashboard service restart (the GATEWAY itself can never be restarted from inside a Hermes chat — every session runs inside it; schedule the restart from outside the process tree and remove the scheduler entry afterwards, or the service bounces on every interval).
 
+## reliability invariants (from the edge-case/race/silent-failure audit)
+
+These are the classes of defect a deep audit of the relay, server and client
+engine repeatedly surfaces. Check them as a set when auditing or adding any
+request/upgrade path — each one is silent by construction, not by bad luck.
+
+- **`decodeURIComponent` on a client-controlled header is a process killer.**
+  `decodeURIComponent(req.headers["x-file-name"] || "")` throws `URIError` on a
+  malformed value; inside an async request handler an uncaught throw becomes an
+  unhandled rejection that exits the whole server (authed self-DoS — a corrupted
+  filename from any logged-in device is enough). Wrap the decode in try → 400,
+  and audit every upload route for the wrap — the serve-side call sites get the
+  try and the upload-side ones get missed, because they were added later.
+- **Zero-dep servers need a process-level net.** With no `process.on`
+  (`uncaughtException` / `unhandledRejection`) anywhere, ANY sync throw on a
+  request or `server.on("upgrade")` path is a full outage plus restart. Wrap
+  the upgrade handler, and wrap the buffered-`head` decoder push in the same
+  try/destroy the live `data` path already has — the head bytes arrive before
+  the handlers attach, so the guarded path and the head path are two different
+  code locations that must BOTH carry the guard.
+- **A socket-write path with no backpressure degrades silently under slow
+  clients.** Every `try { s.write(frame) } catch {}` site buffers unboundedly in
+  Node's internal write queue when the client is slow-but-alive (still ponging);
+  a pong-based reap never fires. On `write() === false`, stop writing that
+  socket and destroy it past a byte threshold.
+- **A capped proxy-side frame buffer silently drops user prompts.** When the
+  browser→proxy leg is up but proxy→gateway is down, a client's durable queue is
+  bypassed (its own socket is open) and the proxy buffer becomes the only copy
+  of the prompt — and a FIFO cap shift()s the oldest out silently. Never drop
+  `prompt.submit`-class frames; reject them back to the client instead, so the
+  client's own durable queue takes over.
+- **A `pendingRpcs` map without a close-time rejection wedges locks forever.**
+  RPC promises parked on the socket are resolved on reply but, if never rejected
+  on `onclose`, any in-flight RPC (a steer bridge holding a busy lock) hangs and
+  every later call hits the lock check with no error emitted. On socket close,
+  reject every parked promise and reset any lock the callers hold.
+- **An upstream leg that never checks its own pongs looks 'online' while dead.**
+  A half-open (NAT-blackholed) upstream keeps `online` status while no frames
+  flow, because pongs are explicitly ignored. Mirror the browser reap: track
+  `lastUpstreamPong`, destroy and reconnect past a threshold.
+- **A liveness cap that only guards reassembly leaves single frames open.**
+  Enforce the max-message cap on the DECLARED length before waiting for the
+  body, not only when fragments are stitched — otherwise N authed sockets each
+  declaring a huge single frame amplify memory freely.
+- **A reconnect scheduler fed by multiple failure events stacks redials.** One
+  failed connect can fire close, error AND response; if each schedules its own
+  timer, two connectUpstream runs race and the loser's late close nulls the
+  FRESH socket. Funnel every failure event through ONE in-flight reconnect
+  timer (cleared before the next is armed).
+
 ## verification
 
 - Probe both databases and print row counts, per-role byte averages and journal
@@ -384,6 +438,32 @@ per surface) rides three mechanisms that already exist — never build a fourth.
   alone and diff against the gateway's final text byte-for-byte.
 - For every durability claim in a comment, name the primitive backing it and
   confirm it survives a process restart.
+- Audit for the reliability invariants above: grep `decodeURIComponent` and
+  `decoder.push` for unguarded sites; grep `pendingRpcs` for a close-time
+  rejection; grep write sites for `write() === false` handling; grep for a
+  `process.on("uncaughtException"` net.
+- Verify a consumer exists for every recovery read path (rule 6 applies to HTTP
+  routes too): grep the CLIENT tree for the route path, not just the server tree
+  for its handler.
+
+## stream-resume: the consumer-side contract
+
+The durable stream log (`stream-log.mjs` + `GET /api/hx/stream/<sid>?since=`)
+has a client half (`src/lib/stream-resume.ts`) wired to the session-resume
+reply — the engine emits `stream.resumable` and chat-landing splices. Rules
+that keep it correct:
+
+- **Splice REPLACE-based, never append.** The fold returns everything since the
+  cursor, so a second resume re-delivers a superset; replacing the streaming
+  bubble's segments is idempotent where appending doubles every token.
+- **`truncated: true` means splice NOTHING.** It reports a hole between the
+  client cursor and the log; signal a full history refetch. Splicing onto a
+  gap renders a transcript that looks complete and is missing text.
+- **The cursor is the server's `mono` counter, not the gateway's `seq`** — seq
+  resets on gateway restart; mono is monotonic for the log's lifetime. Persist
+  per stored sid; floor garbage/negative values at 0.
+- **Only splice a bubble that `isStreaming`; settled rows come from history**
+  and must never be rewritten by the resume path.
 
 ## reading the surface before planning on it
 

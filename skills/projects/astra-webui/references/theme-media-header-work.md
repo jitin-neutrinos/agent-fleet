@@ -87,6 +87,31 @@ A theme the user creates must sync to every device and app, which constrains sto
   (`PUT` then `GET` `/api/theme/state`) and DELETE the probe you pushed — test data on a live state file
   outlives the session.
 
+## Inline custom-property writers vs the Astra-UI reset (native insets bug)
+
+The isDefault branch of `applyPalette` (theme-store.ts) clears EVERY inline `--*` on :root except
+`FOREIGN_NAMESPACES`. Any engine that writes inline custom properties on `documentElement.style` MUST
+have its prefix in that list or an astra-ui palette switch silently erases it. `--shape-`, `--font-`,
+`--brand-` are there; `--native-inset-*` (the Android shell's safe-area pads, written by
+native/shell-theme.ts) was NOT — switching to astra-ui deleted the pads, the cascade fell back to the
+stylesheet `:root { --native-inset-*: 0px }`, and the app's chrome slid under the status bar and
+navbar on every astra-ui + light/dark flip until restart. Two-part fix, both needed:
+
+1. Protect the namespace (the root cause — the inline value survives the reset).
+2. Re-run `applyInsets()` from shell-theme's data-theme MutationObserver (a flip rewrites hundreds of
+   inline props; re-derive the pads against the new inline set).
+
+**Diagnose insets from the device diag log, not from guesses.** shell-theme posts to `/api/diag`
+(appended to `~/.hermes/cache/scratch/astra-diag.jsonl`): healthy rows show nativeTop/nativeBottom at
+real bar heights; the bug's signature is a theme-change row at `0px/0px` followed by healthy boot rows
+after a restart. Group theme-change rows by (theme, nT, nB) — a split like half the flips healthy /
+half zeroed points at a state-dependent wipe, not a broken measurement.
+
+**Why the env() fallback doesn't save you:** `.app-shell` pads with `var(--native-inset-top,
+env(safe-area-inset-top))` — after the wipe the var still RESOLVES (to the stylesheet 0px default),
+and a var that exists suppresses its fallback. "There's an env() fallback in the CSS" is not
+redundancy for the inline value; don't reason from it.
+
 ## Command popups / docked panels must share the CHAT COLUMN width
 
 The chat column is `max-w-[52rem]` (832px) — the feed and the composer both use it. Every popup, dock or panel rendered in that column must carry the SAME constraint or it visibly juts out past the bubbles:
