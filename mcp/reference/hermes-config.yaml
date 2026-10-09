@@ -3,8 +3,8 @@ model:
     X-Headroom-Base-Url: https://api.z.ai/api/coding/paas/v4
     X-Headroom-Original-Path: /chat/completions
     X-Headroom-Cwd: /home/notjitin/.hermes
-  default: glm-5.3-flash
-  provider: zai
+  default: stepfun/step-5-preview:free
+  provider: nous
   fallback_providers:
     - model: stealth/space-bunny-alpha
       provider: opencode-go
@@ -19,8 +19,7 @@ model:
       base_url: https://ai-gateway.vercel.sh/v1
       api_key: ${VERCEL_API_KEY}
       model: typesafe-ai/jev
-  base_url: https://api.z.ai/api/coding/paas/v4
-  api_mode: chat_completions
+  base_url: https://inference-api.nousresearch.com/v1
 fallback_providers:
   - model: glm-5.3-flash
     provider: opencode-go
@@ -70,6 +69,7 @@ browser:
   inactivity_timeout: 1200
   extension_control:
     enabled: false
+  cloud_provider: nous
 tool_loop_guardrails:
   warnings_enabled: true
   hard_stop_enabled: true
@@ -159,6 +159,7 @@ stt:
   openai:
     model: whisper-1
     language: ''
+  provider: nous
 wake_word:
   enabled: true
   capture: local
@@ -475,14 +476,6 @@ mcp_servers:
       - shadcn@latest
       - mcp
     command: npx
-    enabled: true
-  headroom:
-    command: /home/notjitin/.local/bin/headroom
-    args:
-      - mcp
-      - serve
-      - --proxy-url
-      - http://127.0.0.1:8787
     enabled: true
   jitinnair-ui:
     command: /usr/bin/python3
@@ -1026,3 +1019,9 @@ tool_search:
 sessions:
   auto_archive: true
   auto_archive_days: 14
+web:
+  backend: nous
+image_gen:
+  provider: nous
+video_gen:
+  provider: nous

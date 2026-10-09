@@ -83,16 +83,6 @@
     "command": "npx",
     "enabled": true
   },
-  "headroom": {
-    "command": "/home/notjitin/.local/bin/headroom",
-    "args": [
-      "mcp",
-      "serve",
-      "--proxy-url",
-      "http://127.0.0.1:8787"
-    ],
-    "enabled": true
-  },
   "jitinnair-ui": {
     "command": "/usr/bin/python3",
     "args": [

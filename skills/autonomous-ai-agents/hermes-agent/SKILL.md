@@ -221,6 +221,10 @@ Proven loop (cTrader/TradingView installs, 2026-10-03): Hermes `hermes config se
 - **Profile-safe paths** — `get_hermes_home()` in code, `$HERMES_HOME` when resolving paths in a session.
 - **Never hand-edit `config.yaml` for the user** — use `hermes config set KEY VAL`; a stray indent can corrupt the file and break the live gateway.
 
+## Model-provider plugins: auth is owned by the CLI, not Hermes
+
+A `kind: model-provider` plugin (e.g. `claude-subscription-directsdk-experimental`, which drives the user's own `claude` CLI as a subprocess) registers itself automatically — it needs NO `plugins.enabled` entry. It holds no credentials of its own, so "the provider doesn't work" is almost always an auth problem in the underlying CLI, not a config problem. Diagnose in order: `claude auth status` (`loggedIn: false` → the fix is `claude auth login`, a browser OAuth flow that cannot be driven headlessly) → `providers.get_provider_profile('<name>').setup_status()` → a real transport call via `Client().create(...)` (the Client is SYNCHRONOUS — `create` is not a coroutine; `resp.choices[0].message.content` can be None when thinking consumed the token budget, check `resp.usage` instead) → `p.discover_models()` (runs the CLI `initialize` handshake; returns None when logged out). `hermes model` is interactive-TTY-only — it refuses pipes/subprocesses.
+
 <!-- canvas-output:start -->
 ## Canvas output
 

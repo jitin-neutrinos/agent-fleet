@@ -191,6 +191,17 @@ The maintainer will:
   `pipeline_health = {ingest:{...},analyze:{...}}`) to scalars before render — React
   crashes on object children.
 
+## Admin "Analyst" card = the SIDECAR, not the nightly assistant (learned 2026-10-09)
+
+- The admin page's "The analyst" card probes `http://172.22.0.1:8101/health` — the **comindash-sidecar.socket** (Laya+GLiNER GPU inference, systemd user units, socket-activated sleep/idle design). "down" = socket/service unreachable; it says NOTHING about the nightly assistant cycle (that's pipeline/workhorse views, or `/api/health` last_run).
+- Boot race gotcha: the socket binds the DOCKER BRIDGE GATEWAY IP (172.22.0.1), which doesn't exist until docker compose creates the network. systemd socket units NEVER retry a failed bind — at the 05:06 boot it died with "Cannot assign requested address" and stayed dead 9h (admin page said Analyst down all day; NOT caching — cf-cache-status DYNAMIC). Fix shipped in the unit: `After=docker.service` + `Wants=docker.service` + `Restart=on-failure`/`RestartSec=15s`, then daemon-reload + restart. Verify: socket active, `curl -m 45 http://172.22.0.1:8101/health` returns `{status:ok,laya:true,gliner:true}` (first connection wakes it cold), admin endpoint is `/api/system` (services[].state).
+- If "Analyst down" recurs after a reboot: `journalctl --user -u comindash-sidecar.socket | grep -i "cannot assign"`.
+
+## Admin page analyst misread = pipeline_runs done-masking (fixed 2026-10-09, commit c8b9cd9a)
+
+- `run_assistant_cycle` used to mark the pipeline run done even when the insight run failed; genuine failures now record status=failed+error. Skips (GLM quota) legitimately stay done.
+- Boot catch-up for missed nightly cycles: `catch_up_missed_assistant_cycle` in scheduler.py (03d96f18).
+
 ## Delegation lessons (GLM 5.3 via OpenCode)
 
 - Use `opencode run --auto` for headless build agents — without it, permission-gated
