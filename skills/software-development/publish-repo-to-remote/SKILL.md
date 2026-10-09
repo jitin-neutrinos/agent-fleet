@@ -16,8 +16,11 @@ metadata:
 
 **When to use:** any task phrased as "push X repo to remote", "create a new
 repo and push this", or "publish this to GitHub" where the local repo already
-has commits and no remote yet. NOT for routine commit+push to an existing
-remote — that is `commit-push`.
+has commits and no remote yet. Also covers the second half of the publish job
+— "publish a proper README", "make the repo look high quality on GitHub",
+"review, audit and sanitize the repo" — see §Pitfalls (last bullet) and
+§Procedure step 8. NOT for routine commit+push to an existing remote — that is
+`commit-push`.
 
 Taking a local repo that ALREADY has history and putting it on a new remote
 (e.g. `gh repo create <name> --source .`). The first push ships the entire
@@ -40,6 +43,13 @@ branch plus a GitHub support ticket to clear caches.
 - **Public repo = state it plainly and confirm before creating.** Internal
   work defaulting to public is an irreversible disclosure decision; if the
   user picks public anyway, run the secret scan anyway and say so.
+- **Commit everything intended BEFORE any rewrite.** filter-repo rebuilds
+  from commits only — staged-but-uncommitted changes and an in-progress
+  `git mv` rename are silently discarded. Commit first, then strip.
+- **Classify every strip candidate as runtime vs dev tooling before
+  deleting.** A directory that reads as "training scripts" may hold the live
+  inference sidecar the app calls at runtime. Grep the app and compose for
+  the path before stripping it; keep runtime files, strip the rest.
 
 ## Procedure (in order)
 
@@ -72,19 +82,43 @@ branch plus a GitHub support ticket to clear caches.
    `.gitignore` in any repo that has one, which is exactly why it lingers
    invisibly.
 
-5. **Back up, then commit any pending build artifacts** with `git add -f`
-   (see pitfalls) — do it BEFORE the rewrite so the tarball captures the
-   final intended state.
-6. **Strip the path from all history** (install `git-filter-repo` via the
+5. **Back up, then commit everything intended** — pending build artifacts
+   with `git add -f` (see pitfalls), any renames, any deletions. Do it
+   BEFORE the rewrite: filter-repo rebuilds from commits and drops staged or
+   uncommitted work.
+6. **Strip the paths from all history** (install `git-filter-repo` via the
    host package manager; it is NOT bundled with git):
 
    ```bash
+   # one path:
    git filter-repo --force --invert-paths --path app/backend/.venv
+   # many paths/dirs at once (one per line; a trailing slash means directory):
+   git filter-repo --force --paths-from-file strip-paths.txt --invert-paths
    ```
 
    Verify: `git ls-files <path> | wc -l` == 0, `git log --oneline | wc -l`
    unchanged (commit COUNT survives, every hash changes), `du -sh .git`
-   measurably smaller, `git status --porcelain` clean.
+   measurably smaller. filter-repo also REMOVES the `origin` remote and
+   discards any staged work — re-add the remote, re-apply and commit any
+   rename it dropped, then check `git status --porcelain` is clean.
+7. **Create the remote, push, verify** (see step 8 for a force-push replace):
+
+   ```bash
+   gh repo create <name> --public --source=. --remote=origin --description "..."
+   git push -u origin <branch>
+   git ls-remote origin <branch>   # hash MUST equal: git rev-parse HEAD
+   gh repo view owner/<name> --json name,visibility,url,defaultBranchRef,pushedAt
+   ```
+
+   Clean up the backup tarball only after the hash match and a working-tree
+   check.
+8. **Repo presentation — a publish is not done at the push.** Ship the files
+   that make it look finished: root README (architecture, quickstart, env-var
+   table, layout, license link), a LICENSE matching the visibility decision
+   (proprietary/all-rights-reserved when internal work goes public), `.github`
+   issue forms + PR template, and a `.gitignore` that keeps the stripped paths
+   out next time. Verify every path/command the README references actually
+   exists before committing it.
 
 7. **Create, push, verify:**
 
@@ -100,6 +134,22 @@ branch plus a GitHub support ticket to clear caches.
 
 ## Pitfalls
 
+- **filter-repo REMOVES the `origin` remote** (its default; it does not want
+  you pushing stale history). After a rewrite `git remote -v` is empty —
+  re-add it (`git remote add origin <url>`) before any push, or the push
+  silently has no target.
+- **filter-repo discards staged-but-uncommitted changes and resets the
+  working tree to the rewritten HEAD.** A `git mv` or a file edit made just
+  before the rewrite is lost, and re-running filter-repo clobbers any edit
+  made after the previous one. Order strictly: finish and COMMIT all content
+  edits first, rewrite last, then make the rename/cleanup commit and
+  `--amend` it.
+- **The replacement push may be blocked by the user's own guardrails.** A
+  standing `approvals.deny` rule (e.g. `git push*--force*` alongside the
+  disk-wipe rules) bars the agent from force-pushing. Hand the exact command
+  to the user to run in their terminal — do not rephrase around a safety rule
+  and do not retry the blocked form. A follow-up commit that is a
+  fast-forward needs no force and pushes normally.
 - **filter-repo DELETES the stripped files from the working tree** — it
   checks out the rewritten HEAD. A stripped `.venv/` loses its `bin/`
   scripts and the backend dies on the spot ("No such file or directory"
@@ -124,6 +174,23 @@ branch plus a GitHub support ticket to clear caches.
   when the backup only contains `.git` — the scripts live in git objects;
   extract them from the backup's git-dir with `archive`, not from a tarball
   of files.
+- **filter-repo removes the `origin` remote** (by design, so you cannot push
+  pre-rewrite history by accident). After the rewrite run
+  `git remote add origin <url>` before any push — otherwise `git ls-remote`
+  looks like the remote vanished.
+- **Replacing an already-pushed remote needs a force-push, which a host deny
+  rule may block.** When `approvals.deny` (config.yaml) matches `git push
+  --force`, the agent is barred and must NOT rephrase or route around it. Do
+  all local work, verify it, then hand the user the exact one-liner
+  (`cd <repo> && git push --force origin <branch>`) plus the verification
+  (`git ls-remote origin <branch>` == local HEAD) and stop.
+- **Tracked datasets can carry PII.** Mined training data (exports, data
+  splits, label backups) often embeds real usernames, emails and verbatim
+  community text. Grep exports for `@handles` and email patterns; shipping
+  them in a public repo is a disclosure, not a tidy-up.
+- **`git mv` before a rewrite is lost; do it after.** A rename staged (not
+  committed) when filter-repo runs is discarded with the rest of the index —
+  re-apply it post-rewrite and `commit --amend`, or commit it first (step 5).
 
 ## Verification checklist
 
@@ -132,3 +199,6 @@ branch plus a GitHub support ticket to clear caches.
 - [ ] stripped path absent on the remote AND on disk
 - [ ] runtime dirs restored and importing (`<venv>/bin/python -c "import <dep>"`)
 - [ ] `git status --porcelain` clean; backup tarball deleted only after the above
+- [ ] re-scan the REMOTE tree, not just the working copy: `git grep -lI
+  '/home/<user>' origin/<branch>` and the secret regex against `origin/<branch>`
+  (a local edit made before a rewrite can be clobbered; the remote tree is truth)

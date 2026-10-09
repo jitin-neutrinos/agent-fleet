@@ -11,9 +11,16 @@ condensed for quick lookup during a build/review phase.
 
 ## Brand shape law (hard, owner order)
 
+**NO pills, ever (absolute).** Rounded-full badge/eyebrow/label chips are banned in every
+design on every surface, forever. No decorative pill labels, no pill tabs, no pill CTAs.
+
 NO `9999px` / `rounded-full` / `border-radius: 50%` / pill shapes except:
 - Sub-8px decorative status dots / pulse indicators (`.suba-pulse`, `.bgd-pulse`). These are indicators, not interactive shapes.
+- A genuinely circular icon wrapper nested inside a button (e.g. the arrow chip).
 - Everything interactive takes `border-radius: 10px` (30px elements → 10px; 34px send → 10px; 16px tabs → 6–8px proportionally). Never a circle.
+
+Status/severity chips that carry real state use a small radius (`rounded-md`), never
+`rounded-full`. The only Neutrinos-branded exception is the `.neu-tag` eyebrow.
 
 ## Touch-target counter-rule fix (pitfall)
 

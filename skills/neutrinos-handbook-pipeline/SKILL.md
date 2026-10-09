@@ -87,3 +87,58 @@ the extra verification loop is worth it; for one-off print pieces,
 - `mask-image` support is partial; don't rely on masks for text-critical
   separation.
 - Run `tools/selfcheck.py` after any change to the render stack.
+
+## Mermaid diagrams inside the PDF
+
+Field-proven on the 33-page branded handbook and the 25-page Conduct Evidence Engine
+v5 report (9 diagrams). Every item below cost a debug cycle.
+
+**Render mermaid to PNG, never SVG.** WeasyPrint silently drops `foreignObject`
+content, and mermaid puts node labels there by default — a 10-label diagram loses 8
+of them with no error at all. `"htmlLabels": false` in the mermaid config file does
+**not** reach the CLI. PNG embeds perfectly and keeps Poppins exactly as Chromium
+draws it.
+
+**Narrow the diagram, do not raise the font.** Print legibility is
+`pt = 11.25 * print_mm * 96 / (css_px * 25.4)`, so for a 172 mm portrait column a
+diagram wider than ~900 CSS px falls below 8 pt. A 2000 px-wide flowchart prints at
+3-6 pt — unreadable in print. Raising the font does not help, because the box grows
+with the text. The fix is fewer nodes per rank (3 is the practical max) and shorter
+labels. Measure with that formula before embedding, not after.
+
+**Install once, then reuse:**
+
+```
+cd <scratch>/mmd && npm install mermaid @mermaid-js/mermaid-cli
+cp ~/.hermes/skills/neutrinos-brand-core/assets/fonts/Poppins-*.ttf ~/.local/share/fonts/ && fc-cache -f
+```
+
+Poppins must be in the system font path or Chromium falls back to a default sans and
+the diagrams stop matching the document.
+
+**Working invocation** (flags verified against `mmdc --help`; `-w`/`--width` do not
+exist and fail with "unknown option"):
+
+```
+npx mmdc -i fig.mmd -o fig.png --size 900 --scale 3 -b white -p pptr.json -c theme.json
+```
+
+- `pptr.json` must be a real JSON file — passing `/dev/null` throws a JSON parse
+  error. Shape:
+  `{"args":["--no-sandbox","--disable-setuid-sandbox"],"executablePath":"<playwright chromium>","fontFamily":"Poppins"}`
+- Chromium path on this host:
+  `~/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome` — note
+  `chrome-linux64`, not `chrome-linux`.
+- `theme.json` needs `theme: "base"` plus a `themeVariables` block built from the
+  brand hexes, or the diagram renders in mermaid's default multi-colour palette and
+  breaks the one-accent rule. `classDef` per node kind still overrides the theme.
+
+**Do not nest double quotes inside a node label.** `T1["Body: { \"input\": ... }"]`
+fails with `Parse error ... got 'STR'`. Reword the label and put the literal JSON in
+a `<pre>` block in the document body instead.
+
+**Split long flows.** A 12-step vertical flowchart is unusable at any legible font
+size. Cut it into 4a/4b halves, lay each out left-to-right with a `subgraph` per
+phase, and it becomes two wide banners that sit above their prose. Verify with
+`vision_analyze` on a ~100 dpi page render — that is the only check that catches both
+clipping and unreadable type.

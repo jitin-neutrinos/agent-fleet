@@ -1,6 +1,6 @@
 ---
 name: codebase-audit
-description: "Use when Jitin asks for a read-only codebase audit."
+description: "Use for read-only code audits and plan-vs-code audits."
 version: 1.0.0
 author: notjitin
 license: MIT
@@ -41,6 +41,11 @@ Jitin asks for a fix or a build — that is implementation work, not this engage
 5. **Prove "no changes"**: `git status` at the end must match the start. A stray modified
    file is a broken contract, not a footnote.
 
+## Variants and depth
+
+- Auditing a PLAN or design doc (not code) against the repo and live services — fixes land in the doc, code stays untouched: `references/plan-vs-evidence-audit.md`.
+- Security posture of a multi-tenant Postgres / cookie-auth app, or designing a privileged (platform-admin) account: `references/multitenant-postgres-audit.md`.
+
 ## Report card recipe (Astra canvas)
 
 badges (read-only / findings count) → callout (the headline finding) → kpi row (headline
@@ -54,6 +59,7 @@ is broken.
 
 - "Make no changes yet" bans file writes, config edits, service restarts, commits —
   including obvious fixes. Findings become the steps list; the fix is a separate go.
+- Plan and design turns converge on the document, not on more research. Route once, batch independent read-only probes into one call, spawn no sub-agents, and start writing as soon as the open questions are answerable. When the owner states a usage ceiling, report the tool calls used and say plainly that the usage meter is not readable from inside the chat. A mid-turn "wrap up" steer means the very next call writes the deliverable from what is known; unresolved items go into the doc's deferred or consent list, not into another research round.
 - Distinguish installed from firing (see the hermes-plugins proof ladder): files on disk
   and an enable-list entry prove nothing; a fresh timestamp on the per-message artifact
   against known live traffic is the evidence.

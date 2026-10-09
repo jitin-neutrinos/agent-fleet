@@ -33,6 +33,23 @@ See `cloudflare-edge-caching` for CDN cache rules, origin cache headers, and edg
 - Zone ID for jitinnair.com: `52a4d6a1d562826ff02bc51efd56c963`
 - Cache rule: "Cache Everything" for all of jitinnair.com (covers test.jitinnair.com), edge TTL 1 year, browser TTL 1 year
 
+## Cache rules — two traps
+
+- **A NEW hostname inherits the zone catch-all and caches HTML for a year.**
+  With `cache_level=aggressive` the catch-all pins every response — including
+  `index.html` — at a 1-year edge TTL. Deploy a new bundle behind such a
+  hostname and users load the OLD one indefinitely (symptom: a working feature
+  "disappears", or a page shows EMPTY because the stale bundle calls APIs that
+  have since changed/401'd). Fix: add the hostname to the short-TTL
+  HTML-revalidation rule in the zone's `default` cache ruleset (phase
+  `http_request_cache_settings`), then purge `/` + `/index.html`.
+- **`PUT /zones/<zone>/rulesets/<id>` REPLACES every rule in the ruleset.**
+  GET the ruleset first and resend ALL existing rules plus your change; a PUT
+  with only the new rule silently deletes the others (it clobbered the zone's
+  catch-all + HTML-revalidation + /api-bypass rules in one call). Recoverable:
+  `GET /zones/<zone>/rulesets/<id>/versions` then `/versions/<n>`, restore from
+  there. Never PUT a ruleset you have not just GET.
+
 ## Rules that save debugging time
 - **Ingress `service:` must use explicit `http://127.0.0.1:<port>`** — `localhost` may resolve to `[::1]`; the journal then shows `dial tcp [::1]:<port>: connect: connection refused` bursts that look like flaky downtime.
 - **Never use quick `trycloudflare` tunnels from this network** — they register but return edge 404. Use the named tunnel for anything the user must reach.

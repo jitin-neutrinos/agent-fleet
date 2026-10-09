@@ -49,7 +49,7 @@ Baseline rule order for the jitinnair.com zone (proven set — keep this shape w
 editing):
 1. `starts_with(http.request.uri.path, "/api/")` → `{"cache": false}` (bypass;
    auth-gated per-user JSON must never sit in the edge).
-2. HTML revalidation for `astra.*`/`test.*` hosts: GET/HEAD, not `/api/`, and
+2. HTML revalidation for the app hosts (a host allow-list inside the expression, one `starts_with(http.host, "<name>.")` per host — read the live rule; at last edit: `astra.`, `orbit.`, `test.`, `comindash.`): GET/HEAD, not `/api/`, and
    `not (http.request.uri.path contains ".")` (dotless path = document; dotted =
    hashed asset) → cache true, edge/browser TTL override 60s. Deploys become visible
    within a minute without giving up asset caching.
@@ -85,6 +85,8 @@ curl -sI https://<host>/ | grep 'cf-cache-status'
 - **Image optimizer TTL**: Next.js defaults to `max-age=60, must-revalidate` for optimized images. Set `minimumCacheTTL: 31536000` in `images` config or every image revalidates at the edge every minute.
 - **Static asset pattern**: Use `headers()` in next.config with a regex like `/(.*)\.(png|jpg|jpeg|gif|webp|avif|svg|ico|woff2?|ttf|eot)` to apply immutable caching to all static assets.
 - **override_origin beats origin headers.** When the zone's catch-all rule sets an edge TTL override (this zone's does), origin `no-store`/`max-age` headers are IGNORED at the edge for covered hosts — an origin-side cache fix alone never protects mutable files there. Levers: a dedicated higher-priority cache rule for the host, or purge after every content change; verify with cache-busted requests (`?nocache=$(date +%s)`), because a plain curl happily reads the poisoned entry and sends you debugging a healthy origin.
+
+- **A new hostname behind the tunnel is not covered until it joins rule 2's host list** — the catch-all otherwise gives its HTML a year-long TTL. Symptom: the page paints but never hydrates (dead theme toggle, login does nothing) because the cached HTML points at chunk files a later build or purge removed; it reads as an app bug. Probe: `curl -sI https://<host>/` shows `cache-control: max-age=31536000` and a large `age` on a document. Fix: extend the host expression, PUT the full array (backup first), purge, re-probe for `max-age=60` with a small `age`, then prove the app itself with a cache-busted URL. Add the host in the same change that adds its tunnel ingress, and serve public hostnames from a production build, never a dev server (dev HTML and chunks go stale on the next restart).
 
 ## Relationship to tunnel hosting
 

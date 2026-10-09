@@ -96,7 +96,7 @@ Test the matcher against real messages; a `MIME` phrasing arriving from a 404 is
 ## Pitfalls
 
 - **Every number in an emitted card must have a log/file/host-probe behind it, or carry a stated estimate/not-measured label.** A card renders its figures as polished measured evidence — an unverified count, spark/point series, or delta then gets quoted by the reader (and the next debugging session) as fact. Before ANY display card goes out, re-derive each figure from data actually read this session (log lines, DB rows, git log/parent map, `uptime`/`free`, port probes); a figure you cannot trace is dropped or explicitly labeled as demo/not-measured. Showcase cards with synthetic numbers count too — label them, never fake a citation.
-- **Media paths must be verified against where the SERVED app reads files, before emission.** A repo-checkout path is not proof of reachability: an asset can sit outside the deployed web root (e.g. Vite `public/`) or in a folder the build never bundles, and the block then renders the clean "unavailable" slot — graceful, but a dead exhibit. Confirm the file exists AND resolves under the served root (or is a real host file the media viewer/video element reads); on a failed check, rewrite the `src`, never drop just that cite-ability claim.
+- **Media paths must be verified against where the SERVED app reads files, before emission.** A repo-checkout path is not proof of reachability: an asset can sit outside the deployed web root (e.g. Vite `public/`) or in a folder the build never bundles, and the block then renders the clean "unavailable" slot — graceful, but a dead exhibit. Verify the path the renderer ACTUALLY requests: `image`/`gallery` srcs go through `/api/hx/files/download?path=<encoded>` (video through `/api/hx/files/stream`), which expands a leading `~/`, so a real host file path always resolves while a bare web path only works if the file genuinely sits under the served root. A `content_type` of `text/html` on a 200 is the SPA fallback, not the asset — check the content type and byte size. On a failed check, rewrite the `src`, never drop just that cite-ability claim. The full rule lives in `references/canvas-showcase-recipe.md`.
 - **"It rendered as text" is a malformed EMISSION until proven otherwise.** Diagnose
   in this order: (1) re-read the bytes you actually sent — a mangled tool-call blob,
   a truncated body, or duplicated fence text all parse as garbage, and the
@@ -113,9 +113,16 @@ Test the matcher against real messages; a `MIME` phrasing arriving from a 404 is
   on any surface. The parser coerces a few known shapes, but coercion is a
   compatibility layer, not an API: never lean on it for a new emission. If the
   structure is anything but the canonical wrapper, run the validator before
-  sending — and run it for ANY card whose shape you have not emitted before;
-  a "simple" status card skipped validation this way and shipped as raw JSON,
-  burning a full user round-trip to discover.
+  sending — and run it for EVERY card, routine ones included: a "simple" status
+  card and a long research card typed straight into the reply have each shipped
+  broken this way, and each cost the user a round-trip to report. The typed-in slip
+  to expect is a dropped `]`: the closing bracket of `rows` (or `items`) is omitted,
+  so the sibling key that follows (`colTypes`, `stats`) lands inside the array and
+  the whole card fails to parse. Build the card as a file (`write_file`, or a Python
+  dict through `json.dumps`), validate it, then paste the validated text unchanged.
+  When the UI reports a parse error, run the validator on the text you sent, fix
+  that one slip, and re-emit only the corrected card in a single fence with no
+  surrounding prose.
 - **Repair JSON where it is cheapest, at the string level, in tiers — but never with a
   naive regex.** Real emitted payloads fail in a small set of ways: literal newlines
   inside string values (markdown in a `text`/`document` block), missing commas
@@ -316,7 +323,10 @@ type's shape) land in that user-owned skill, not here.
 - `references/canvas-showcase-recipe.md` — the full build pipeline for ONE rich canvas
   showcase card (many block types + interactive controls + real host data): batch
   data collection, programmatic assembly, validator-driven fix loop, state seeding,
-  deterministic first paint, slice-and-stitch emission.
+  deterministic first paint, slice-and-stitch emission. Includes the closed-set
+  audit step (read `BLOCK_TYPES` live, not from prose), the duplicate-`type`
+  collision rule, the media-path rewrite mapping, and the "one of each type"
+  chart-kind exception.
 - `scripts/validate-canvas-spec.mjs` — pre-emit validator (Astra): per-block validation +
   card count + fence-safety check. Run on every candidate spec before sending.
 - `references/json-repair-tiers.md` — the three malformed-JSON failure modes worth

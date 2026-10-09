@@ -214,7 +214,7 @@ LLMs default to clichés. Override these defaults proactively. Each rule has a c
 * Use cards ONLY when elevation communicates real hierarchy. Otherwise group with `border-t`, `divide-y`, or negative space.
 * When a shadow is used, tint it to the background hue. No pure-black drop shadows on light backgrounds.
 * For `VISUAL_DENSITY > 7`: generic card containers are banned. Data metrics breathe in plain layout.
-* **SHAPE CONSISTENCY LOCK (mandatory):** Pick ONE corner-radius scale for the page and stick to it. Options: all-sharp (radius 0), all-soft (radius 12-16px), all-pill (full radius for interactive). Mixed systems are allowed only when there is a documented rule (e.g. "buttons are full-pill, cards are 16px, inputs are 8px") and that rule is followed everywhere. Round buttons in a square layout, or square cards on a pill-button page, is broken design.
+* **SHAPE CONSISTENCY LOCK (mandatory):** Pick ONE corner-radius scale for the page and stick to it. Options: all-sharp (radius 0), all-soft (radius 12-16px). **`rounded-full` / all-pill is NOT an option — pills are banned (see the Pills ban below).** Mixed systems are allowed only when there is a documented rule (e.g. "buttons are 10px, cards are 16px, inputs are 8px") and that rule is followed everywhere. Round buttons in a square layout, or square cards on a soft-radius page, is broken design.
 
 ### 4.5 Interactive UI States
 LLMs default to "static successful state only." Always implement full cycles:
@@ -664,6 +664,13 @@ These patterns came out of real LLM-generated landing-page tests. They are the s
 * **NO generic step labels.** "Stage 1 / Stage 2 / Stage 3", "Step 1 / Step 2 / Step 3", "Phase 01 / Phase 02 / Phase 03", "Pass One / Pass Two / Pass Three". Banned. The actual step content is the label. If you must show progression, use the verb-noun directly ("Install", "Configure", "Ship") not "Stage 1: Install".
 
 **Pills, labels and version stamps**
+* **NO pills — ever (ABSOLUTE).** Rounded-full badge/eyebrow/label chips are banned in
+  every design, on every surface, forever. No `rounded-full` eyebrow labels, no
+  decorative pill badges ("Beta", "New", "Community Intelligence"), no pill tabs, no
+  pill CTAs. A status chip that carries real state uses a small radius (`rounded-md`),
+  never `rounded-full`. The only permitted full-radius element is a genuinely circular
+  icon wrapper inside a button, and the Neutrinos brand `.neu-tag` eyebrow when the
+  brief is explicitly Neutrinos-branded.
 * **NO pills/labels/tags overlaid on images.** No `<span>` overlays on photos with tags like `Brand · 02`, `PLATE · BRAND`, `Field notes - journal`. Either let the image speak alone, or add a caption directly below (outside the image).
 * **NO photo-credit captions as decoration.** Strings like `Field study no. 12 · Ines Caetano`, `Plate 03 · House archive`, `Frame XII · 35mm` under stock/picsum images are pretentious. Photo credit is allowed ONLY when there is a real photographer being credited for a real photo (with permission). Otherwise: skip the caption or use a one-line functional caption ("The 6-quart, in Sage.").
 * **NO version footers on marketing pages.** Footer strings like `v1.4.2`, `Build 0048`, `last sync 4s ago · main` are CLI / devtool fixtures, not landing-page content. Banned on marketing/landing/portfolio pages.

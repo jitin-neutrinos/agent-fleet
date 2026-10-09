@@ -101,7 +101,10 @@ The recognizable Neutrinos visual devices - use them, don't reinvent them:
   subtle, energy/speed. Represent particles of momentum.
 - **Frame Brackets** - corner rules whose angle echoes the symbol; frame text and
   images; a good place for the one accent color.
-- **The rounded pill tag** - the small fully-rounded label (often Celeste Blue).
+- **The `.neu-tag` eyebrow** - the small Celeste-Blue label. This is the ONE
+  permitted pill/rounded-label in the entire system. Every other pill badge,
+  eyebrow chip, pill tab or pill CTA is BANNED (owner order, absolute) - never
+  emit a `rounded-full` label anywhere except this one brand element.
 
 Photography (Human + Conceptual), iconography (thin line + one solid accent), and
 charts: **read `references/design-system.md`** and

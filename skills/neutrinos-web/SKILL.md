@@ -53,7 +53,9 @@ practices - brand rules from here sit on top of that.
 ## Signature components (from tokens.css)
 
 - **Pill tag** `.neu-tag` - the rounded eyebrow/section label (often Celeste Blue).
-- **Buttons** `.neu-btn`, `.neu-btn--ghost`, `.neu-btn--accent` - fully rounded pills.
+  This is the ONLY pill-style element permitted; see the Do/Don't rule below -
+  all other pill badges/labels/CTAs are banned.
+- **Buttons** `.neu-btn`, `.neu-btn--ghost`, `.neu-btn--accent`.
 - **Frame bracket** `.neu-frame` - left-edge accent rule; extend to angled corners
   for heroes.
 - **Dark section** `.neu-dark` - flips a section to Midnight Blue + white text.
@@ -67,7 +69,7 @@ practices - brand rules from here sit on top of that.
   version matching your background) in the header; `neutrinos-symbol-color.png` from `../neutrinos-brand-core/assets/logo/`
   for the favicon. The only bundled SVG is the full artboard sheet - do not place
   it directly.
-- Buttons and tags are pills; corners elsewhere are square or lightly rounded.
+- Corners are square or lightly rounded.
 - Use the momentum swirl / supergraphic **subtly** - background, screened, bleeding.
 
 **Don't**
@@ -75,6 +77,12 @@ practices - brand rules from here sit on top of that.
 - Don't crowd sections or use drop shadows on the logo.
 - Don't mix two accent colors in one view.
 - Don't stretch/rotate the logo or extend its lines in a lockup.
+- **No pills.** Rounded-full "eyebrow" / badge / label chips ("Community
+  Intelligence", "Beta", "New") are BANNED in every design, forever. No
+  decorative pill labels, no pill CTAs, no pill tabs. The ONE exception is the
+  brand-core `.neu-tag` eyebrow/section label (a Neutrinos signature); a
+  status/severity chip that carries real state is a small radius-r chip, not a
+  pill. When in doubt: no pill.
 
 ## Starter shell
 

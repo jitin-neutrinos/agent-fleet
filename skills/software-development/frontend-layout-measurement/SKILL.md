@@ -73,6 +73,20 @@ Fix with containment on the block and its scroll wrapper — `max-width:100%` pl
 default to `min-width:auto`, which is what pushes a container wider than its
 declared width; neutralise it on children.
 
+Locating WHICH child/containers is at fault, by measurement (never by reading
+class names): (1) confirm the overflow with `scrollWidth > clientWidth` on
+`documentElement`; (2) enumerate elements whose `getBoundingClientRect().right >
+innerWidth` to name the offenders and their common widths — when every child of
+one container reports the same over-wide width, the CONTAINER's track/column
+sized them, not each child; (3) walk the widest child's ancestor chain reading
+computed `min-width` / `flex-shrink` / `flex-basis` per hop — the hop that stops
+shrinking (min-width: auto, shrink: 0, or a grid track sized by min-content, e.g.
+`gridTemplateColumns` reporting one fixed over-wide pixel value) is the defect
+site. A grid container whose computed `grid-template-columns` shows a single
+over-wide track means a child's min-content (long unbreakable text, tabular
+number rows, a fixed-width KPI) set the track: put `min-width: 0` on the grid
+ITEM, not the grid.
+
 Keep geometry constants in ONE module shared by the layout code and the CSS
 (custom properties). If they disagree, the page paints at one size while the code
 measures another, and pagination silently drifts.

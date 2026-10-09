@@ -46,14 +46,17 @@ Premium cards are not flat rectangles. They look like machined hardware — a gl
 - **Inner Core:** Content container with distinct background, inner highlight (`shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]`), calculated smaller radius (`rounded-[calc(2rem-0.375rem)]`).
 
 ### B. Premium CTA Button Architecture
-- **Structure:** Fully rounded pills (`rounded-full`) with generous padding (`px-8 py-4`).
+- **Structure:** Pills (`rounded-full`) are BANNED. Use a restrained radius
+  (`rounded-lg`/`rounded-xl`) with generous padding (`px-8 py-4`).
 - **Arrow Icon Treatment:** Arrow icons NEVER sit naked next to text. Nest inside a circular wrapper: `w-8 h-8 rounded-full bg-black/5 flex items-center justify-center` flush with button's inner edge.
 - **Hover Physics:** `hover:scale-[1.02]` + arrow `hover:translate-x-1`. Active: `active:scale-[0.98]`.
 - **Glow Effect (dark mode):** Subtle `shadow-[0_0_30px_rgba(accent,0.2)]` on hover.
 
 ### C. Spatial Rhythm
 - **Macro-Whitespace:** Section padding `py-24 md:py-32 lg:py-40`. Let the design breathe heavily.
-- **Eyebrow Tags:** Precede major headings with a microscopic pill badge: `rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-accent/10 text-accent`.
+- **No pill badges:** the "microscopic pill badge" eyebrow pattern is BANNED —
+  never emit a rounded-full label/badge chip above a heading. Use plain
+  letter-spaced uppercase text, or a short accent rule, to introduce a heading.
 - **Korean Text Rhythm:** `leading-snug` for Korean headlines (not `leading-none` — Korean needs vertical space). `break-keep-all` on all Korean blocks.
 
 ## 5. MOTION CHOREOGRAPHY
