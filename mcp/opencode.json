@@ -348,5 +348,12 @@
     "command": [
       "/home/notjitin/Work/laya-browser-agent/.venv/bin/localdecide-mcp"
     ]
+  },
+  "motion-primitives": {
+    "type": "local",
+    "command": [
+      "/usr/bin/python3",
+      "/home/notjitin/Work/infra/agent-fleet/mcp/motion-primitives/motion_primitives_mcp.py"
+    ]
   }
 }

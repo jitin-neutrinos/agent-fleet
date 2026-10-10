@@ -32,7 +32,8 @@ owns keystrokes.
      agent dies on its first `find` (symptom: "user rejected permission" in output
      despite no user being present).
    - Run via Hermes `terminal(background=true, notify=true, timeout=3600+)`; long
-     builds take 10–40 min.
+     builds take 10–40 min. Never dispatch in a foreground call — a user steer or
+     interrupt mid-turn SIGKILLs the child worker with no partial credit.
 3. **Smoke-test the exact command shape before launching big work.** A trivial prompt
    ('Reply OK') succeeding does NOT prove work prompts succeed — test a prompt that
    triggers file reads/tool calls. Conversely, if trivial prompts pass but all real
@@ -49,7 +50,9 @@ owns keystrokes.
 7. **Sandbox every worker before the first dispatch**, and prove the sandbox with a
    20-line escape test (`references/sandboxed-worker-isolation.md`). A worker inherits
    your whole environment by default — API keys, SSH agent, dual-boot mounts, docker
-   socket — and none of that reaches the model, so it is pure blast radius.
+   socket — and none of that reaches the model, so it is pure blast radius. For file
+   isolation without reinstalling deps: `git worktree add` a fresh tree and symlink the
+   main checkout's `node_modules` into it — own branch and sources, instant dependencies.
 
 ## Bound every headless worker
 
@@ -93,7 +96,13 @@ costs a full worker restart.
 Two more orchestrator-side costs people forget:
 - **A provider rate limit or quota kills workers mid-task with no partial credit.**
   Check the quota before dispatching N workers, not after. Capture the session id of
-  every worker so a killed one resumes instead of restarting.
+  every worker and resume (`hermes chat --resume <id> --query-file <continue.md>`) —
+  a resumed session keeps its full context and its file work. Wrap the dispatch in a
+  bounded retry loop (N attempts, sleep between, re-send a short continue query): an
+  outage death can exit 0 with the provider error as the last log words, so judge
+  completion by grepping the log tail for outage phrases, never by exit code alone.
+  Before trusting fallback providers, verify each one's quota is actually alive; an
+  all-dead fallback chain turns every outage into pure wait-and-retry.
 - **Harvesting is not free.** If a worker dies, taking its files still means reading
   them skeptically: scan for stubs/`todo!`/`unsafe`, compile, and count executable
   lines against the reference before you believe anything in them.
@@ -113,7 +122,11 @@ Two more orchestrator-side costs people forget:
   `idle in transaction` DB sessions). Check `pg_stat_activity` after force-killing.
 - Frontend visual verification: vision-analyze budget can run out (provider 429) —
   fall back to `playwright browser_evaluate` (getBoundingClientRect for alignment) and
-  PIL pixel sampling of screenshots; objective and free.
+  PIL pixel sampling of screenshots; objective and free. Scroll the whole page
+  programmatically BEFORE `fullPage` screenshots — sections that animate in on scroll
+  sit at opacity 0 until visited and capture blank. Then vision-review the crops:
+  copy arithmetic, SSR-invisible sections and absolutely positioned overlaps pass
+  every code gate and still ship broken.
 - **A worker's self-reported changes are CLAIMS, not facts.** Fingerprint every
   file it may touch (path → `mtime:size`) before and after the run and diff the two.
   Observed: a worker declared a file it never created and silently edited a second

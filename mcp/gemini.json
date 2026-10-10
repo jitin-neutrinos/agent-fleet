@@ -224,6 +224,14 @@
       "command": "/home/notjitin/Work/laya-browser-agent/.venv/bin/localdecide-mcp",
       "args": [],
       "disabled": false
+    },
+    "motion-primitives": {
+      "command": "/usr/bin/python3",
+      "args": [
+        "/home/notjitin/Work/infra/agent-fleet/mcp/motion-primitives/motion_primitives_mcp.py"
+      ],
+      "env": {},
+      "disabled": false
     }
   },
   "skillspector": {

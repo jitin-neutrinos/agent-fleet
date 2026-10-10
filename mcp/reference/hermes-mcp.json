@@ -648,5 +648,13 @@
       "AUTH_DIR": "/home/notjitin/Work/capture-studio/pagecast-fork/auth"
     },
     "timeout": 600
+  },
+  "motion-primitives": {
+    "command": "/usr/bin/python3",
+    "args": [
+      "/home/notjitin/Work/infra/agent-fleet/mcp/motion-primitives/motion_primitives_mcp.py"
+    ],
+    "enabled": true,
+    "timeout": 60
   }
 }

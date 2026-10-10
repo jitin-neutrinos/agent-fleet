@@ -57,6 +57,7 @@ is broken.
 
 ## Discipline
 
+- A design doc's stack table is a claim, not evidence: before asserting a tech choice ("compile-time checked SQL", "LTI platform"), confirm it in the dependency manifest AND grep for its usage (the macro, the module header). Counts come from the authoritative source (migrations for tables, the router for routes), never a convenience directory.
 - "Make no changes yet" bans file writes, config edits, service restarts, commits —
   including obvious fixes. Findings become the steps list; the fix is a separate go.
 - Plan and design turns converge on the document, not on more research. Route once, batch independent read-only probes into one call, spawn no sub-agents, and start writing as soon as the open questions are answerable. When the owner states a usage ceiling, report the tool calls used and say plainly that the usage meter is not readable from inside the chat. A mid-turn "wrap up" steer means the very next call writes the deliverable from what is known; unresolved items go into the doc's deferred or consent list, not into another research round.
