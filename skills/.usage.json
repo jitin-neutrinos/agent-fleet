@@ -621,15 +621,15 @@
     "created_by": "agent",
     "first_seen_at": null,
     "last_patched_at": "2026-10-10T10:03:22.289942+00:00",
-    "last_reused_patch_generation": 10,
-    "last_used_at": "2026-10-10T09:29:40.165327+00:00",
-    "last_viewed_at": "2026-10-10T09:29:40.162291+00:00",
+    "last_reused_patch_generation": 11,
+    "last_used_at": "2026-10-10T18:56:17.349024+00:00",
+    "last_viewed_at": "2026-10-10T18:56:17.346326+00:00",
     "patch_count": 11,
     "patch_generation": 11,
     "pinned": false,
     "state": "active",
-    "use_count": 6,
-    "view_count": 6
+    "use_count": 7,
+    "view_count": 7
   },
   "codebase-inspection": {
     "archived_at": null,
@@ -2880,15 +2880,15 @@
     "created_by": "agent",
     "first_seen_at": null,
     "last_patched_at": "2026-10-10T13:48:05.736550+00:00",
-    "last_reused_patch_generation": 52,
-    "last_used_at": "2026-10-10T13:47:12.961788+00:00",
-    "last_viewed_at": "2026-10-10T13:47:12.957765+00:00",
+    "last_reused_patch_generation": 55,
+    "last_used_at": "2026-10-10T18:55:44.016450+00:00",
+    "last_viewed_at": "2026-10-10T18:55:44.013666+00:00",
     "patch_count": 55,
     "patch_generation": 55,
     "pinned": false,
     "state": "active",
-    "use_count": 27,
-    "view_count": 27
+    "use_count": 29,
+    "view_count": 29
   },
   "songsee": {
     "archived_at": null,
